@@ -1,0 +1,11 @@
+--- a/src/_pytest/assertion/rewrite.py
++++ b/src/_pytest/assertion/rewrite.py
+@@ -681,7 +681,7 @@
+         """Call a helper in this module."""
+         py_name = ast.Name("@pytest_ar", ast.Load())
+         attr = ast.Attribute(py_name, name, ast.Load())
+-        return ast.Call(attr, list(args), [])
++        return ast.Call(attr, [*args, ast.Constant('')], [])
+ 
+     def builtin(self, name):
+         """Return the builtin called *name*."""

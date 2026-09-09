@@ -1,0 +1,20 @@
+.env
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Generated experiment artifacts and cloned benchmark checkouts
+logs/
+results/
+playground/
+experiments/**/repos/
+experiments/**/work/
+experiments/**/graphs/
+experiments/**/structures/
+experiments/**/trajectory.json
+experiments/**/state.json
+
+# Local tooling and temporary files
+.vscode/
+*.log
+*.tmp

@@ -1,0 +1,158 @@
+[
+  {
+    "id": "H1",
+    "description": "The issue arises from the 'fixture' decorator in 'src/_pytest/fixtures.py', which does not include scope information in the output of 'pytest --fixtures'.",
+    "supporting_evidence": [
+      {
+        "source": "agentless",
+        "type": "SYMBOL_MATCH",
+        "file": "src/_pytest/fixtures.py",
+        "symbol": "fixture",
+        "line": 0,
+        "relevance": 1.0,
+        "explanation": "symbol lives in Agentless-ranked file"
+      },
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "src/_pytest/fixtures.py",
+        "symbol": "FixtureFunctionMarker",
+        "line": 0,
+        "relevance": 0.3,
+        "explanation": "cited by hypothesis, no candidate evidence"
+      }
+    ],
+    "contradicting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "",
+        "symbol": "",
+        "line": 0,
+        "relevance": 0.0,
+        "explanation": "The 'yield_fixture' function is a deprecated alias for 'fixture' and does not affect the output."
+      }
+    ],
+    "affected_files": [
+      "src/_pytest/fixtures.py"
+    ],
+    "affected_symbols": [
+      "fixture"
+    ],
+    "confidence": 0.85,
+    "expected_behavior": "The 'pytest --fixtures' command should display the scope of each fixture alongside its name.",
+    "rank_score": 2.0,
+    "rank_breakdown": {
+      "semantic": 1.0,
+      "structural": 0.0,
+      "test": 0.0,
+      "error": 0.0,
+      "consistency": 1.0,
+      "total": 2.0
+    }
+  },
+  {
+    "id": "H2",
+    "description": "The 'pytest_sessionstart' function in 'src/_pytest/fixtures.py' may not be correctly initializing or registering fixture scopes, leading to missing scope information.",
+    "supporting_evidence": [
+      {
+        "source": "agentless",
+        "type": "SYMBOL_MATCH",
+        "file": "src/_pytest/fixtures.py",
+        "symbol": "pytest_sessionstart",
+        "line": 0,
+        "relevance": 1.0,
+        "explanation": "symbol lives in Agentless-ranked file"
+      },
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "src/_pytest/fixtures.py",
+        "symbol": "FixtureFunctionMarker",
+        "line": 0,
+        "relevance": 0.3,
+        "explanation": "cited by hypothesis, no candidate evidence"
+      }
+    ],
+    "contradicting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "",
+        "symbol": "",
+        "line": 0,
+        "relevance": 0.0,
+        "explanation": "The 'fixture' decorator is responsible for defining fixture scopes, which should be reflected in the output."
+      }
+    ],
+    "affected_files": [
+      "src/_pytest/fixtures.py"
+    ],
+    "affected_symbols": [
+      "pytest_sessionstart"
+    ],
+    "confidence": 0.75,
+    "expected_behavior": "The fixture manager should correctly register the scope of each fixture during the session start.",
+    "rank_score": 2.0,
+    "rank_breakdown": {
+      "semantic": 1.0,
+      "structural": 0.0,
+      "test": 0.0,
+      "error": 0.0,
+      "consistency": 1.0,
+      "total": 2.0
+    }
+  },
+  {
+    "id": "H3",
+    "description": "The 'Session' class in 'src/_pytest/main.py' may not be handling or displaying fixture scope information correctly, causing it to be omitted from 'pytest --fixtures'.",
+    "supporting_evidence": [
+      {
+        "source": "repograph",
+        "type": "GRAPH_RELATION",
+        "file": "src/_pytest/main.py",
+        "symbol": "Session",
+        "line": 0,
+        "relevance": 0.2,
+        "explanation": "graph neighbors: Session, __init__\n__repr__\n_node_location_to_relpath\npytest_collectstart\npytest_runtest_logreport\nisinitpath\ngethookproxy\nperform_collect\n_perform_collect\ncollect\n_collect\n_collectfile\n_recurse\n_tryconvertpyarg\n_parsearg\nmatchnodes\n_matchnodes\ngenitems"
+      },
+      {
+        "source": "agentless",
+        "type": "SYMBOL_MATCH",
+        "file": "src/_pytest/fixtures.py",
+        "symbol": "pytest_sessionstart",
+        "line": 0,
+        "relevance": 1.0,
+        "explanation": "symbol lives in Agentless-ranked file"
+      }
+    ],
+    "contradicting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "",
+        "symbol": "",
+        "line": 0,
+        "relevance": 0.0,
+        "explanation": "The 'pytest_sessionstart' function is expected to interface with the 'Session' class, which should manage fixture information."
+      }
+    ],
+    "affected_files": [
+      "src/_pytest/main.py"
+    ],
+    "affected_symbols": [
+      "Session"
+    ],
+    "confidence": 0.65,
+    "expected_behavior": "The session should include fixture scope information when listing fixtures.",
+    "rank_score": 1.8,
+    "rank_breakdown": {
+      "semantic": 0.6,
+      "structural": 0.2,
+      "test": 0.0,
+      "error": 0.0,
+      "consistency": 1.0,
+      "total": 1.8
+    }
+  }
+]

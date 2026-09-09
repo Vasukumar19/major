@@ -1,0 +1,149 @@
+[
+  {
+    "id": "H1",
+    "description": "The issue arises from the `Session.resolve_redirects` method in the `SessionRedirectMixin` class, where the request is copied from the original request instead of the modified request after the first redirection, leading to incorrect HTTP methods being used.",
+    "supporting_evidence": [
+      {
+        "source": "agentless",
+        "type": "SYMBOL_MATCH",
+        "file": "requests/sessions.py",
+        "symbol": "SessionRedirectMixin",
+        "line": 0,
+        "relevance": 1.0,
+        "explanation": "symbol lives in Agentless-ranked file"
+      },
+      {
+        "source": "repograph",
+        "type": "GRAPH_RELATION",
+        "file": "requests/sessions.py",
+        "symbol": "resolve_redirects",
+        "line": 0,
+        "relevance": 0.2,
+        "explanation": "graph neighbors: resolve_redirects"
+      }
+    ],
+    "contradicting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "",
+        "symbol": "",
+        "line": 0,
+        "relevance": 0.0,
+        "explanation": "The behavior of `Session` and `SessionRedirectMixin` should ensure that the request method is updated correctly after each redirect."
+      }
+    ],
+    "affected_files": [
+      "requests/sessions.py"
+    ],
+    "affected_symbols": [
+      "SessionRedirectMixin"
+    ],
+    "confidence": 0.9,
+    "expected_behavior": "The method should preserve the HTTP method of the last request in the redirection chain, especially after a 303 response.",
+    "rank_score": 1.8,
+    "rank_breakdown": {
+      "semantic": 0.6,
+      "structural": 0.2,
+      "test": 0.0,
+      "error": 0.0,
+      "consistency": 1.0,
+      "total": 1.8
+    }
+  },
+  {
+    "id": "H3",
+    "description": "The `Session` class in `requests/sessions.py` does not properly manage the state of the request object during redirection, leading to the original request being reused incorrectly.",
+    "supporting_evidence": [
+      {
+        "source": "agentless",
+        "type": "SYMBOL_MATCH",
+        "file": "requests/sessions.py",
+        "symbol": "Session",
+        "line": 0,
+        "relevance": 1.0,
+        "explanation": "symbol lives in Agentless-ranked file"
+      },
+      {
+        "source": "repograph",
+        "type": "GRAPH_RELATION",
+        "file": "requests/sessions.py",
+        "symbol": "resolve_redirects",
+        "line": 0,
+        "relevance": 0.2,
+        "explanation": "graph neighbors: resolve_redirects"
+      }
+    ],
+    "contradicting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "",
+        "symbol": "",
+        "line": 0,
+        "relevance": 0.0,
+        "explanation": "The `Session` class should ensure that each redirect creates a new request object that accurately reflects the intended HTTP method."
+      }
+    ],
+    "affected_files": [
+      "requests/sessions.py"
+    ],
+    "affected_symbols": [
+      "Session"
+    ],
+    "confidence": 0.85,
+    "expected_behavior": "The `Session` class should create a new request object for each redirect that reflects the current state of the request, including the correct HTTP method.",
+    "rank_score": 1.8,
+    "rank_breakdown": {
+      "semantic": 0.6,
+      "structural": 0.2,
+      "test": 0.0,
+      "error": 0.0,
+      "consistency": 1.0,
+      "total": 1.8
+    }
+  },
+  {
+    "id": "H2",
+    "description": "The `request` method in `requests/api.py` does not correctly handle the `allow_redirects` parameter when the initial request is a POST, which should prevent method changes during redirections.",
+    "supporting_evidence": [
+      {
+        "source": "agentless",
+        "type": "SYMBOL_MATCH",
+        "file": "requests/api.py",
+        "symbol": "request",
+        "line": 0,
+        "relevance": 0.6,
+        "explanation": "symbol lives in Agentless-ranked file"
+      }
+    ],
+    "contradicting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "",
+        "symbol": "",
+        "line": 0,
+        "relevance": 0.0,
+        "explanation": "The `request` method should ensure that the method remains consistent with the original request unless specified otherwise."
+      }
+    ],
+    "affected_files": [
+      "requests/api.py"
+    ],
+    "affected_symbols": [
+      "request"
+    ],
+    "confidence": 0.8,
+    "expected_behavior": "The `request` method should respect the `allow_redirects` parameter and maintain the original request method unless explicitly allowed to change.",
+    "rank_score": 1.6,
+    "rank_breakdown": {
+      "semantic": 0.6,
+      "structural": 0.0,
+      "test": 0.0,
+      "error": 0.0,
+      "consistency": 1.0,
+      "total": 1.6
+    }
+  }
+]

@@ -1,0 +1,335 @@
+[
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/sessions.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/sessions.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/sessions.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: Session, __init__\n__enter__\n__exit__\nprepare_request\nrequest\nget\noptions\nhead\npost\nput\npatch\ndelete\nsend\nget_adapter\nclose\nmount\n__getstate__\n__setstate__"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of Session (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\n__enter__\n__exit__\nprepare_request\nrequest\nget\noptions\nhead\npost\nput\npatch\ndelete\nsend\nget_adapter\nclose\nmount\n__getstate__\n__setstate__",
+    "line": 0,
+    "relevance": 0.9090909090909091,
+    "explanation": "graph neighbor of Session (depth 1)"
+  },
+  {
+    "source": "issue",
+    "type": "ISSUE_TEXT",
+    "file": "requests/sessions.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol mentioned in issue text"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/sessions.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/sessions.py",
+    "symbol": "SessionRedirectMixin",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/sessions.py",
+    "symbol": "SessionRedirectMixin",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/sessions.py",
+    "symbol": "SessionRedirectMixin",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: resolve_redirects"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "resolve_redirects",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of SessionRedirectMixin (depth 1)"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/sessions.py",
+    "symbol": "SessionRedirectMixin",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "Agentless fine-grain edit location"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/sessions.py",
+    "symbol": "SessionRedirectMixin",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/api.py",
+    "symbol": "request",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/api.py",
+    "symbol": "request",
+    "line": 0,
+    "relevance": 0.6,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/api.py",
+    "symbol": "request",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: request"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "request",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of request (depth 1)"
+  },
+  {
+    "source": "issue",
+    "type": "ISSUE_TEXT",
+    "file": "requests/api.py",
+    "symbol": "request",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol mentioned in issue text"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/api.py",
+    "symbol": "request",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/api.py",
+    "symbol": "post",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/api.py",
+    "symbol": "post",
+    "line": 0,
+    "relevance": 0.6,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/api.py",
+    "symbol": "post",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: post"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "post",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of post (depth 1)"
+  },
+  {
+    "source": "issue",
+    "type": "ISSUE_TEXT",
+    "file": "requests/api.py",
+    "symbol": "post",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol mentioned in issue text"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/api.py",
+    "symbol": "post",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/adapters.py",
+    "symbol": "BaseAdapter",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/adapters.py",
+    "symbol": "BaseAdapter",
+    "line": 0,
+    "relevance": 0.8,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/adapters.py",
+    "symbol": "BaseAdapter",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: __init__\nsend\nclose"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\nsend\nclose",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of BaseAdapter (depth 1)"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/adapters.py",
+    "symbol": "HTTPAdapter",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/adapters.py",
+    "symbol": "HTTPAdapter",
+    "line": 0,
+    "relevance": 0.8,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/adapters.py",
+    "symbol": "HTTPAdapter",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: HTTPAdapter, __init__\n__getstate__\n__setstate__\ninit_poolmanager\ncert_verify\nbuild_response\nget_connection\nclose\nrequest_url\nadd_headers\nproxy_headers\nsend"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "HTTPAdapter",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of HTTPAdapter (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\n__getstate__\n__setstate__\ninit_poolmanager\ncert_verify\nbuild_response\nget_connection\nclose\nrequest_url\nadd_headers\nproxy_headers\nsend",
+    "line": 0,
+    "relevance": 0.9090909090909091,
+    "explanation": "graph neighbor of HTTPAdapter (depth 1)"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/sessions.py",
+    "symbol": "resolve_redirects",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/sessions.py",
+    "symbol": "resolve_redirects",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: resolve_redirects"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "resolve_redirects",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of resolve_redirects (depth 1)"
+  }
+]

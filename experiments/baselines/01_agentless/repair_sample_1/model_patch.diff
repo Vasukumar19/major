@@ -1,0 +1,11 @@
+--- a/requests/sessions.py
++++ b/requests/sessions.py
+@@ -77,7 +77,7 @@
+         self.auth = auth
+         self.timeout = timeout
+         self.proxies = from_key_val_list(proxies or [])
+-        self.hooks = from_key_val_list(hooks or {})
++        self.hooks = self.flatten_hooks(hooks or {})
+         self.params = from_key_val_list(params or [])
+         self.config = from_key_val_list(config or {})
+         self.prefetch = prefetch

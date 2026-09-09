@@ -1,0 +1,308 @@
+[
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "src/_pytest/junitxml.py",
+    "symbol": "Junit",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "src/_pytest/junitxml.py",
+    "symbol": "Junit",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "src/_pytest/junitxml.py",
+    "symbol": "Junit",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: "
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of Junit (depth 1)"
+  },
+  {
+    "source": "issue",
+    "type": "ISSUE_TEXT",
+    "file": "src/_pytest/junitxml.py",
+    "symbol": "Junit",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol mentioned in issue text"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "src/_pytest/junitxml.py",
+    "symbol": "Junit",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "src/_pytest/reports.py",
+    "symbol": "TestReport",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "src/_pytest/reports.py",
+    "symbol": "TestReport",
+    "line": 0,
+    "relevance": 0.8,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "src/_pytest/reports.py",
+    "symbol": "TestReport",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: __init__\n__repr__\nfrom_item_and_call"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\n__repr__\nfrom_item_and_call",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of TestReport (depth 1)"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "src/_pytest/reports.py",
+    "symbol": "TestReport",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "Agentless fine-grain edit location"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "src/_pytest/reports.py",
+    "symbol": "TestReport",
+    "line": 0,
+    "relevance": 0.8,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "src/_pytest/junitxml.py",
+    "symbol": "LogXML",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "src/_pytest/junitxml.py",
+    "symbol": "LogXML",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "src/_pytest/junitxml.py",
+    "symbol": "LogXML",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: LogXML, __init__\nfinalize\nnode_reporter\nadd_stats\n_opentestcase\npytest_runtest_logreport\nupdate_testcase_duration\npytest_collectreport\npytest_internalerror\npytest_sessionstart\npytest_sessionfinish\npytest_terminal_summary\nadd_global_property\n_get_global_properties_node"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "LogXML",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of LogXML (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\nfinalize\nnode_reporter\nadd_stats\n_opentestcase\npytest_runtest_logreport\nupdate_testcase_duration\npytest_collectreport\npytest_internalerror\npytest_sessionstart\npytest_sessionfinish\npytest_terminal_summary\nadd_global_property\n_get_global_properties_node",
+    "line": 0,
+    "relevance": 0.9090909090909091,
+    "explanation": "graph neighbor of LogXML (depth 1)"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "src/_pytest/reports.py",
+    "symbol": "BaseReport",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "src/_pytest/reports.py",
+    "symbol": "BaseReport",
+    "line": 0,
+    "relevance": 0.8,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "src/_pytest/reports.py",
+    "symbol": "BaseReport",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: __init__\ntoterminal\nget_sections\nlongreprtext\ncaplog\ncapstdout\ncapstderr\nfspath\ncount_towards_summary\nhead_line\n_get_verbose_word\n_to_json\n_from_json"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\ntoterminal\nget_sections\nlongreprtext\ncaplog\ncapstdout\ncapstderr\nfspath\ncount_towards_summary\nhead_line\n_get_verbose_word\n_to_json\n_from_json",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of BaseReport (depth 1)"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "src/_pytest/main.py",
+    "symbol": "pytest_addoption",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "src/_pytest/main.py",
+    "symbol": "pytest_addoption",
+    "line": 0,
+    "relevance": 0.6,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "src/_pytest/main.py",
+    "symbol": "pytest_addoption",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: pytest_addoption"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "pytest_addoption",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of pytest_addoption (depth 1)"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "src/_pytest/main.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "src/_pytest/main.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 0.6,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "src/_pytest/main.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: Session, __init__\n__repr__\n_node_location_to_relpath\npytest_collectstart\npytest_runtest_logreport\nisinitpath\ngethookproxy\nperform_collect\n_perform_collect\ncollect\n_collect\n_collectfile\n_recurse\n_visit_filter\n_tryconvertpyarg\n_parsearg\nmatchnodes\n_matchnodes\ngenitems"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of Session (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\n__repr__\n_node_location_to_relpath\npytest_collectstart\npytest_runtest_logreport\nisinitpath\ngethookproxy\nperform_collect\n_perform_collect\ncollect\n_collect\n_collectfile\n_recurse\n_visit_filter\n_tryconvertpyarg\n_parsearg\nmatchnodes\n_matchnodes\ngenitems",
+    "line": 0,
+    "relevance": 0.9090909090909091,
+    "explanation": "graph neighbor of Session (depth 1)"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "src/_pytest/main.py",
+    "symbol": "pytest_sessionfinish",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "Agentless fine-grain edit location"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "src/_pytest/main.py",
+    "symbol": "pytest_sessionfinish",
+    "line": 0,
+    "relevance": 0.6,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "src/_pytest/main.py",
+    "symbol": "pytest_sessionfinish",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: pytest_sessionfinish"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "pytest_sessionfinish",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of pytest_sessionfinish (depth 1)"
+  }
+]

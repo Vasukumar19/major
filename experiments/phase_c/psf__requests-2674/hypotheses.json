@@ -1,0 +1,131 @@
+[
+  {
+    "id": "H1",
+    "description": "The requests.exceptions.Timeout class does not properly handle exceptions from urllib3, allowing urllib3's TimeoutError to propagate through the requests API.",
+    "supporting_evidence": [
+      {
+        "source": "agentless",
+        "type": "SYMBOL_MATCH",
+        "file": "requests/exceptions.py",
+        "symbol": "Timeout",
+        "line": 0,
+        "relevance": 1.0,
+        "explanation": "symbol lives in Agentless-ranked file"
+      }
+    ],
+    "contradicting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "",
+        "symbol": "",
+        "line": 0,
+        "relevance": 0.0,
+        "explanation": "The presence of requests.packages.urllib3.exceptions.TimeoutError indicates that some timeout errors are not being caught."
+      }
+    ],
+    "affected_files": [
+      "requests/exceptions.py"
+    ],
+    "affected_symbols": [
+      "Timeout"
+    ],
+    "confidence": 0.8,
+    "expected_behavior": "Timeout exceptions should be caught and wrapped in requests.exceptions.Timeout, preventing urllib3's TimeoutError from being exposed.",
+    "rank_score": 2.0,
+    "rank_breakdown": {
+      "semantic": 1.0,
+      "structural": 0.0,
+      "test": 0.0,
+      "error": 0.0,
+      "consistency": 1.0,
+      "total": 2.0
+    }
+  },
+  {
+    "id": "H2",
+    "description": "The DecodeError from urllib3 is not being caught by the requests API, indicating a potential oversight in exception handling within requests.",
+    "supporting_evidence": [
+      {
+        "source": "agentless",
+        "type": "SYMBOL_MATCH",
+        "file": "requests/packages/urllib3/exceptions.py",
+        "symbol": "DecodeError",
+        "line": 0,
+        "relevance": 0.8,
+        "explanation": "symbol lives in Agentless-ranked file"
+      }
+    ],
+    "contradicting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "",
+        "symbol": "",
+        "line": 0,
+        "relevance": 0.0,
+        "explanation": "The requests library may not be designed to catch all urllib3 exceptions, as seen with DecodeError passing through."
+      }
+    ],
+    "affected_files": [
+      "requests/packages/urllib3/exceptions.py"
+    ],
+    "affected_symbols": [
+      "DecodeError"
+    ],
+    "confidence": 0.7,
+    "expected_behavior": "DecodeError should be caught and wrapped in a requests exception to maintain a consistent API for users.",
+    "rank_score": 1.8,
+    "rank_breakdown": {
+      "semantic": 0.8,
+      "structural": 0.0,
+      "test": 0.0,
+      "error": 0.0,
+      "consistency": 1.0,
+      "total": 1.8
+    }
+  },
+  {
+    "id": "H3",
+    "description": "The requests.sessions.Session class may not properly handle proxy-related exceptions, allowing urllib3's TimeoutError to propagate when a proxy times out.",
+    "supporting_evidence": [
+      {
+        "source": "agentless",
+        "type": "SYMBOL_MATCH",
+        "file": "requests/sessions.py",
+        "symbol": "Session",
+        "line": 0,
+        "relevance": 0.6,
+        "explanation": "symbol lives in Agentless-ranked file"
+      }
+    ],
+    "contradicting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "",
+        "symbol": "",
+        "line": 0,
+        "relevance": 0.0,
+        "explanation": "The issue indicates that TimeoutError is being raised directly from urllib3, suggesting inadequate handling of proxy timeouts."
+      }
+    ],
+    "affected_files": [
+      "requests/sessions.py"
+    ],
+    "affected_symbols": [
+      "Session"
+    ],
+    "confidence": 0.6,
+    "expected_behavior": "Proxy-related exceptions should be caught and wrapped in requests.exceptions.ProxyError or similar, preventing urllib3's TimeoutError from being exposed.",
+    "rank_score": 1.6,
+    "rank_breakdown": {
+      "semantic": 0.6,
+      "structural": 0.0,
+      "test": 0.0,
+      "error": 0.0,
+      "consistency": 1.0,
+      "total": 1.6
+    }
+  }
+]

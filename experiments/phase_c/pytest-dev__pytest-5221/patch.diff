@@ -1,0 +1,20 @@
+--- a/src/_pytest/main.py
++++ b/src/_pytest/main.py
+@@ -437,6 +437,7 @@
+         self._norecursepatterns = config.getini("norecursedirs")
+         self.startdir = config.invocation_dir
+         self._initialpaths = frozenset()
++        self._fixture_scopes = {}  # Initialize a dictionary to store fixture scopes
+         # Keep track of any collected nodes in here, so we don't duplicate fixtures
+         self._node_cache = {}
+         self._bestrelpathcache = _bestrelpath_cache(config.rootdir)
+@@ -446,7 +447,8 @@
+         self.config.pluginmanager.register(self, name="session")
+ 
+     def __repr__(self):
+-        return "<%s %s exitstatus=%r testsfailed=%d testscollected=%d>" % (
++        fixture_info = self._get_fixture_info()  # Retrieve fixture scope information
++        return "<%s %s exitstatus=%r testsfailed=%d testscollected=%d fixtures=%s>" % (
+             self.__class__.__name__,
+             self.name,
+             getattr(self, "exitstatus", "<UNSET>"),

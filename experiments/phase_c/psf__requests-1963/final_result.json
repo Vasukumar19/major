@@ -1,0 +1,712 @@
+{
+  "instance_id": "psf__requests-1963",
+  "base_commit": "110048f9837f8441ea536804115e80b69f400277",
+  "status": "UNRESOLVED",
+  "attempts": [
+    {
+      "hypothesis_id": "H1",
+      "patch": {
+        "hypothesis_id": "H1",
+        "files_changed": [
+          "requests/sessions.py"
+        ],
+        "symbols_changed": [
+          "SessionRedirectMixin"
+        ],
+        "patch_text": "--- a/requests/sessions.py\n+++ b/requests/sessions.py\n@@ -89,6 +89,7 @@\n \n         while resp.is_redirect:\n             prepared_request = req.copy()\n+            prepared_request.method = 'GET' if resp.status_code == 303 else req.method\n \n             resp.content  # Consume socket so it can be released\n \n",
+        "reasoning": "The patch modifies the `resolve_redirects` method to ensure that when a 303 response is encountered, the HTTP method is set to 'GET' for the subsequent request. This change preserves the correct HTTP method after a redirection, preventing the original POST request from being incorrectly reused in the case of further redirects, thus addressing the issue of incorrect method selection in the redirection chain.",
+        "expected_test_effect": "The method should preserve the HTTP method of the last request in the redirection chain, especially after a 303 response.",
+        "valid": true,
+        "error": "",
+        "match_tier": "EXACT",
+        "ast_repair_used": false,
+        "is_refinement": false,
+        "tokens": {
+          "input": 993,
+          "output": 130
+        },
+        "cost_usd": 0.00022695
+      },
+      "tests": {
+        "syntax_ok": true,
+        "syntax_error": "",
+        "eval": {
+          "instance_id": "psf__requests-1963",
+          "resolved": false,
+          "patch_applied": true,
+          "fail_to_pass": {
+            "passed": 6,
+            "total": 7
+          },
+          "pass_to_pass": {
+            "passed": 112,
+            "total": 112
+          },
+          "infra_failure": false,
+          "error": "",
+          "run_id": "patchforge-psf__requests-1963-a1"
+        }
+      },
+      "failure_class": "PATCH_SEMANTICS",
+      "runtime_s": 18.8
+    },
+    {
+      "hypothesis_id": "H1",
+      "patch": {
+        "hypothesis_id": "H1",
+        "files_changed": [
+          "requests/sessions.py"
+        ],
+        "symbols_changed": [
+          "SessionRedirectMixin"
+        ],
+        "patch_text": "--- a/requests/sessions.py\n+++ b/requests/sessions.py\n@@ -89,6 +89,7 @@\n \n         while resp.is_redirect:\n             prepared_request = req.copy()\n+            method = resp.request.method if resp.status_code == 303 else method\n \n             resp.content  # Consume socket so it can be released\n \n",
+        "reasoning": "The patch modifies the `resolve_redirects` method to ensure that when a 303 response is encountered, the HTTP method is updated to reflect the correct method for the next request. Specifically, it checks if the response status code is 303 and updates the method accordingly, preserving the intended behavior of the redirection chain. This change addresses the issue of incorrect method selection during redirects, particularly after a 303 response.",
+        "expected_test_effect": "The method should preserve the HTTP method of the last request in the redirection chain, especially after a 303 response.",
+        "valid": true,
+        "error": "",
+        "match_tier": "EXACT",
+        "ast_repair_used": false,
+        "is_refinement": true,
+        "tokens": {
+          "input": 1068,
+          "output": 132
+        },
+        "cost_usd": 0.0002394
+      },
+      "tests": {
+        "syntax_ok": true,
+        "syntax_error": "",
+        "eval": {
+          "instance_id": "psf__requests-1963",
+          "resolved": false,
+          "patch_applied": true,
+          "fail_to_pass": {
+            "passed": 6,
+            "total": 7
+          },
+          "pass_to_pass": {
+            "passed": 112,
+            "total": 112
+          },
+          "infra_failure": false,
+          "error": "",
+          "run_id": "patchforge-psf__requests-1963-a2"
+        }
+      },
+      "failure_class": "PATCH_SEMANTICS",
+      "runtime_s": 10.0
+    },
+    {
+      "hypothesis_id": "H1",
+      "patch": {
+        "hypothesis_id": "H1",
+        "files_changed": [
+          "requests/sessions.py"
+        ],
+        "symbols_changed": [
+          "SessionRedirectMixin"
+        ],
+        "patch_text": "--- a/requests/sessions.py\n+++ b/requests/sessions.py\n@@ -89,6 +89,7 @@\n \n         while resp.is_redirect:\n             prepared_request = req.copy()\n+            prepared_request.method = method\n \n             resp.content  # Consume socket so it can be released\n \n",
+        "reasoning": "The fix ensures that after each redirection, the HTTP method of the `prepared_request` is explicitly set to the method of the last request, preserving the correct method type throughout the redirection chain. This addresses the issue where the original request's method was incorrectly used after a 303 response, thus preventing the unintended conversion of POST requests to GET requests during subsequent redirects.",
+        "expected_test_effect": "The method should preserve the HTTP method of the last request in the redirection chain, especially after a 303 response.",
+        "valid": true,
+        "error": "",
+        "match_tier": "EXACT",
+        "ast_repair_used": false,
+        "is_refinement": true,
+        "tokens": {
+          "input": 1068,
+          "output": 114
+        },
+        "cost_usd": 0.0001518
+      },
+      "tests": {
+        "syntax_ok": true,
+        "syntax_error": "",
+        "eval": {
+          "instance_id": "psf__requests-1963",
+          "resolved": false,
+          "patch_applied": true,
+          "fail_to_pass": {
+            "passed": 6,
+            "total": 7
+          },
+          "pass_to_pass": {
+            "passed": 112,
+            "total": 112
+          },
+          "infra_failure": false,
+          "error": "",
+          "run_id": "patchforge-psf__requests-1963-a3"
+        }
+      },
+      "failure_class": "PATCH_SEMANTICS",
+      "runtime_s": 9.5
+    }
+  ],
+  "localization": {
+    "top_candidates": [
+      {
+        "file": "requests/sessions.py",
+        "symbol": "Session",
+        "score": 1.7,
+        "evidence": [
+          {
+            "source": "agentless",
+            "type": "SEMANTIC_MATCH",
+            "file": "requests/sessions.py",
+            "symbol": "Session",
+            "line": 0,
+            "relevance": 0.3,
+            "explanation": "Agentless related-element localization"
+          },
+          {
+            "source": "agentless",
+            "type": "SYMBOL_MATCH",
+            "file": "requests/sessions.py",
+            "symbol": "Session",
+            "line": 0,
+            "relevance": 1.0,
+            "explanation": "symbol lives in Agentless-ranked file"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "requests/sessions.py",
+            "symbol": "Session",
+            "line": 0,
+            "relevance": 0.2,
+            "explanation": "graph neighbors: Session, __init__\n__enter__\n__exit__\nprepare_request\nrequest\nget\noptions\nhead\npost\nput\npatch\ndelete\nsend\nget_adapter\nclose\nmount\n__getstate__\n__setstate__"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "",
+            "symbol": "Session",
+            "line": 0,
+            "relevance": 1.0,
+            "explanation": "graph neighbor of Session (depth 1)"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "",
+            "symbol": "__init__\n__enter__\n__exit__\nprepare_request\nrequest\nget\noptions\nhead\npost\nput\npatch\ndelete\nsend\nget_adapter\nclose\nmount\n__getstate__\n__setstate__",
+            "line": 0,
+            "relevance": 0.9090909090909091,
+            "explanation": "graph neighbor of Session (depth 1)"
+          },
+          {
+            "source": "issue",
+            "type": "ISSUE_TEXT",
+            "file": "requests/sessions.py",
+            "symbol": "Session",
+            "line": 0,
+            "relevance": 0.1,
+            "explanation": "symbol mentioned in issue text"
+          },
+          {
+            "source": "issue-symbol",
+            "type": "ISSUE_TEXT",
+            "file": "requests/sessions.py",
+            "symbol": "Session",
+            "line": 0,
+            "relevance": 0.1,
+            "explanation": "symbol defined in Agentless file and named in issue/tests"
+          }
+        ]
+      },
+      {
+        "file": "requests/sessions.py",
+        "symbol": "SessionRedirectMixin",
+        "score": 1.7,
+        "evidence": [
+          {
+            "source": "agentless",
+            "type": "SEMANTIC_MATCH",
+            "file": "requests/sessions.py",
+            "symbol": "SessionRedirectMixin",
+            "line": 0,
+            "relevance": 0.3,
+            "explanation": "Agentless related-element localization"
+          },
+          {
+            "source": "agentless",
+            "type": "SYMBOL_MATCH",
+            "file": "requests/sessions.py",
+            "symbol": "SessionRedirectMixin",
+            "line": 0,
+            "relevance": 1.0,
+            "explanation": "symbol lives in Agentless-ranked file"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "requests/sessions.py",
+            "symbol": "SessionRedirectMixin",
+            "line": 0,
+            "relevance": 0.2,
+            "explanation": "graph neighbors: resolve_redirects"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "",
+            "symbol": "resolve_redirects",
+            "line": 0,
+            "relevance": 1.0,
+            "explanation": "graph neighbor of SessionRedirectMixin (depth 1)"
+          },
+          {
+            "source": "agentless",
+            "type": "SEMANTIC_MATCH",
+            "file": "requests/sessions.py",
+            "symbol": "SessionRedirectMixin",
+            "line": 0,
+            "relevance": 0.2,
+            "explanation": "Agentless fine-grain edit location"
+          },
+          {
+            "source": "agentless",
+            "type": "SYMBOL_MATCH",
+            "file": "requests/sessions.py",
+            "symbol": "SessionRedirectMixin",
+            "line": 0,
+            "relevance": 1.0,
+            "explanation": "symbol lives in Agentless-ranked file"
+          }
+        ]
+      },
+      {
+        "file": "requests/api.py",
+        "symbol": "request",
+        "score": 1.3,
+        "evidence": [
+          {
+            "source": "agentless",
+            "type": "SEMANTIC_MATCH",
+            "file": "requests/api.py",
+            "symbol": "request",
+            "line": 0,
+            "relevance": 0.3,
+            "explanation": "Agentless related-element localization"
+          },
+          {
+            "source": "agentless",
+            "type": "SYMBOL_MATCH",
+            "file": "requests/api.py",
+            "symbol": "request",
+            "line": 0,
+            "relevance": 0.6,
+            "explanation": "symbol lives in Agentless-ranked file"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "requests/api.py",
+            "symbol": "request",
+            "line": 0,
+            "relevance": 0.2,
+            "explanation": "graph neighbors: request"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "",
+            "symbol": "request",
+            "line": 0,
+            "relevance": 1.0,
+            "explanation": "graph neighbor of request (depth 1)"
+          },
+          {
+            "source": "issue",
+            "type": "ISSUE_TEXT",
+            "file": "requests/api.py",
+            "symbol": "request",
+            "line": 0,
+            "relevance": 0.1,
+            "explanation": "symbol mentioned in issue text"
+          },
+          {
+            "source": "issue-symbol",
+            "type": "ISSUE_TEXT",
+            "file": "requests/api.py",
+            "symbol": "request",
+            "line": 0,
+            "relevance": 0.1,
+            "explanation": "symbol defined in Agentless file and named in issue/tests"
+          }
+        ]
+      },
+      {
+        "file": "requests/api.py",
+        "symbol": "post",
+        "score": 1.3,
+        "evidence": [
+          {
+            "source": "agentless",
+            "type": "SEMANTIC_MATCH",
+            "file": "requests/api.py",
+            "symbol": "post",
+            "line": 0,
+            "relevance": 0.3,
+            "explanation": "Agentless related-element localization"
+          },
+          {
+            "source": "agentless",
+            "type": "SYMBOL_MATCH",
+            "file": "requests/api.py",
+            "symbol": "post",
+            "line": 0,
+            "relevance": 0.6,
+            "explanation": "symbol lives in Agentless-ranked file"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "requests/api.py",
+            "symbol": "post",
+            "line": 0,
+            "relevance": 0.2,
+            "explanation": "graph neighbors: post"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "",
+            "symbol": "post",
+            "line": 0,
+            "relevance": 1.0,
+            "explanation": "graph neighbor of post (depth 1)"
+          },
+          {
+            "source": "issue",
+            "type": "ISSUE_TEXT",
+            "file": "requests/api.py",
+            "symbol": "post",
+            "line": 0,
+            "relevance": 0.1,
+            "explanation": "symbol mentioned in issue text"
+          },
+          {
+            "source": "issue-symbol",
+            "type": "ISSUE_TEXT",
+            "file": "requests/api.py",
+            "symbol": "post",
+            "line": 0,
+            "relevance": 0.1,
+            "explanation": "symbol defined in Agentless file and named in issue/tests"
+          }
+        ]
+      },
+      {
+        "file": "requests/adapters.py",
+        "symbol": "BaseAdapter",
+        "score": 0.9,
+        "evidence": [
+          {
+            "source": "agentless",
+            "type": "SEMANTIC_MATCH",
+            "file": "requests/adapters.py",
+            "symbol": "BaseAdapter",
+            "line": 0,
+            "relevance": 0.3,
+            "explanation": "Agentless related-element localization"
+          },
+          {
+            "source": "agentless",
+            "type": "SYMBOL_MATCH",
+            "file": "requests/adapters.py",
+            "symbol": "BaseAdapter",
+            "line": 0,
+            "relevance": 0.8,
+            "explanation": "symbol lives in Agentless-ranked file"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "requests/adapters.py",
+            "symbol": "BaseAdapter",
+            "line": 0,
+            "relevance": 0.2,
+            "explanation": "graph neighbors: __init__\nsend\nclose"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "",
+            "symbol": "__init__\nsend\nclose",
+            "line": 0,
+            "relevance": 1.0,
+            "explanation": "graph neighbor of BaseAdapter (depth 1)"
+          }
+        ]
+      },
+      {
+        "file": "requests/adapters.py",
+        "symbol": "HTTPAdapter",
+        "score": 0.9,
+        "evidence": [
+          {
+            "source": "agentless",
+            "type": "SEMANTIC_MATCH",
+            "file": "requests/adapters.py",
+            "symbol": "HTTPAdapter",
+            "line": 0,
+            "relevance": 0.3,
+            "explanation": "Agentless related-element localization"
+          },
+          {
+            "source": "agentless",
+            "type": "SYMBOL_MATCH",
+            "file": "requests/adapters.py",
+            "symbol": "HTTPAdapter",
+            "line": 0,
+            "relevance": 0.8,
+            "explanation": "symbol lives in Agentless-ranked file"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "requests/adapters.py",
+            "symbol": "HTTPAdapter",
+            "line": 0,
+            "relevance": 0.2,
+            "explanation": "graph neighbors: HTTPAdapter, __init__\n__getstate__\n__setstate__\ninit_poolmanager\ncert_verify\nbuild_response\nget_connection\nclose\nrequest_url\nadd_headers\nproxy_headers\nsend"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "",
+            "symbol": "HTTPAdapter",
+            "line": 0,
+            "relevance": 1.0,
+            "explanation": "graph neighbor of HTTPAdapter (depth 1)"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "",
+            "symbol": "__init__\n__getstate__\n__setstate__\ninit_poolmanager\ncert_verify\nbuild_response\nget_connection\nclose\nrequest_url\nadd_headers\nproxy_headers\nsend",
+            "line": 0,
+            "relevance": 0.9090909090909091,
+            "explanation": "graph neighbor of HTTPAdapter (depth 1)"
+          }
+        ]
+      },
+      {
+        "file": "requests/sessions.py",
+        "symbol": "resolve_redirects",
+        "score": 0.8,
+        "evidence": [
+          {
+            "source": "issue-symbol",
+            "type": "ISSUE_TEXT",
+            "file": "requests/sessions.py",
+            "symbol": "resolve_redirects",
+            "line": 0,
+            "relevance": 0.1,
+            "explanation": "symbol defined in Agentless file and named in issue/tests"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "requests/sessions.py",
+            "symbol": "resolve_redirects",
+            "line": 0,
+            "relevance": 0.2,
+            "explanation": "graph neighbors: resolve_redirects"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "",
+            "symbol": "resolve_redirects",
+            "line": 0,
+            "relevance": 1.0,
+            "explanation": "graph neighbor of resolve_redirects (depth 1)"
+          }
+        ]
+      }
+    ]
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "description": "The issue arises from the `Session.resolve_redirects` method in the `SessionRedirectMixin` class, where the request is copied from the original request instead of the modified request after the first redirection, leading to incorrect HTTP methods being used.",
+      "supporting_evidence": [
+        {
+          "source": "agentless",
+          "type": "SYMBOL_MATCH",
+          "file": "requests/sessions.py",
+          "symbol": "SessionRedirectMixin",
+          "line": 0,
+          "relevance": 1.0,
+          "explanation": "symbol lives in Agentless-ranked file"
+        },
+        {
+          "source": "repograph",
+          "type": "GRAPH_RELATION",
+          "file": "requests/sessions.py",
+          "symbol": "resolve_redirects",
+          "line": 0,
+          "relevance": 0.2,
+          "explanation": "graph neighbors: resolve_redirects"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "source": "model",
+          "type": "CODE_BEHAVIOR",
+          "file": "",
+          "symbol": "",
+          "line": 0,
+          "relevance": 0.0,
+          "explanation": "The behavior of `Session` and `SessionRedirectMixin` should ensure that the request method is updated correctly after each redirect."
+        }
+      ],
+      "affected_files": [
+        "requests/sessions.py"
+      ],
+      "affected_symbols": [
+        "SessionRedirectMixin"
+      ],
+      "confidence": 0.9,
+      "expected_behavior": "The method should preserve the HTTP method of the last request in the redirection chain, especially after a 303 response.",
+      "rank_score": 1.8,
+      "rank_breakdown": {
+        "semantic": 0.6,
+        "structural": 0.2,
+        "test": 0.0,
+        "error": 0.0,
+        "consistency": 1.0,
+        "total": 1.8
+      }
+    },
+    {
+      "id": "H3",
+      "description": "The `Session` class in `requests/sessions.py` does not properly manage the state of the request object during redirection, leading to the original request being reused incorrectly.",
+      "supporting_evidence": [
+        {
+          "source": "agentless",
+          "type": "SYMBOL_MATCH",
+          "file": "requests/sessions.py",
+          "symbol": "Session",
+          "line": 0,
+          "relevance": 1.0,
+          "explanation": "symbol lives in Agentless-ranked file"
+        },
+        {
+          "source": "repograph",
+          "type": "GRAPH_RELATION",
+          "file": "requests/sessions.py",
+          "symbol": "resolve_redirects",
+          "line": 0,
+          "relevance": 0.2,
+          "explanation": "graph neighbors: resolve_redirects"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "source": "model",
+          "type": "CODE_BEHAVIOR",
+          "file": "",
+          "symbol": "",
+          "line": 0,
+          "relevance": 0.0,
+          "explanation": "The `Session` class should ensure that each redirect creates a new request object that accurately reflects the intended HTTP method."
+        }
+      ],
+      "affected_files": [
+        "requests/sessions.py"
+      ],
+      "affected_symbols": [
+        "Session"
+      ],
+      "confidence": 0.85,
+      "expected_behavior": "The `Session` class should create a new request object for each redirect that reflects the current state of the request, including the correct HTTP method.",
+      "rank_score": 1.8,
+      "rank_breakdown": {
+        "semantic": 0.6,
+        "structural": 0.2,
+        "test": 0.0,
+        "error": 0.0,
+        "consistency": 1.0,
+        "total": 1.8
+      }
+    },
+    {
+      "id": "H2",
+      "description": "The `request` method in `requests/api.py` does not correctly handle the `allow_redirects` parameter when the initial request is a POST, which should prevent method changes during redirections.",
+      "supporting_evidence": [
+        {
+          "source": "agentless",
+          "type": "SYMBOL_MATCH",
+          "file": "requests/api.py",
+          "symbol": "request",
+          "line": 0,
+          "relevance": 0.6,
+          "explanation": "symbol lives in Agentless-ranked file"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "source": "model",
+          "type": "CODE_BEHAVIOR",
+          "file": "",
+          "symbol": "",
+          "line": 0,
+          "relevance": 0.0,
+          "explanation": "The `request` method should ensure that the method remains consistent with the original request unless specified otherwise."
+        }
+      ],
+      "affected_files": [
+        "requests/api.py"
+      ],
+      "affected_symbols": [
+        "request"
+      ],
+      "confidence": 0.8,
+      "expected_behavior": "The `request` method should respect the `allow_redirects` parameter and maintain the original request method unless explicitly allowed to change.",
+      "rank_score": 1.6,
+      "rank_breakdown": {
+        "semantic": 0.6,
+        "structural": 0.0,
+        "test": 0.0,
+        "error": 0.0,
+        "consistency": 1.0,
+        "total": 1.6
+      }
+    }
+  ],
+  "selected_hypothesis": "H1",
+  "patch": {
+    "valid": true,
+    "files_changed": 1,
+    "hypothesis_id": "H1"
+  },
+  "tests": {
+    "instance_id": "psf__requests-1963",
+    "resolved": false,
+    "patch_applied": true,
+    "fail_to_pass": {
+      "passed": 6,
+      "total": 7
+    },
+    "pass_to_pass": {
+      "passed": 112,
+      "total": 112
+    },
+    "infra_failure": false,
+    "error": "",
+    "run_id": "patchforge-psf__requests-1963-a3"
+  },
+  "tokens": {
+    "input": 17315,
+    "output": 638
+  },
+  "cost_usd": 0.002903,
+  "runtime_seconds": 81.0,
+  "failure_stage": "PATCH_SEMANTICS"
+}

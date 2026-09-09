@@ -1,0 +1,281 @@
+[
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/models.py",
+    "symbol": "Response",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/models.py",
+    "symbol": "Response",
+    "line": 0,
+    "relevance": 0.8,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/models.py",
+    "symbol": "Response",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: Response, __init__\n__getstate__\n__setstate__\n__repr__\n__bool__\n__nonzero__\n__iter__\nok\nis_redirect\nis_permanent_redirect\napparent_encoding\niter_content\niter_lines\ncontent\ntext\njson\nlinks\nraise_for_status\nclose"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "Response",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of Response (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\n__getstate__\n__setstate__\n__repr__\n__bool__\n__nonzero__\n__iter__\nok\nis_redirect\nis_permanent_redirect\napparent_encoding\niter_content\niter_lines\ncontent\ntext\njson\nlinks\nraise_for_status\nclose",
+    "line": 0,
+    "relevance": 0.9090909090909091,
+    "explanation": "graph neighbor of Response (depth 1)"
+  },
+  {
+    "source": "issue",
+    "type": "ISSUE_TEXT",
+    "file": "requests/models.py",
+    "symbol": "Response",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol mentioned in issue text"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/models.py",
+    "symbol": "Response",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "Agentless fine-grain edit location"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/models.py",
+    "symbol": "Response",
+    "line": 0,
+    "relevance": 0.8,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/models.py",
+    "symbol": "Response",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/exceptions.py",
+    "symbol": "ConnectionError",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/exceptions.py",
+    "symbol": "ConnectionError",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "issue",
+    "type": "ISSUE_TEXT",
+    "file": "requests/exceptions.py",
+    "symbol": "ConnectionError",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol mentioned in issue text"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/exceptions.py",
+    "symbol": "ConnectionError",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/packages/urllib3/response.py",
+    "symbol": "HTTPResponse",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/packages/urllib3/response.py",
+    "symbol": "HTTPResponse",
+    "line": 0,
+    "relevance": 0.6,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/packages/urllib3/response.py",
+    "symbol": "HTTPResponse",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: __init__\nget_redirect_location\nrelease_conn\ndata\ntell\nread\nstream\nfrom_httplib\ngetheaders\ngetheader\nclose\nclosed\nfileno\nflush\nreadable"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\nget_redirect_location\nrelease_conn\ndata\ntell\nread\nstream\nfrom_httplib\ngetheaders\ngetheader\nclose\nclosed\nfileno\nflush\nreadable",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of HTTPResponse (depth 1)"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/packages/urllib3/response.py",
+    "symbol": "HTTPResponse",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "Agentless fine-grain edit location"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/packages/urllib3/response.py",
+    "symbol": "HTTPResponse",
+    "line": 0,
+    "relevance": 0.6,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/models.py",
+    "symbol": "iter_content",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/models.py",
+    "symbol": "iter_content",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: iter_content"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "iter_content",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of iter_content (depth 1)"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/models.py",
+    "symbol": "generate",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/models.py",
+    "symbol": "generate",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: generate"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "generate",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of generate (depth 1)"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/packages/urllib3/response.py",
+    "symbol": "read",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/packages/urllib3/response.py",
+    "symbol": "read",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: read"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "read",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of read (depth 1)"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/packages/urllib3/response.py",
+    "symbol": "stream",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/packages/urllib3/response.py",
+    "symbol": "stream",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: stream"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "stream",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of stream (depth 1)"
+  }
+]

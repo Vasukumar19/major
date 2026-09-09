@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: PatchForge
+Date: Sat, 6 Sep 2026 00:00:00 +0000
+Subject: [PATCH] Accept Tag namedtuples in RepoGraph.tag_to_graph
+
+get_ranked_tags yields Tag namedtuples, but tag_to_graph indexes
+them as dicts (tag['name']), raising
+TypeError: tuple indices must be integers or slices, not str
+for every repository on every OS. (__main__ itself uses attribute
+access, confirming namedtuples are the intended element type.)
+
+Fix: normalize each tag via _asdict() when available, so both
+namedtuples and plain dicts work. Single-point change; graph
+semantics untouched.
+
+Apply from the RepoGraph clone root:
+  git apply <workspace>/patches/repograph-tag-dict-access.patch
+
+Revert:
+  git -C third_party/RepoGraph checkout -- repograph/construct_graph.py
+  (then re-apply the other repograph-*.patch files if still needed)
+
+Upstream status: not fixed upstream as of 2026-09-06.
+Do NOT commit into third_party/; this file is the record (§24).
+
+--- a/repograph/construct_graph.py
++++ b/repograph/construct_graph.py
+@@ -95,5 +95,8 @@
+     def tag_to_graph(self, tags):
+-        
++
+         G = nx.MultiDiGraph()
++        # get_ranked_tags yields Tag namedtuples; normalize so both
++        # namedtuples and dicts can be consumed below.
++        tags = [tag._asdict() if hasattr(tag, "_asdict") else tag for tag in tags]
+         for tag in tags:
+             G.add_node(tag['name'], category=tag['category'], info=tag['info'], fname=tag['fname'], line=tag['line'], kind=tag['kind'])

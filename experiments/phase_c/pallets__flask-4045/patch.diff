@@ -1,0 +1,11 @@
+--- a/src/flask/blueprints.py
++++ b/src/flask/blueprints.py
+@@ -45,6 +45,8 @@
+         #: a dictionary with all options that were passed to the
+         #: :meth:`~flask.Flask.register_blueprint` method.
+         self.options = options
++        if '.' in blueprint.name:
++            raise ValueError("Blueprint name cannot contain a dot.")
+ 
+         #: as blueprints can be registered multiple times with the
+         #: application and not everything wants to be registered

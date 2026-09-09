@@ -1,0 +1,191 @@
+[
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "src/_pytest/capture.py",
+    "symbol": "CaptureManager",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "src/_pytest/capture.py",
+    "symbol": "CaptureManager",
+    "line": 0,
+    "relevance": 0.8,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "src/_pytest/capture.py",
+    "symbol": "CaptureManager",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: CaptureManager, __init__\n__repr__\n_getcapture\nis_capturing\nis_globally_capturing\nstart_global_capturing\nstop_global_capturing\nresume_global_capture\nsuspend_global_capture\nsuspend\nresume\nread_global_capture\nactivate_fixture\ndeactivate_fixture\nsuspend_fixture\nresume_fixture\nglobal_and_fixture_disabled\nitem_capture\npytest_make_collect_report\npytest_runtest_protocol\npytest_runtest_setup\npytest_runtest_call\npytest_runtest_teardown\npytest_keyboard_interrupt\npytest_internalerror"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "CaptureManager",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of CaptureManager (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\n__repr__\n_getcapture\nis_capturing\nis_globally_capturing\nstart_global_capturing\nstop_global_capturing\nresume_global_capture\nsuspend_global_capture\nsuspend\nresume\nread_global_capture\nactivate_fixture\ndeactivate_fixture\nsuspend_fixture\nresume_fixture\nglobal_and_fixture_disabled\nitem_capture\npytest_make_collect_report\npytest_runtest_protocol\npytest_runtest_setup\npytest_runtest_call\npytest_runtest_teardown\npytest_keyboard_interrupt\npytest_internalerror",
+    "line": 0,
+    "relevance": 0.9090909090909091,
+    "explanation": "graph neighbor of CaptureManager (depth 1)"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "src/_pytest/python.py",
+    "symbol": "Function",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "src/_pytest/python.py",
+    "symbol": "Function",
+    "line": 0,
+    "relevance": 0.6,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "src/_pytest/python.py",
+    "symbol": "Function",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: Function, __init__\n_initrequest\nfunction\n_getobj\n_pyfuncitem\nruntest\nsetup, __repr__"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "Function",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of Function (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\n_initrequest\nfunction\n_getobj\n_pyfuncitem\nruntest\nsetup",
+    "line": 0,
+    "relevance": 0.9090909090909091,
+    "explanation": "graph neighbor of Function (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__repr__",
+    "line": 0,
+    "relevance": 0.8333333333333334,
+    "explanation": "graph neighbor of Function (depth 1)"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "src/_pytest/assertion/rewrite.py",
+    "symbol": "variable",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "src/_pytest/assertion/rewrite.py",
+    "symbol": "variable",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: variable"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "variable",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of variable (depth 1)"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "src/_pytest/python.py",
+    "symbol": "Package",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "src/_pytest/python.py",
+    "symbol": "Package",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: Package, __init__\nsetup\n_recurse\ngethookproxy\n_collectfile\nisinitpath\ncollect"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "Package",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of Package (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\nsetup\n_recurse\ngethookproxy\n_collectfile\nisinitpath\ncollect",
+    "line": 0,
+    "relevance": 0.9090909090909091,
+    "explanation": "graph neighbor of Package (depth 1)"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "src/_pytest/capture.py",
+    "symbol": "__repr__",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "src/_pytest/assertion/rewrite.py",
+    "symbol": "",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "Agentless file-level hit (no symbol yet, half weight)"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "src/_pytest/python.py",
+    "symbol": "get",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  }
+]

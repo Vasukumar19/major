@@ -1,0 +1,452 @@
+[
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/exceptions.py",
+    "symbol": "Timeout",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/exceptions.py",
+    "symbol": "Timeout",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/exceptions.py",
+    "symbol": "Timeout",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: , Timeout, __init__\n__str__\n_validate_timeout\nfrom_float\nclone\nstart_connect\nget_connect_duration\nconnect_timeout\nread_timeout"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of Timeout (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "Timeout",
+    "line": 0,
+    "relevance": 0.9090909090909091,
+    "explanation": "graph neighbor of Timeout (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\n__str__\n_validate_timeout\nfrom_float\nclone\nstart_connect\nget_connect_duration\nconnect_timeout\nread_timeout",
+    "line": 0,
+    "relevance": 0.8333333333333334,
+    "explanation": "graph neighbor of Timeout (depth 1)"
+  },
+  {
+    "source": "issue",
+    "type": "ISSUE_TEXT",
+    "file": "requests/exceptions.py",
+    "symbol": "Timeout",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol mentioned in issue text"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/exceptions.py",
+    "symbol": "Timeout",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "Agentless fine-grain edit location"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/exceptions.py",
+    "symbol": "Timeout",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/exceptions.py",
+    "symbol": "Timeout",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/packages/urllib3/exceptions.py",
+    "symbol": "DecodeError",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/packages/urllib3/exceptions.py",
+    "symbol": "DecodeError",
+    "line": 0,
+    "relevance": 0.8,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/packages/urllib3/exceptions.py",
+    "symbol": "DecodeError",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: , DecodeError"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of DecodeError (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "DecodeError",
+    "line": 0,
+    "relevance": 0.9090909090909091,
+    "explanation": "graph neighbor of DecodeError (depth 1)"
+  },
+  {
+    "source": "issue",
+    "type": "ISSUE_TEXT",
+    "file": "requests/packages/urllib3/exceptions.py",
+    "symbol": "DecodeError",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol mentioned in issue text"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/packages/urllib3/exceptions.py",
+    "symbol": "DecodeError",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "Agentless fine-grain edit location"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/packages/urllib3/exceptions.py",
+    "symbol": "DecodeError",
+    "line": 0,
+    "relevance": 0.8,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/packages/urllib3/exceptions.py",
+    "symbol": "DecodeError",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/packages/urllib3/exceptions.py",
+    "symbol": "TimeoutError",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/packages/urllib3/exceptions.py",
+    "symbol": "TimeoutError",
+    "line": 0,
+    "relevance": 0.8,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "issue",
+    "type": "ISSUE_TEXT",
+    "file": "requests/packages/urllib3/exceptions.py",
+    "symbol": "TimeoutError",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol mentioned in issue text"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/packages/urllib3/exceptions.py",
+    "symbol": "TimeoutError",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "Agentless fine-grain edit location"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/packages/urllib3/exceptions.py",
+    "symbol": "TimeoutError",
+    "line": 0,
+    "relevance": 0.8,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/packages/urllib3/exceptions.py",
+    "symbol": "TimeoutError",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/sessions.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/sessions.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 0.6,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/sessions.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: Session, __init__\n__enter__\n__exit__\nprepare_request\nrequest\nget\noptions\nhead\npost\nput\npatch\ndelete\nsend\nmerge_environment_settings\nget_adapter\nclose\nmount\n__getstate__\n__setstate__"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of Session (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\n__enter__\n__exit__\nprepare_request\nrequest\nget\noptions\nhead\npost\nput\npatch\ndelete\nsend\nmerge_environment_settings\nget_adapter\nclose\nmount\n__getstate__\n__setstate__",
+    "line": 0,
+    "relevance": 0.9090909090909091,
+    "explanation": "graph neighbor of Session (depth 1)"
+  },
+  {
+    "source": "issue",
+    "type": "ISSUE_TEXT",
+    "file": "requests/sessions.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol mentioned in issue text"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/sessions.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "Agentless fine-grain edit location"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/sessions.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 0.6,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/sessions.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/exceptions.py",
+    "symbol": "RequestException",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/exceptions.py",
+    "symbol": "RequestException",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/exceptions.py",
+    "symbol": "RequestException",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: __init__"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of RequestException (depth 1)"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/exceptions.py",
+    "symbol": "RequestException",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "Agentless fine-grain edit location"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/exceptions.py",
+    "symbol": "RequestException",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/exceptions.py",
+    "symbol": "HTTPError",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/exceptions.py",
+    "symbol": "HTTPError",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/exceptions.py",
+    "symbol": "HTTPError",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: , HTTPError"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of HTTPError (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "HTTPError",
+    "line": 0,
+    "relevance": 0.9090909090909091,
+    "explanation": "graph neighbor of HTTPError (depth 1)"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/packages/urllib3/exceptions.py",
+    "symbol": "HTTPError",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/packages/urllib3/exceptions.py",
+    "symbol": "HTTPError",
+    "line": 0,
+    "relevance": 0.8,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/packages/urllib3/exceptions.py",
+    "symbol": "HTTPError",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: , HTTPError"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of HTTPError (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "HTTPError",
+    "line": 0,
+    "relevance": 0.9090909090909091,
+    "explanation": "graph neighbor of HTTPError (depth 1)"
+  }
+]

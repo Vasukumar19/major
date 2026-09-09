@@ -1,0 +1,32 @@
+[
+  {
+    "syntax_ok": false,
+    "syntax_error": "src/flask/config.py: SEARCH block 0 error: SEARCH block not found verbatim or normalized",
+    "eval": null
+  },
+  {
+    "syntax_ok": false,
+    "syntax_error": "src/flask/app.py: SEARCH block 0 error: SEARCH block not found verbatim or normalized",
+    "eval": null
+  },
+  {
+    "syntax_ok": true,
+    "syntax_error": "",
+    "eval": {
+      "instance_id": "pallets__flask-4992",
+      "resolved": false,
+      "patch_applied": true,
+      "fail_to_pass": {
+        "passed": 0,
+        "total": 1
+      },
+      "pass_to_pass": {
+        "passed": 18,
+        "total": 18
+      },
+      "infra_failure": false,
+      "error": "",
+      "run_id": "patchforge-pallets__flask-4992-a3"
+    }
+  }
+]

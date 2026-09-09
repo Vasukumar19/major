@@ -1,0 +1,54 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: PatchForge
+Date: Sat, 6 Sep 2026 00:00:00 +0000
+Subject: [PATCH] Windows compat: write container-bound files with LF newlines
+ (and UTF-8 test output)
+
+On Windows, Python text-mode writes translate "\n" to "\r\n". The
+harness copies patch.diff and eval.sh byte-for-byte into a Linux
+container, where CRLF breaks `git apply` (context mismatch) and bash
+(`pytest\r: command not found`). Observed on psf__requests-863 gold
+run: patch_successfully_applied=false, exit 127.
+
+Fix: pass newline="\n" to the two container-bound writes and use
+explicit UTF-8 for the test-output log (defense in depth alongside
+PYTHONUTF8=1). No-op on Linux.
+
+Apply from the SWE-bench clone root:
+  git apply <workspace>/patches/swebench-windows-newlines.patch
+
+Revert:
+  git -C third_party/SWE-bench checkout -- swebench/harness/run_evaluation.py
+
+Upstream status: not fixed upstream as of 2026-09-06 (depth-1 @ 02e7a74).
+Do NOT commit into third_party/; this file is the record (§24).
+
+--- a/swebench/harness/run_evaluation.py
++++ b/swebench/harness/run_evaluation.py
+@@ -288,7 +288,7 @@
+         if not skip_patch:
+             # Copy model prediction as patch file to container
+             patch_file = Path(log_dir / "patch.diff")
+-            patch_file.write_text(pred["model_patch"] or "")
++            patch_file.write_text(pred["model_patch"] or "", newline="\n")
+             logger.info(
+                 f"Intermediate patch for {instance_id} written to {patch_file}, now applying to container..."
+             )
+@@ -357,7 +357,7 @@
+         )
+ 
+         eval_file = Path(log_dir / "eval.sh")
+-        eval_file.write_text(_inject_asset_restore(test_spec.eval_script, restore_cmds))
++        eval_file.write_text(_inject_asset_restore(test_spec.eval_script, restore_cmds), newline="\n")
+         logger.info(
+             f"Eval script for {instance_id} written to {eval_file}; copying to container..."
+         )
+@@ -369,7 +369,7 @@
+         )
+         test_output_path = log_dir / LOG_TEST_OUTPUT
+         logger.info(f"Test runtime: {total_runtime:_.2f} seconds")
+-        with open(test_output_path, "w") as f:
++        with open(test_output_path, "w", encoding="utf-8", newline="\n") as f:
+             f.write(test_output)
+             logger.info(f"Test output for {instance_id} written to {test_output_path}")
+             if timed_out:

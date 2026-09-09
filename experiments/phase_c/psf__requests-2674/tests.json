@@ -1,0 +1,22 @@
+[
+  {
+    "syntax_ok": true,
+    "syntax_error": "",
+    "eval": {
+      "instance_id": "psf__requests-2674",
+      "resolved": true,
+      "patch_applied": true,
+      "fail_to_pass": {
+        "passed": 12,
+        "total": 12
+      },
+      "pass_to_pass": {
+        "passed": 142,
+        "total": 142
+      },
+      "infra_failure": false,
+      "error": "",
+      "run_id": "patchforge-psf__requests-2674-a1"
+    }
+  }
+]

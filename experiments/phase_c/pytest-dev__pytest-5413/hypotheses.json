@@ -1,0 +1,131 @@
+[
+  {
+    "id": "H1",
+    "description": "The difference in behavior of str() on the pytest.raises context variable is due to the CaptureManager's handling of output during exception capture.",
+    "supporting_evidence": [
+      {
+        "source": "agentless",
+        "type": "SYMBOL_MATCH",
+        "file": "src/_pytest/capture.py",
+        "symbol": "CaptureManager",
+        "line": 0,
+        "relevance": 0.8,
+        "explanation": "symbol lives in Agentless-ranked file"
+      }
+    ],
+    "contradicting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "",
+        "symbol": "",
+        "line": 0,
+        "relevance": 0.0,
+        "explanation": "The current implementation of CaptureManager captures output differently, leading to truncated exception messages."
+      }
+    ],
+    "affected_files": [
+      "src/_pytest/capture.py"
+    ],
+    "affected_symbols": [
+      "CaptureManager"
+    ],
+    "confidence": 0.8,
+    "expected_behavior": "The pytest.raises context should provide a full string representation of the exception similar to a standard try-except block.",
+    "rank_score": 1.8,
+    "rank_breakdown": {
+      "semantic": 0.8,
+      "structural": 0.0,
+      "test": 0.0,
+      "error": 0.0,
+      "consistency": 1.0,
+      "total": 1.8
+    }
+  },
+  {
+    "id": "H2",
+    "description": "The issue arises from the Function class's handling of exceptions, which may not properly format the string representation of exceptions raised within pytest's context.",
+    "supporting_evidence": [
+      {
+        "source": "agentless",
+        "type": "SYMBOL_MATCH",
+        "file": "src/_pytest/python.py",
+        "symbol": "Function",
+        "line": 0,
+        "relevance": 0.6,
+        "explanation": "symbol lives in Agentless-ranked file"
+      }
+    ],
+    "contradicting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "",
+        "symbol": "",
+        "line": 0,
+        "relevance": 0.0,
+        "explanation": "The Function class may not be designed to capture and format exceptions in the same way as standard Python exception handling."
+      }
+    ],
+    "affected_files": [
+      "src/_pytest/python.py"
+    ],
+    "affected_symbols": [
+      "Function"
+    ],
+    "confidence": 0.7,
+    "expected_behavior": "Exceptions raised within pytest's context should have their full message accessible through the context variable.",
+    "rank_score": 1.6,
+    "rank_breakdown": {
+      "semantic": 0.6,
+      "structural": 0.0,
+      "test": 0.0,
+      "error": 0.0,
+      "consistency": 1.0,
+      "total": 1.6
+    }
+  },
+  {
+    "id": "H3",
+    "description": "The discrepancy in exception message formatting is due to the assertion rewriting process, which alters how exceptions are represented when captured by pytest.",
+    "supporting_evidence": [
+      {
+        "source": "repograph",
+        "type": "GRAPH_RELATION",
+        "file": "src/_pytest/assertion/rewrite.py",
+        "symbol": "variable",
+        "line": 0,
+        "relevance": 0.2,
+        "explanation": "graph neighbors: variable"
+      }
+    ],
+    "contradicting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "",
+        "symbol": "",
+        "line": 0,
+        "relevance": 0.0,
+        "explanation": "The assertion rewriting process may introduce inconsistencies in how exceptions are represented compared to standard exception handling."
+      }
+    ],
+    "affected_files": [
+      "src/_pytest/assertion/rewrite.py"
+    ],
+    "affected_symbols": [
+      "variable"
+    ],
+    "confidence": 0.6,
+    "expected_behavior": "The pytest framework should maintain consistent exception message formatting regardless of the context in which exceptions are raised.",
+    "rank_score": 1.4,
+    "rank_breakdown": {
+      "semantic": 0.2,
+      "structural": 0.2,
+      "test": 0.0,
+      "error": 0.0,
+      "consistency": 1.0,
+      "total": 1.4
+    }
+  }
+]

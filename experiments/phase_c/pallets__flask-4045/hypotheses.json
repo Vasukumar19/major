@@ -1,0 +1,158 @@
+[
+  {
+    "id": "H1",
+    "description": "The Blueprint class in src/flask/blueprints.py does not enforce a restriction on the blueprint name containing dots, which leads to an error when the name is used as part of the endpoint.",
+    "supporting_evidence": [
+      {
+        "source": "agentless",
+        "type": "SYMBOL_MATCH",
+        "file": "src/flask/blueprints.py",
+        "symbol": "Blueprint",
+        "line": 0,
+        "relevance": 1.0,
+        "explanation": "symbol lives in Agentless-ranked file"
+      },
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "src/flask/blueprints.py",
+        "symbol": "add_url_rule",
+        "line": 0,
+        "relevance": 0.3,
+        "explanation": "cited by hypothesis, no candidate evidence"
+      }
+    ],
+    "contradicting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "",
+        "symbol": "",
+        "line": 0,
+        "relevance": 0.0,
+        "explanation": "The Flask app class does not handle blueprint name validation."
+      }
+    ],
+    "affected_files": [
+      "src/flask/blueprints.py"
+    ],
+    "affected_symbols": [
+      "Blueprint"
+    ],
+    "confidence": 0.8,
+    "expected_behavior": "Blueprint names should be validated to ensure they do not contain dots before being used in endpoint registration.",
+    "rank_score": 2.0,
+    "rank_breakdown": {
+      "semantic": 1.0,
+      "structural": 0.0,
+      "test": 0.0,
+      "error": 0.0,
+      "consistency": 1.0,
+      "total": 2.0
+    }
+  },
+  {
+    "id": "H2",
+    "description": "The Flask class in src/flask/app.py may not properly handle the registration of blueprints with names containing dots, leading to errors during route registration.",
+    "supporting_evidence": [
+      {
+        "source": "agentless",
+        "type": "SYMBOL_MATCH",
+        "file": "src/flask/app.py",
+        "symbol": "Flask",
+        "line": 0,
+        "relevance": 0.667,
+        "explanation": "symbol lives in Agentless-ranked file"
+      },
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "src/flask/app.py",
+        "symbol": "register_blueprint",
+        "line": 0,
+        "relevance": 0.3,
+        "explanation": "cited by hypothesis, no candidate evidence"
+      }
+    ],
+    "contradicting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "",
+        "symbol": "",
+        "line": 0,
+        "relevance": 0.0,
+        "explanation": "The Blueprint class does not enforce the restriction on its own."
+      }
+    ],
+    "affected_files": [
+      "src/flask/app.py"
+    ],
+    "affected_symbols": [
+      "Flask"
+    ],
+    "confidence": 0.7,
+    "expected_behavior": "The Flask class should validate the blueprint names during the registration process to prevent names with dots from being accepted.",
+    "rank_score": 1.667,
+    "rank_breakdown": {
+      "semantic": 0.667,
+      "structural": 0.0,
+      "test": 0.0,
+      "error": 0.0,
+      "consistency": 1.0,
+      "total": 1.667
+    }
+  },
+  {
+    "id": "H3",
+    "description": "The error may arise from the lack of a validation mechanism in the BlueprintSetupState class in src/flask/blueprints.py, which does not check for dots in blueprint names during setup.",
+    "supporting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "src/flask/blueprints.py",
+        "symbol": "BlueprintSetupState",
+        "line": 0,
+        "relevance": 0.3,
+        "explanation": "cited by hypothesis, no candidate evidence"
+      },
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "src/flask/blueprints.py",
+        "symbol": "make_setup_state",
+        "line": 0,
+        "relevance": 0.3,
+        "explanation": "cited by hypothesis, no candidate evidence"
+      }
+    ],
+    "contradicting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "",
+        "symbol": "",
+        "line": 0,
+        "relevance": 0.0,
+        "explanation": "The Flask class may not be responsible for validating blueprint names."
+      }
+    ],
+    "affected_files": [
+      "src/flask/blueprints.py"
+    ],
+    "affected_symbols": [
+      "BlueprintSetupState"
+    ],
+    "confidence": 0.6,
+    "expected_behavior": "The BlueprintSetupState should include validation logic to reject blueprint names containing dots.",
+    "rank_score": 1.0,
+    "rank_breakdown": {
+      "semantic": 0.0,
+      "structural": 0.0,
+      "test": 0.0,
+      "error": 0.0,
+      "consistency": 1.0,
+      "total": 1.0
+    }
+  }
+]

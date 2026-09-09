@@ -1,0 +1,51 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: PatchForge
+Date: Sat, 6 Sep 2026 00:00:00 +0000
+Subject: [PATCH] Fix top-level file lookup in RepoGraph structure walk
+
+create_structure nests top-level files under the repo-basename key,
+so structure == {basename: {'setup.py': ..., <subdirs...>}}. But
+get_tags_raw walks rel_fname.split('/') from the structure root, which
+only works for nested paths (first part == basename by coincidence).
+Top-level files (rel 'setup.py') raise KeyError. Observed on
+psf/requests @ a0df2cb: KeyError: 'setup.py'. OS-independent
+upstream bug (would crash on Linux too for repos with top-level .py).
+
+Fix: on KeyError, retry the walk from structure[basename(root)],
+which is where top-level files live (same basename expression
+create_structure itself uses, so consistent by construction).
+Nested paths take the original fast path unchanged.
+
+Apply from the RepoGraph clone root:
+  git apply <workspace>/patches/repograph-toplevel-lookup.patch
+
+Revert:
+  git -C third_party/RepoGraph checkout -- repograph/construct_graph.py
+  (then re-apply the other repograph-*.patch files if still needed)
+
+Upstream status: not fixed upstream as of 2026-09-06.
+Do NOT commit into third_party/; this file is the record (§24).
+
+--- a/repograph/construct_graph.py
++++ b/repograph/construct_graph.py
+@@ -218,9 +218,18 @@
+ 
+     def get_tags_raw(self, fname, rel_fname):
+         ref_fname_lst = rel_fname.split('/')
+         s = deepcopy(self.structure)
+-        for fname_part in ref_fname_lst:
+-            s = s[fname_part]
++        try:
++            for fname_part in ref_fname_lst:
++                s = s[fname_part]
++        except KeyError:
++            # Top-level files live under the repo-basename key, e.g.
++            # structure == {'requests': {'setup.py': ...}} while
++            # rel_fname == 'setup.py'. Retry from that level.
++            s = deepcopy(self.structure)
++            s = s[os.path.basename(self.root)]
++            for fname_part in ref_fname_lst:
++                s = s[fname_part]
+         structure_classes = {item['name']: item for item in s['classes']}
+         structure_functions = {item['name']: item for item in s['functions']}
+         structure_class_methods = dict()

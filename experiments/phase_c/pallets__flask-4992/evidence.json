@@ -1,0 +1,209 @@
+[
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "src/flask/config.py",
+    "symbol": "Config",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "src/flask/config.py",
+    "symbol": "Config",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "src/flask/config.py",
+    "symbol": "Config",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: __init__\nfrom_envvar\nfrom_prefixed_env\nfrom_pyfile\nfrom_object\nfrom_file\nfrom_mapping\nget_namespace\n__repr__"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\nfrom_envvar\nfrom_prefixed_env\nfrom_pyfile\nfrom_object\nfrom_file\nfrom_mapping\nget_namespace\n__repr__",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of Config (depth 1)"
+  },
+  {
+    "source": "issue",
+    "type": "ISSUE_TEXT",
+    "file": "src/flask/config.py",
+    "symbol": "Config",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol mentioned in issue text"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "src/flask/config.py",
+    "symbol": "Config",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "Agentless fine-grain edit location"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "src/flask/config.py",
+    "symbol": "Config",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "src/flask/config.py",
+    "symbol": "Config",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "src/flask/app.py",
+    "symbol": "Flask",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "src/flask/app.py",
+    "symbol": "Flask",
+    "line": 0,
+    "relevance": 0.5,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "src/flask/app.py",
+    "symbol": "Flask",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: , Flask, __init__\n_check_setup_finished\nname\nlogger\njinja_env\ngot_first_request\nmake_config\nmake_aborter\nauto_find_instance_path\nopen_instance_resource\ncreate_jinja_environment\ncreate_global_jinja_loader\nselect_jinja_autoescape\nupdate_template_context\nmake_shell_context\ndebug\ndebug\nrun\ntest_client\ntest_cli_runner\nregister_blueprint\niter_blueprints\nadd_url_rule\ntemplate_filter\nadd_template_filter\ntemplate_test\nadd_template_test\ntemplate_global\nadd_template_global\nteardown_appcontext\nshell_context_processor\n_find_error_handler\nhandle_http_exception\ntrap_http_exception\nhandle_user_exception\nhandle_exception\nlog_exception\nraise_routing_exception\ndispatch_request\nfull_dispatch_request\nfinalize_request\nmake_default_options_response\nshould_ignore_error\nensure_sync\nasync_to_sync\nurl_for\nredirect\nmake_response\ncreate_url_adapter\ninject_url_defaults\nhandle_url_build_error\npreprocess_request\nprocess_response\ndo_teardown_request\ndo_teardown_appcontext\napp_context\nrequest_context\ntest_request_context\nwsgi_app\n__call__"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of Flask (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "Flask",
+    "line": 0,
+    "relevance": 0.9090909090909091,
+    "explanation": "graph neighbor of Flask (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\n_check_setup_finished\nname\nlogger\njinja_env\ngot_first_request\nmake_config\nmake_aborter\nauto_find_instance_path\nopen_instance_resource\ncreate_jinja_environment\ncreate_global_jinja_loader\nselect_jinja_autoescape\nupdate_template_context\nmake_shell_context\ndebug\ndebug\nrun\ntest_client\ntest_cli_runner\nregister_blueprint\niter_blueprints\nadd_url_rule\ntemplate_filter\nadd_template_filter\ntemplate_test\nadd_template_test\ntemplate_global\nadd_template_global\nteardown_appcontext\nshell_context_processor\n_find_error_handler\nhandle_http_exception\ntrap_http_exception\nhandle_user_exception\nhandle_exception\nlog_exception\nraise_routing_exception\ndispatch_request\nfull_dispatch_request\nfinalize_request\nmake_default_options_response\nshould_ignore_error\nensure_sync\nasync_to_sync\nurl_for\nredirect\nmake_response\ncreate_url_adapter\ninject_url_defaults\nhandle_url_build_error\npreprocess_request\nprocess_response\ndo_teardown_request\ndo_teardown_appcontext\napp_context\nrequest_context\ntest_request_context\nwsgi_app\n__call__",
+    "line": 0,
+    "relevance": 0.8333333333333334,
+    "explanation": "graph neighbor of Flask (depth 1)"
+  },
+  {
+    "source": "issue",
+    "type": "ISSUE_TEXT",
+    "file": "src/flask/app.py",
+    "symbol": "Flask",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol mentioned in issue text"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "src/flask/app.py",
+    "symbol": "Flask",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "src/flask/config.py",
+    "symbol": "from_file",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "src/flask/config.py",
+    "symbol": "from_file",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: from_file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "from_file",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of from_file (depth 1)"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "src/flask/config.py",
+    "symbol": "from_mapping",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "src/flask/config.py",
+    "symbol": "from_mapping",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: from_mapping"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "from_mapping",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of from_mapping (depth 1)"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "src/flask/app.py",
+    "symbol": "",
+    "line": 0,
+    "relevance": 0.5,
+    "explanation": "Agentless file-level hit (no symbol yet, half weight)"
+  }
+]

@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: PatchForge
+Date: Sat, 6 Sep 2026 00:00:00 +0000
+Subject: [PATCH] Windows compat: POSIX-style rel_fname in RepoGraph
+
+On Windows, os.path.relpath yields backslash separators
+(e.g. docs\_themes\file.py), but get_tags_raw looks the path up in
+the structure dict via rel_fname.split('/'), raising KeyError for any
+file in a subdirectory. Observed on psf/requests @ a0df2cb:
+KeyError: 'docs\\_themes\\flask_theme_support.py'.
+
+Fix: normalize to forward slashes in get_rel_fname. No-op on Linux
+(os.sep == '/'). All downstream uses (tag fields, to_tree grouping,
+jsonl/pkl output) are string-level and match Linux behavior.
+
+Apply from the RepoGraph clone root:
+  git apply <workspace>/patches/repograph-windows-paths.patch
+
+Revert:
+  git -C third_party/RepoGraph checkout -- repograph/construct_graph.py
+
+Upstream status: not fixed upstream as of 2026-09-06.
+Do NOT commit into third_party/; this file is the record (§24).
+
+--- a/repograph/construct_graph.py
++++ b/repograph/construct_graph.py
+@@ -113,7 +113,9 @@
+         return G
+ 
+     def get_rel_fname(self, fname):
+-        return os.path.relpath(fname, self.root)
++        # POSIX-style separators: downstream lookup splits on '/'
++        # (KeyError on Windows otherwise). No-op on Linux.
++        return os.path.relpath(fname, self.root).replace(os.sep, "/")
+ 
+     def split_path(self, path):
+         path = os.path.relpath(path, self.root)

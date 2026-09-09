@@ -1,0 +1,11 @@
+--- a/src/flask/app.py
++++ b/src/flask/app.py
+@@ -1014,7 +1014,7 @@
+ 
+         .. versionadded:: 0.11
+         """
+-        return self.blueprints.values()
++        return [(bp, self.blueprints[bp]) for bp in self.blueprints]
+ 
+     @setupmethod
+     def add_url_rule(

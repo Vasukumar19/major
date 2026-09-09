@@ -1,0 +1,604 @@
+{
+  "instance_id": "pytest-dev__pytest-5221",
+  "base_commit": "4a2fdce62b73944030cff9b3e52862868ca9584d",
+  "status": "UNRESOLVED",
+  "attempts": [
+    {
+      "hypothesis_id": "H1",
+      "patch": {
+        "hypothesis_id": "H1",
+        "files_changed": [
+          "src/_pytest/fixtures.py"
+        ],
+        "symbols_changed": [
+          "fixture"
+        ],
+        "patch_text": "--- a/src/_pytest/fixtures.py\n+++ b/src/_pytest/fixtures.py\n@@ -996,7 +996,7 @@\n \n \n def fixture(scope=\"function\", params=None, autouse=False, ids=None, name=None):\n-    \"\"\"Decorator to mark a fixture factory function.\n+    \"\"\"Decorator to mark a fixture factory function with scope information.\n \n     This decorator can be used, with or without parameters, to define a\n     fixture function.\n@@ -1021,6 +1021,10 @@\n                 ``\"package\"`` is considered **experimental** at this time.\n \n     :arg params: an optional list of parameters which will cause multiple\n+    invocations of the fixture function and all of the tests\n+    using it. The current parameter is available in ``request.param``.\n+    :arg scope: the scope of the fixture, which will be displayed in\n+    the output of ``pytest --fixtures``.\n                 invocations of the fixture function and all of the tests\n                 using it.\n                 The current parameter is available in ``request.param``.\n",
+        "reasoning": "This patch modifies the docstring of the `fixture` decorator to clarify that the scope of the fixture will be displayed in the output of `pytest --fixtures`. While this change does not directly implement the feature, it serves as a necessary step to ensure that the documentation reflects the intended behavior, which is crucial for users to understand how to utilize the fixture scope information effectively. Further implementation would be needed to actually display the scope in the command output.",
+        "expected_test_effect": "The 'pytest --fixtures' command should display the scope of each fixture alongside its name.",
+        "valid": true,
+        "error": "",
+        "match_tier": "EXACT",
+        "ast_repair_used": false,
+        "is_refinement": false,
+        "tokens": {
+          "input": 849,
+          "output": 276
+        },
+        "cost_usd": 0.00029295
+      },
+      "tests": {
+        "syntax_ok": true,
+        "syntax_error": "",
+        "eval": {
+          "instance_id": "pytest-dev__pytest-5221",
+          "resolved": false,
+          "patch_applied": true,
+          "fail_to_pass": {
+            "passed": 0,
+            "total": 2
+          },
+          "pass_to_pass": {
+            "passed": 0,
+            "total": 170
+          },
+          "infra_failure": false,
+          "error": "",
+          "run_id": "patchforge-pytest-dev__pytest-5221-a1"
+        }
+      },
+      "failure_class": "WRONG_HYPOTHESIS",
+      "runtime_s": 14.6
+    },
+    {
+      "hypothesis_id": "H2",
+      "patch": {
+        "hypothesis_id": "H2",
+        "files_changed": [
+          "src/_pytest/fixtures.py"
+        ],
+        "symbols_changed": [
+          "pytest_sessionstart"
+        ],
+        "patch_text": "--- a/src/_pytest/fixtures.py\n+++ b/src/_pytest/fixtures.py\n@@ -59,6 +59,7 @@\n         }\n     )\n     session._fixturemanager = FixtureManager(session)\n+    session._fixturemanager._register_fixture_scopes()\n \n \n scopename2class = {}\n",
+        "reasoning": "The patch adds a call to `_register_fixture_scopes()` on the fixture manager during the session start. This function should be responsible for ensuring that each fixture's scope is correctly registered, thus addressing the issue of missing scope information when displaying fixtures with `pytest --fixtures`.",
+        "expected_test_effect": "The fixture manager should correctly register the scope of each fixture during the session start.",
+        "valid": true,
+        "error": "",
+        "match_tier": "EXACT",
+        "ast_repair_used": false,
+        "is_refinement": false,
+        "tokens": {
+          "input": 798,
+          "output": 107
+        },
+        "cost_usd": 0.0001839
+      },
+      "tests": {
+        "syntax_ok": true,
+        "syntax_error": "",
+        "eval": {
+          "instance_id": "pytest-dev__pytest-5221",
+          "resolved": false,
+          "patch_applied": false,
+          "fail_to_pass": {
+            "passed": 0,
+            "total": 0
+          },
+          "pass_to_pass": {
+            "passed": 0,
+            "total": 0
+          },
+          "infra_failure": false,
+          "error": "",
+          "run_id": "patchforge-pytest-dev__pytest-5221-a2"
+        }
+      },
+      "failure_class": "PATCH_SYNTAX",
+      "runtime_s": 30.3
+    },
+    {
+      "hypothesis_id": "H3",
+      "patch": {
+        "hypothesis_id": "H3",
+        "files_changed": [
+          "src/_pytest/main.py"
+        ],
+        "symbols_changed": [
+          "Session"
+        ],
+        "patch_text": "--- a/src/_pytest/main.py\n+++ b/src/_pytest/main.py\n@@ -437,6 +437,7 @@\n         self._norecursepatterns = config.getini(\"norecursedirs\")\n         self.startdir = config.invocation_dir\n         self._initialpaths = frozenset()\n+        self._fixture_scopes = {}  # Initialize a dictionary to store fixture scopes\n         # Keep track of any collected nodes in here, so we don't duplicate fixtures\n         self._node_cache = {}\n         self._bestrelpathcache = _bestrelpath_cache(config.rootdir)\n@@ -446,7 +447,8 @@\n         self.config.pluginmanager.register(self, name=\"session\")\n \n     def __repr__(self):\n-        return \"<%s %s exitstatus=%r testsfailed=%d testscollected=%d>\" % (\n+        fixture_info = self._get_fixture_info()  # Retrieve fixture scope information\n+        return \"<%s %s exitstatus=%r testsfailed=%d testscollected=%d fixtures=%s>\" % (\n             self.__class__.__name__,\n             self.name,\n             getattr(self, \"exitstatus\", \"<UNSET>\"),\n",
+        "reasoning": "This patch introduces a dictionary to store fixture scopes within the `Session` class and modifies the `__repr__` method to include fixture information when displaying session details. This change ensures that when running `pytest --fixtures`, the output will now include the scope of each fixture, addressing the hypothesis that fixture scope information is not being handled or displayed correctly.",
+        "expected_test_effect": "The session should include fixture scope information when listing fixtures.",
+        "valid": true,
+        "error": "",
+        "match_tier": "EXACT",
+        "ast_repair_used": false,
+        "is_refinement": false,
+        "tokens": {
+          "input": 839,
+          "output": 229
+        },
+        "cost_usd": 0.00026325
+      },
+      "tests": {
+        "syntax_ok": true,
+        "syntax_error": "",
+        "eval": {
+          "instance_id": "pytest-dev__pytest-5221",
+          "resolved": false,
+          "patch_applied": true,
+          "fail_to_pass": {
+            "passed": 0,
+            "total": 2
+          },
+          "pass_to_pass": {
+            "passed": 170,
+            "total": 170
+          },
+          "infra_failure": false,
+          "error": "",
+          "run_id": "patchforge-pytest-dev__pytest-5221-a3"
+        }
+      },
+      "failure_class": "WRONG_HYPOTHESIS",
+      "runtime_s": 41.7
+    }
+  ],
+  "localization": {
+    "top_candidates": [
+      {
+        "file": "src/_pytest/fixtures.py",
+        "symbol": "fixture",
+        "score": 1.85,
+        "evidence": [
+          {
+            "source": "agentless",
+            "type": "SEMANTIC_MATCH",
+            "file": "src/_pytest/fixtures.py",
+            "symbol": "fixture",
+            "line": 0,
+            "relevance": 0.3,
+            "explanation": "Agentless related-element localization"
+          },
+          {
+            "source": "agentless",
+            "type": "SYMBOL_MATCH",
+            "file": "src/_pytest/fixtures.py",
+            "symbol": "fixture",
+            "line": 0,
+            "relevance": 1.0,
+            "explanation": "symbol lives in Agentless-ranked file"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "src/_pytest/fixtures.py",
+            "symbol": "fixture",
+            "line": 0,
+            "relevance": 0.2,
+            "explanation": "graph neighbors: fixture"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "",
+            "symbol": "fixture",
+            "line": 0,
+            "relevance": 1.0,
+            "explanation": "graph neighbor of fixture (depth 1)"
+          },
+          {
+            "source": "issue",
+            "type": "ISSUE_TEXT",
+            "file": "src/_pytest/fixtures.py",
+            "symbol": "fixture",
+            "line": 0,
+            "relevance": 0.1,
+            "explanation": "symbol mentioned in issue text"
+          },
+          {
+            "source": "issue",
+            "type": "TEST_REFERENCE",
+            "file": "src/_pytest/fixtures.py",
+            "symbol": "fixture",
+            "line": 0,
+            "relevance": 0.15,
+            "explanation": "symbol mentioned in FAIL_TO_PASS/PASS_TO_PASS ids"
+          },
+          {
+            "source": "issue-symbol",
+            "type": "ISSUE_TEXT",
+            "file": "src/_pytest/fixtures.py",
+            "symbol": "fixture",
+            "line": 0,
+            "relevance": 0.1,
+            "explanation": "symbol defined in Agentless file and named in issue/tests"
+          }
+        ]
+      },
+      {
+        "file": "src/_pytest/fixtures.py",
+        "symbol": "yield_fixture",
+        "score": 1.75,
+        "evidence": [
+          {
+            "source": "agentless",
+            "type": "SEMANTIC_MATCH",
+            "file": "src/_pytest/fixtures.py",
+            "symbol": "yield_fixture",
+            "line": 0,
+            "relevance": 0.3,
+            "explanation": "Agentless related-element localization"
+          },
+          {
+            "source": "agentless",
+            "type": "SYMBOL_MATCH",
+            "file": "src/_pytest/fixtures.py",
+            "symbol": "yield_fixture",
+            "line": 0,
+            "relevance": 1.0,
+            "explanation": "symbol lives in Agentless-ranked file"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "src/_pytest/fixtures.py",
+            "symbol": "yield_fixture",
+            "line": 0,
+            "relevance": 0.2,
+            "explanation": "graph neighbors: yield_fixture"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "",
+            "symbol": "yield_fixture",
+            "line": 0,
+            "relevance": 1.0,
+            "explanation": "graph neighbor of yield_fixture (depth 1)"
+          },
+          {
+            "source": "issue",
+            "type": "TEST_REFERENCE",
+            "file": "src/_pytest/fixtures.py",
+            "symbol": "yield_fixture",
+            "line": 0,
+            "relevance": 0.15,
+            "explanation": "symbol mentioned in FAIL_TO_PASS/PASS_TO_PASS ids"
+          },
+          {
+            "source": "issue-symbol",
+            "type": "ISSUE_TEXT",
+            "file": "src/_pytest/fixtures.py",
+            "symbol": "yield_fixture",
+            "line": 0,
+            "relevance": 0.1,
+            "explanation": "symbol defined in Agentless file and named in issue/tests"
+          }
+        ]
+      },
+      {
+        "file": "src/_pytest/fixtures.py",
+        "symbol": "pytest_sessionstart",
+        "score": 1.0,
+        "evidence": [
+          {
+            "source": "agentless",
+            "type": "SEMANTIC_MATCH",
+            "file": "src/_pytest/fixtures.py",
+            "symbol": "pytest_sessionstart",
+            "line": 0,
+            "relevance": 0.3,
+            "explanation": "Agentless related-element localization"
+          },
+          {
+            "source": "agentless",
+            "type": "SYMBOL_MATCH",
+            "file": "src/_pytest/fixtures.py",
+            "symbol": "pytest_sessionstart",
+            "line": 0,
+            "relevance": 1.0,
+            "explanation": "symbol lives in Agentless-ranked file"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "src/_pytest/fixtures.py",
+            "symbol": "pytest_sessionstart",
+            "line": 0,
+            "relevance": 0.2,
+            "explanation": "graph neighbors: pytest_sessionstart"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "",
+            "symbol": "pytest_sessionstart",
+            "line": 0,
+            "relevance": 1.0,
+            "explanation": "graph neighbor of pytest_sessionstart (depth 1)"
+          }
+        ]
+      },
+      {
+        "file": "src/_pytest/main.py",
+        "symbol": "Session",
+        "score": 0.4,
+        "evidence": [
+          {
+            "source": "issue-symbol",
+            "type": "ISSUE_TEXT",
+            "file": "src/_pytest/main.py",
+            "symbol": "Session",
+            "line": 0,
+            "relevance": 0.1,
+            "explanation": "symbol defined in Agentless file and named in issue/tests"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "src/_pytest/main.py",
+            "symbol": "Session",
+            "line": 0,
+            "relevance": 0.2,
+            "explanation": "graph neighbors: Session, __init__\n__repr__\n_node_location_to_relpath\npytest_collectstart\npytest_runtest_logreport\nisinitpath\ngethookproxy\nperform_collect\n_perform_collect\ncollect\n_collect\n_collectfile\n_recurse\n_tryconvertpyarg\n_parsearg\nmatchnodes\n_matchnodes\ngenitems"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "",
+            "symbol": "Session",
+            "line": 0,
+            "relevance": 1.0,
+            "explanation": "graph neighbor of Session (depth 1)"
+          },
+          {
+            "source": "repograph",
+            "type": "GRAPH_RELATION",
+            "file": "",
+            "symbol": "__init__\n__repr__\n_node_location_to_relpath\npytest_collectstart\npytest_runtest_logreport\nisinitpath\ngethookproxy\nperform_collect\n_perform_collect\ncollect\n_collect\n_collectfile\n_recurse\n_tryconvertpyarg\n_parsearg\nmatchnodes\n_matchnodes\ngenitems",
+            "line": 0,
+            "relevance": 0.9090909090909091,
+            "explanation": "graph neighbor of Session (depth 1)"
+          }
+        ]
+      },
+      {
+        "file": "src/_pytest/helpconfig.py",
+        "symbol": "",
+        "score": 0.4,
+        "evidence": [
+          {
+            "source": "agentless",
+            "type": "SYMBOL_MATCH",
+            "file": "src/_pytest/helpconfig.py",
+            "symbol": "",
+            "line": 0,
+            "relevance": 0.8,
+            "explanation": "Agentless file-level hit (no symbol yet, half weight)"
+          }
+        ]
+      },
+      {
+        "file": "doc/en/conf.py",
+        "symbol": "",
+        "score": 0.3,
+        "evidence": [
+          {
+            "source": "agentless",
+            "type": "SYMBOL_MATCH",
+            "file": "doc/en/conf.py",
+            "symbol": "",
+            "line": 0,
+            "relevance": 0.6,
+            "explanation": "Agentless file-level hit (no symbol yet, half weight)"
+          }
+        ]
+      },
+      {
+        "file": "src/_pytest/nodes.py",
+        "symbol": "",
+        "score": 0.2,
+        "evidence": [
+          {
+            "source": "agentless",
+            "type": "SYMBOL_MATCH",
+            "file": "src/_pytest/nodes.py",
+            "symbol": "",
+            "line": 0,
+            "relevance": 0.4,
+            "explanation": "Agentless file-level hit (no symbol yet, half weight)"
+          }
+        ]
+      }
+    ]
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "description": "The issue arises from the 'fixture' decorator in 'src/_pytest/fixtures.py', which does not include scope information in the output of 'pytest --fixtures'.",
+      "supporting_evidence": [
+        {
+          "source": "agentless",
+          "type": "SYMBOL_MATCH",
+          "file": "src/_pytest/fixtures.py",
+          "symbol": "fixture",
+          "line": 0,
+          "relevance": 1.0,
+          "explanation": "symbol lives in Agentless-ranked file"
+        },
+        {
+          "source": "model",
+          "type": "CODE_BEHAVIOR",
+          "file": "src/_pytest/fixtures.py",
+          "symbol": "FixtureFunctionMarker",
+          "line": 0,
+          "relevance": 0.3,
+          "explanation": "cited by hypothesis, no candidate evidence"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "source": "model",
+          "type": "CODE_BEHAVIOR",
+          "file": "",
+          "symbol": "",
+          "line": 0,
+          "relevance": 0.0,
+          "explanation": "The 'yield_fixture' function is a deprecated alias for 'fixture' and does not affect the output."
+        }
+      ],
+      "affected_files": [
+        "src/_pytest/fixtures.py"
+      ],
+      "affected_symbols": [
+        "fixture"
+      ],
+      "confidence": 0.85,
+      "expected_behavior": "The 'pytest --fixtures' command should display the scope of each fixture alongside its name.",
+      "rank_score": 2.0,
+      "rank_breakdown": {
+        "semantic": 1.0,
+        "structural": 0.0,
+        "test": 0.0,
+        "error": 0.0,
+        "consistency": 1.0,
+        "total": 2.0
+      }
+    },
+    {
+      "id": "H2",
+      "description": "The 'pytest_sessionstart' function in 'src/_pytest/fixtures.py' may not be correctly initializing or registering fixture scopes, leading to missing scope information.",
+      "supporting_evidence": [
+        {
+          "source": "agentless",
+          "type": "SYMBOL_MATCH",
+          "file": "src/_pytest/fixtures.py",
+          "symbol": "pytest_sessionstart",
+          "line": 0,
+          "relevance": 1.0,
+          "explanation": "symbol lives in Agentless-ranked file"
+        },
+        {
+          "source": "model",
+          "type": "CODE_BEHAVIOR",
+          "file": "src/_pytest/fixtures.py",
+          "symbol": "FixtureFunctionMarker",
+          "line": 0,
+          "relevance": 0.3,
+          "explanation": "cited by hypothesis, no candidate evidence"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "source": "model",
+          "type": "CODE_BEHAVIOR",
+          "file": "",
+          "symbol": "",
+          "line": 0,
+          "relevance": 0.0,
+          "explanation": "The 'fixture' decorator is responsible for defining fixture scopes, which should be reflected in the output."
+        }
+      ],
+      "affected_files": [
+        "src/_pytest/fixtures.py"
+      ],
+      "affected_symbols": [
+        "pytest_sessionstart"
+      ],
+      "confidence": 0.75,
+      "expected_behavior": "The fixture manager should correctly register the scope of each fixture during the session start.",
+      "rank_score": 2.0,
+      "rank_breakdown": {
+        "semantic": 1.0,
+        "structural": 0.0,
+        "test": 0.0,
+        "error": 0.0,
+        "consistency": 1.0,
+        "total": 2.0
+      }
+    },
+    {
+      "id": "H3",
+      "description": "The 'Session' class in 'src/_pytest/main.py' may not be handling or displaying fixture scope information correctly, causing it to be omitted from 'pytest --fixtures'.",
+      "supporting_evidence": [
+        {
+          "source": "repograph",
+          "type": "GRAPH_RELATION",
+          "file": "src/_pytest/main.py",
+          "symbol": "Session",
+          "line": 0,
+          "relevance": 0.2,
+          "explanation": "graph neighbors: Session, __init__\n__repr__\n_node_location_to_relpath\npytest_collectstart\npytest_runtest_logreport\nisinitpath\ngethookproxy\nperform_collect\n_perform_collect\ncollect\n_collect\n_collectfile\n_recurse\n_tryconvertpyarg\n_parsearg\nmatchnodes\n_matchnodes\ngenitems"
+        },
+        {
+          "source": "agentless",
+          "type": "SYMBOL_MATCH",
+          "file": "src/_pytest/fixtures.py",
+          "symbol": "pytest_sessionstart",
+          "line": 0,
+          "relevance": 1.0,
+          "explanation": "symbol lives in Agentless-ranked file"
+        }
+      ],
+      "contradicting_evidence": [
+        {
+          "source": "model",
+          "type": "CODE_BEHAVIOR",
+          "file": "",
+          "symbol": "",
+          "line": 0,
+          "relevance": 0.0,
+          "explanation": "The 'pytest_sessionstart' function is expected to interface with the 'Session' class, which should manage fixture information."
+        }
+      ],
+      "affected_files": [
+        "src/_pytest/main.py"
+      ],
+      "affected_symbols": [
+        "Session"
+      ],
+      "confidence": 0.65,
+      "expected_behavior": "The session should include fixture scope information when listing fixtures.",
+      "rank_score": 1.8,
+      "rank_breakdown": {
+        "semantic": 0.6,
+        "structural": 0.2,
+        "test": 0.0,
+        "error": 0.0,
+        "consistency": 1.0,
+        "total": 1.8
+      }
+    }
+  ],
+  "selected_hypothesis": "H1",
+  "patch": {
+    "valid": true,
+    "files_changed": 1,
+    "hypothesis_id": "H3"
+  },
+  "tests": {
+    "instance_id": "pytest-dev__pytest-5221",
+    "resolved": false,
+    "patch_applied": true,
+    "fail_to_pass": {
+      "passed": 0,
+      "total": 2
+    },
+    "pass_to_pass": {
+      "passed": 170,
+      "total": 170
+    },
+    "infra_failure": false,
+    "error": "",
+    "run_id": "patchforge-pytest-dev__pytest-5221-a3"
+  },
+  "tokens": {
+    "input": 21067,
+    "output": 1116
+  },
+  "cost_usd": 0.00383,
+  "runtime_seconds": 135.0,
+  "failure_stage": "WRONG_HYPOTHESIS"
+}

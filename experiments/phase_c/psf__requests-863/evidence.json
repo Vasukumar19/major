@@ -1,0 +1,245 @@
+[
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/sessions.py",
+    "symbol": "request",
+    "line": 0,
+    "relevance": 0.3,
+    "explanation": "Agentless related-element localization"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/sessions.py",
+    "symbol": "request",
+    "line": 0,
+    "relevance": 0.6,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/sessions.py",
+    "symbol": "request",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: request"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "request",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of request (depth 1)"
+  },
+  {
+    "source": "issue",
+    "type": "ISSUE_TEXT",
+    "file": "requests/sessions.py",
+    "symbol": "request",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol mentioned in issue text"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/sessions.py",
+    "symbol": "request",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "agentless",
+    "type": "SEMANTIC_MATCH",
+    "file": "requests/sessions.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "Agentless fine-grain edit location"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/sessions.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 0.6,
+    "explanation": "symbol lives in Agentless-ranked file"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/sessions.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: Session, __init__\ninit_poolmanager\n__repr__\n__enter__\n__exit__\nclose\nrequest\nget\noptions\nhead\npost\nput\npatch\ndelete\n__getstate__\n__setstate__"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of Session (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\ninit_poolmanager\n__repr__\n__enter__\n__exit__\nclose\nrequest\nget\noptions\nhead\npost\nput\npatch\ndelete\n__getstate__\n__setstate__",
+    "line": 0,
+    "relevance": 0.9090909090909091,
+    "explanation": "graph neighbor of Session (depth 1)"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/sessions.py",
+    "symbol": "Session",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/sessions.py",
+    "symbol": "session",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/sessions.py",
+    "symbol": "session",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: session"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "session",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of session (depth 1)"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/api.py",
+    "symbol": "request",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/api.py",
+    "symbol": "request",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: request"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "request",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of request (depth 1)"
+  },
+  {
+    "source": "agentless",
+    "type": "SYMBOL_MATCH",
+    "file": "requests/hooks.py",
+    "symbol": "",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "Agentless file-level hit (no symbol yet, half weight)"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/models.py",
+    "symbol": "Request",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/models.py",
+    "symbol": "Request",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: Request, __init__\n__repr__\n_build_response\n_encode_params\n_encode_files\nfull_url\npath_url\nregister_hook\nderegister_hook\nsend, __init__\nuri_query\nuri_query_params"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "Request",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of Request (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\n__repr__\n_build_response\n_encode_params\n_encode_files\nfull_url\npath_url\nregister_hook\nderegister_hook\nsend",
+    "line": 0,
+    "relevance": 0.9090909090909091,
+    "explanation": "graph neighbor of Request (depth 1)"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "__init__\nuri_query\nuri_query_params",
+    "line": 0,
+    "relevance": 0.8333333333333334,
+    "explanation": "graph neighbor of Request (depth 1)"
+  },
+  {
+    "source": "issue-symbol",
+    "type": "ISSUE_TEXT",
+    "file": "requests/models.py",
+    "symbol": "register_hook",
+    "line": 0,
+    "relevance": 0.1,
+    "explanation": "symbol defined in Agentless file and named in issue/tests"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "requests/models.py",
+    "symbol": "register_hook",
+    "line": 0,
+    "relevance": 0.2,
+    "explanation": "graph neighbors: register_hook"
+  },
+  {
+    "source": "repograph",
+    "type": "GRAPH_RELATION",
+    "file": "",
+    "symbol": "register_hook",
+    "line": 0,
+    "relevance": 1.0,
+    "explanation": "graph neighbor of register_hook (depth 1)"
+  }
+]

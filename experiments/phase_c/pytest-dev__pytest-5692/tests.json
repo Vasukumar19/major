@@ -1,0 +1,17 @@
+[
+  {
+    "syntax_ok": false,
+    "syntax_error": "src/_pytest/junitxml.py: SEARCH block 0 error: exact SEARCH block matches 3 locations (ambiguous)",
+    "eval": null
+  },
+  {
+    "syntax_ok": false,
+    "syntax_error": "src/_pytest/junitxml.py: SEARCH block 0 error: exact SEARCH block matches 2 locations (ambiguous)",
+    "eval": null
+  },
+  {
+    "syntax_ok": false,
+    "syntax_error": "src/_pytest/reports.py: SEARCH block 1 error: exact SEARCH block matches 2 locations (ambiguous)",
+    "eval": null
+  }
+]

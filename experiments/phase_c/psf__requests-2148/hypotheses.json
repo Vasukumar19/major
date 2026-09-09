@@ -1,0 +1,158 @@
+[
+  {
+    "id": "H1",
+    "description": "The socket.error is raised directly from the socket library without being caught and wrapped by the requests library, leading to unhandled raw socket exceptions.",
+    "supporting_evidence": [
+      {
+        "source": "agentless",
+        "type": "SYMBOL_MATCH",
+        "file": "requests/packages/urllib3/response.py",
+        "symbol": "HTTPResponse",
+        "line": 0,
+        "relevance": 0.6,
+        "explanation": "symbol lives in Agentless-ranked file"
+      },
+      {
+        "source": "agentless",
+        "type": "SYMBOL_MATCH",
+        "file": "requests/exceptions.py",
+        "symbol": "ConnectionError",
+        "line": 0,
+        "relevance": 1.0,
+        "explanation": "symbol lives in Agentless-ranked file"
+      }
+    ],
+    "contradicting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "",
+        "symbol": "",
+        "line": 0,
+        "relevance": 0.0,
+        "explanation": "The requests library is designed to handle socket errors, which suggests that this behavior is unexpected."
+      }
+    ],
+    "affected_files": [
+      "requests/packages/urllib3/response.py"
+    ],
+    "affected_symbols": [
+      "HTTPResponse"
+    ],
+    "confidence": 0.8,
+    "expected_behavior": "Requests should catch socket errors and raise them as ConnectionError exceptions.",
+    "rank_score": 1.8,
+    "rank_breakdown": {
+      "semantic": 0.8,
+      "structural": 0.0,
+      "test": 0.0,
+      "error": 0.0,
+      "consistency": 1.0,
+      "total": 1.8
+    }
+  },
+  {
+    "id": "H3",
+    "description": "The error handling in the iter_content method may not be comprehensive enough to catch all socket errors, leading to unhandled exceptions during data streaming.",
+    "supporting_evidence": [
+      {
+        "source": "repograph",
+        "type": "GRAPH_RELATION",
+        "file": "requests/models.py",
+        "symbol": "iter_content",
+        "line": 0,
+        "relevance": 0.2,
+        "explanation": "graph neighbors: iter_content"
+      },
+      {
+        "source": "agentless",
+        "type": "SYMBOL_MATCH",
+        "file": "requests/exceptions.py",
+        "symbol": "ConnectionError",
+        "line": 0,
+        "relevance": 1.0,
+        "explanation": "symbol lives in Agentless-ranked file"
+      }
+    ],
+    "contradicting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "",
+        "symbol": "",
+        "line": 0,
+        "relevance": 0.0,
+        "explanation": "The presence of other error handling in the same method suggests that not all exceptions are being properly caught."
+      }
+    ],
+    "affected_files": [
+      "requests/models.py"
+    ],
+    "affected_symbols": [
+      "iter_content"
+    ],
+    "confidence": 0.75,
+    "expected_behavior": "The iter_content method should catch socket errors and raise them as ConnectionError exceptions.",
+    "rank_score": 1.8,
+    "rank_breakdown": {
+      "semantic": 0.6,
+      "structural": 0.2,
+      "test": 0.0,
+      "error": 0.0,
+      "consistency": 1.0,
+      "total": 1.8
+    }
+  },
+  {
+    "id": "H2",
+    "description": "The version of the requests library (2.3.0) may have a bug that fails to properly handle socket errors, resulting in raw exceptions being raised instead of wrapped exceptions.",
+    "supporting_evidence": [
+      {
+        "source": "agentless",
+        "type": "SYMBOL_MATCH",
+        "file": "requests/models.py",
+        "symbol": "Response",
+        "line": 0,
+        "relevance": 0.8,
+        "explanation": "symbol lives in Agentless-ranked file"
+      },
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "requests/exceptions.py",
+        "symbol": "RequestException",
+        "line": 0,
+        "relevance": 0.3,
+        "explanation": "cited by hypothesis, no candidate evidence"
+      }
+    ],
+    "contradicting_evidence": [
+      {
+        "source": "model",
+        "type": "CODE_BEHAVIOR",
+        "file": "",
+        "symbol": "",
+        "line": 0,
+        "relevance": 0.0,
+        "explanation": "Later versions of the requests library may have fixed this issue, indicating it was a version-specific bug."
+      }
+    ],
+    "affected_files": [
+      "requests/models.py"
+    ],
+    "affected_symbols": [
+      "Response"
+    ],
+    "confidence": 0.7,
+    "expected_behavior": "The Response object should handle all exceptions related to HTTP requests, including socket errors.",
+    "rank_score": 1.8,
+    "rank_breakdown": {
+      "semantic": 0.8,
+      "structural": 0.0,
+      "test": 0.0,
+      "error": 0.0,
+      "consistency": 1.0,
+      "total": 1.8
+    }
+  }
+]

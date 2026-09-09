@@ -1,0 +1,51 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: PatchForge
+Date: Sat, 6 Sep 2026 00:00:00 +0000
+Subject: [PATCH] Robustness: skip tags missing from AST structure
+
+tree-sitter extracts def/ref names that the ast-based structure may
+lack (e.g. vendored Python-2 files such as requests' chardet fail
+ast.parse on Python 3, yielding empty class/function lists).
+The unguarded lookups structure_classes[tag_name] /
+structure_all_funcs[tag_name] then raise KeyError and abort the whole
+graph build. Observed on psf/requests @ a0df2cb:
+KeyError: 'CharDistributionAnalysis'.
+
+Fix: skip def-tags with no structure entry (no line info available
+for them anyway). Ref-tags never touch the structure and are
+unaffected. Behavior on well-formed repos is unchanged.
+
+Apply from the RepoGraph clone root (after repograph-windows-paths.patch):
+  git apply <workspace>/patches/repograph-missing-tag-guard.patch
+
+Revert:
+  git -C third_party/RepoGraph checkout -- repograph/construct_graph.py
+  (then re-apply repograph-windows-paths.patch if still needed)
+
+Upstream status: not fixed upstream as of 2026-09-06.
+Do NOT commit into third_party/; this file is the record (§24).
+
+--- a/repograph/construct_graph.py
++++ b/repograph/construct_graph.py
+@@ -330,6 +330,10 @@
+                 continue
+ 
+             if category == 'class':
++                if tag_name not in structure_classes:
++                    # ast.parse failed for this file (e.g. py2 vendored code);
++                    # no line info available, skip the tag.
++                    continue
+                 # try:
+                 #     class_functions = self.get_class_functions(tree_ast, tag_name)
+                 # except:
+@@ -352,6 +355,10 @@
+             elif category == 'function':
+ 
+                 if kind == 'def':
++                    if tag_name not in structure_all_funcs:
++                        # ast.parse failed for this file; no line info
++                        # available, skip the tag.
++                        continue
+                     # func_block = self.get_func_block(cur_cdl, code)
+                     # cur_cdl =func_block
+                     cur_cdl = '\n'.join(structure_all_funcs[tag_name]['text'])

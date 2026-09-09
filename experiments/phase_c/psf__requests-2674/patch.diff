@@ -1,0 +1,15 @@
+--- a/requests/exceptions.py
++++ b/requests/exceptions.py
+@@ -44,6 +44,12 @@
+ 
+ 
+ class Timeout(RequestException):
++    def __init__(self, *args, **kwargs):
++        # Wrap urllib3's TimeoutError
++        if 'original_exception' in kwargs:
++            self.original_exception = kwargs.pop('original_exception')
++        else:
++            self.original_exception = None
+     """The request timed out.
+ 
+     Catching this error will catch both
