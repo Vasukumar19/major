@@ -27,11 +27,11 @@ def classify(patch: Patch, eval_result, candidates: list[Candidate] | None = Non
         if "timeout" in eval_result.error.lower():
             return FailureClass.TIMEOUT
         return FailureClass.INFRA_FAILURE
-    if eval_result.error and not eval_result.patch_applied:
+    if eval_result.error and not getattr(eval_result, "patch_applied", True):
         return FailureClass.INFRA_FAILURE
     if not patch.valid or not patch.patch_text.strip():
         return FailureClass.PATCH_SYNTAX
-    if not eval_result.patch_applied:
+    if not getattr(eval_result, "patch_applied", True):
         return FailureClass.PATCH_SYNTAX
     if eval_result.resolved:
         return FailureClass.RESOLVED

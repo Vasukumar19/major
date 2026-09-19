@@ -7,9 +7,10 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
-from patchforge.core.target import RepairTarget
+from patchforge.core.target import EditSite, RepairTarget
 from patchforge.retrieval.evidence import ExecutionEvidence
 
 
@@ -95,6 +96,8 @@ class FailureAnalyzer:
             loc = raw_output.find(simple_name)
             if loc != -1:
                 body = raw_output[loc : loc + 2000]
+            elif "AssertionError" in raw_output or "\nE " in raw_output or raw_output.startswith("E "):
+                body = raw_output
 
         if body:
             # Look for exception lines: E   ExceptionType: message
@@ -109,7 +112,11 @@ class FailureAnalyzer:
                     details["error_type"] = "AssertionError" if "assert" in first_e else "Error"
                     details["error_message"] = first_e
 
-                diff_lines = [l[2:].strip() for l in e_lines if l.startswith("E -") or l.startswith("E +") or l.startswith("E   where")]
+                diff_lines = [
+                    l[2:].strip()
+                    for l in e_lines
+                    if l[2:].strip().startswith(("-", "+", "where"))
+                ]
                 if diff_lines:
                     details["assertion_diff"] = "\n".join(diff_lines[:4])
             else:
@@ -296,3 +303,128 @@ class FailureAnalyzer:
             clusters=clusters,
             diagnostics_text=diagnostics_text,
         )
+
+    @staticmethod
+    def extract_secondary_edit_sites(
+        evidence: ExecutionEvidence,
+        repo_map: Any,
+        target: RepairTarget,
+        max_secondary_sites: int = 2,
+    ) -> list[EditSite]:
+        """Dynamically identifies secondary edit sites from test failure tracebacks.
+        
+        If a failing test trace points directly to code in the target repository
+        that is not covered by the primary target, extracts that surgical unit as an authoritative EditSite.
+        """
+        secondary_sites: list[EditSite] = []
+        if not evidence.traceback or not repo_map:
+            return secondary_sites
+
+        raw_tb = evidence.traceback
+
+        # If specific failing tests exist, isolate the failure body first to avoid deprecation warning noise
+        search_texts = []
+        if evidence.failed_target_tests:
+            for ft in evidence.failed_target_tests:
+                simple_name = ft.split("::")[-1]
+                pattern = re.compile(
+                    rf"(?:_{{2,}}\s+(?:[\w\.]+\.)?{re.escape(simple_name)}\s+_{{2,}}|FAIL(?:ED)?\s+.*?{re.escape(simple_name)})([\s\S]*?)(?=(?:_{{2,}}\s+[\w\.]+\s+_{{2,}}|\={3,}\s+short test summary info|\={3,}\s+FAILURES|\Z))",
+                    re.IGNORECASE,
+                )
+                m = pattern.search(raw_tb)
+                if m:
+                    search_texts.append(m.group(1))
+
+        if not search_texts:
+            search_texts = [raw_tb]
+
+        seen_sites = set()
+
+        for body in search_texts:
+            # Match standard Python traceback lines: File "path/to/file.py", line 123, in func
+            tb_matches = re.findall(r'File\s+"([^"]+\.py)",\s+line\s+(\d+)', body)
+            if not tb_matches:
+                tb_matches = re.findall(r'([a-zA-Z0-9_\-\.\/]+\.py):(\d+)', body)
+
+            # Reverse matches to inspect the innermost frames (closest to failure) first
+            for f_path, line_s in reversed(tb_matches):
+                try:
+                    line_no = int(line_s)
+                except ValueError:
+                    continue
+
+                norm_f = f_path.replace("\\", "/").strip().lstrip("/")
+
+                # Skip test files, external libraries, and virtualenvs
+                if any(skip in norm_f.lower() for skip in ("test_", "tests/", "site-packages", "/opt/", ".tox", "pytest")):
+                    continue
+
+                # Locate relative path in repo
+                repo_p = Path(repo_map.repo_dir) if hasattr(repo_map, "repo_dir") else Path(".")
+                rel_path = norm_f
+                if (repo_p / norm_f).exists():
+                    rel_path = norm_f
+                else:
+                    # Check if relative path match
+                    for p in repo_p.glob(f"**/{Path(norm_f).name}"):
+                        if not any(part in ("tests", "docs", ".git", "venv") for part in p.parts):
+                            rel_path = str(p.relative_to(repo_p)).replace("\\", "/")
+                            break
+
+                if not (repo_p / rel_path).exists():
+                    continue
+
+                # Check if this line is already covered by primary site
+                norm_target_file = target.file_path.replace("\\", "/").strip().lstrip("/")
+                if rel_path == norm_target_file and target.line_start <= line_no <= target.line_end:
+                    continue
+
+                # Check if already covered by an existing secondary site
+                already_covered = False
+                for sec in target.secondary_sites:
+                    if sec.file_path.replace("\\", "/").strip().lstrip("/") == rel_path and sec.line_start <= line_no <= sec.line_end:
+                        already_covered = True
+                        break
+                if already_covered:
+                    continue
+
+                # Locate enclosing symbol
+                symbols = repo_map.extract_symbols(rel_path) if hasattr(repo_map, "extract_symbols") else []
+                enclosing_sym = ""
+                best_span = 999999
+                for s in symbols:
+                    if s.line_start <= line_no <= s.line_end:
+                        span = s.line_end - s.line_start
+                        if span < best_span:
+                            best_span = span
+                            enclosing_sym = s.name
+
+                site_key = (rel_path, enclosing_sym, line_no)
+                if site_key in seen_sites:
+                    continue
+                seen_sites.add(site_key)
+
+                # Extract surgical unit
+                if hasattr(repo_map, "extract_surgical_unit"):
+                    source_win, win_start, win_end, b_ctx = repo_map.extract_surgical_unit(
+                        rel_path, enclosing_sym, target_line=line_no
+                    )
+                else:
+                    source_win, win_start, win_end, b_ctx = "", line_no, line_no, ""
+
+                if source_win and win_start <= line_no <= win_end:
+                    new_site = EditSite(
+                        file_path=rel_path,
+                        symbol=enclosing_sym or f"line_{line_no}",
+                        line_start=win_start,
+                        line_end=win_end,
+                        source_span=(win_start, win_end),
+                        verified_source=source_win,
+                        verification_status=True,
+                        behavior_context=b_ctx,
+                    )
+                    secondary_sites.append(new_site)
+                    if len(secondary_sites) >= max_secondary_sites:
+                        return secondary_sites
+
+        return secondary_sites

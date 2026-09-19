@@ -174,7 +174,7 @@ class ApplyPatchTool(Tool):
         "required": ["patch_text"],
     }
 
-    def __init__(self, repo_dir: str = "", write_to_disk: bool = False):
+    def __init__(self, repo_dir: str = "", write_to_disk: bool = True):
         self.repo_dir = repo_dir
         self.write_to_disk = write_to_disk
 
@@ -214,7 +214,24 @@ class ApplyPatchTool(Tool):
         for rel_path, blocks in edits.items():
             full = repo_path / rel_path
             if not full.exists():
-                return ToolResult(self.name, status="ERROR", error=f"TARGET_MISMATCH: target file '{rel_path}' does not exist.")
+                # Target grounding: auto-correct drifted filenames by searching repo
+                candidates = list(repo_path.glob(f"**/{Path(rel_path).name}"))
+                if not candidates:
+                    s_first = blocks[0][0].strip() if blocks and blocks[0] else ""
+                    if s_first:
+                        for py_f in repo_path.glob("**/*.py"):
+                            if not any(part in ("tests", "docs", ".git", "venv") for part in py_f.parts):
+                                try:
+                                    if s_first in py_f.read_text(encoding="utf-8", errors="replace"):
+                                        candidates.append(py_f)
+                                        break
+                                except Exception:
+                                    pass
+                if candidates:
+                    full = candidates[0]
+                    rel_path = str(full.relative_to(repo_path)).replace("\\", "/")
+                else:
+                    return ToolResult(self.name, status="ERROR", error=f"TARGET_MISMATCH: target file '{rel_path}' does not exist.")
 
             try:
                 with open(full, "r", encoding="utf-8", errors="replace") as f:

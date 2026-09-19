@@ -70,14 +70,15 @@ def test_search_block_diff_marker_sanitization():
     replace_block = "    result = val * 3\n    return result"
 
     # Should sanitize leading '+' and apply successfully
-    res, tier = _apply_single_edit(clean_source, dirty_search, replace_block)
+    res, tier, *err = _apply_single_edit(clean_source, dirty_search, replace_block)
+    tier_str = tier.value if hasattr(tier, "value") else str(tier)
     assert "result = val * 3" in res
-    assert tier == "EXACT"
+    assert tier_str == "EXACT"
 
     # Search block with mixed diff '-' markers and whitespace
     dirty_search_2 = "-    result = val * 2\n-    return result"
     replace_block_2 = "    result = val * 4\n    return result"
-    res2, tier2 = _apply_single_edit(clean_source, dirty_search_2, replace_block_2)
+    res2, tier2, *err2 = _apply_single_edit(clean_source, dirty_search_2, replace_block_2)
     assert "result = val * 4" in res2
 
 
