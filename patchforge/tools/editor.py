@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import difflib
+import re
 from pathlib import Path
 from typing import Any
 
@@ -173,8 +174,9 @@ class ApplyPatchTool(Tool):
         "required": ["patch_text"],
     }
 
-    def __init__(self, repo_dir: str = ""):
+    def __init__(self, repo_dir: str = "", write_to_disk: bool = False):
         self.repo_dir = repo_dir
+        self.write_to_disk = write_to_disk
 
     def execute(self, args: dict[str, Any], state: Any = None) -> ToolResult:
         patch_text = args.get("patch_text", "")
@@ -186,8 +188,23 @@ class ApplyPatchTool(Tool):
             return ToolResult(
                 self.name,
                 status="ERROR",
-                error="Could not parse any valid SEARCH/REPLACE blocks. Make sure to format as '### filename\\n<<<<<<< SEARCH\\n...\\n=======\\n...\\n>>>>>>> REPLACE'.",
+                error="Could not parse any valid SEARCH/REPLACE blocks. Make sure to format as '### filename\\n<<<<<<< SEARCH\\nexact original lines\\n=======\\nnew replacement lines\\n>>>>>>> REPLACE'.",
             )
+
+        allowed_files = args.get("allowed_files")
+        if not allowed_files and args.get("expected_target_file"):
+            allowed_files = [args.get("expected_target_file")]
+
+        if allowed_files:
+            norm_allowed = {f.replace("\\", "/").lstrip("/") for f in allowed_files}
+            for rel_path in edits.keys():
+                norm_rel = rel_path.replace("\\", "/").lstrip("/")
+                if norm_rel not in norm_allowed:
+                    return ToolResult(
+                        self.name,
+                        status="ERROR",
+                        error=f"TARGET_MISMATCH: target file '{rel_path}' is outside allowed targets ({', '.join(sorted(norm_allowed))}).",
+                    )
 
         diff_chunks = []
         files_changed = []
@@ -197,7 +214,7 @@ class ApplyPatchTool(Tool):
         for rel_path, blocks in edits.items():
             full = repo_path / rel_path
             if not full.exists():
-                return ToolResult(self.name, status="ERROR", error=f"Target file '{rel_path}' does not exist.")
+                return ToolResult(self.name, status="ERROR", error=f"TARGET_MISMATCH: target file '{rel_path}' does not exist.")
 
             try:
                 with open(full, "r", encoding="utf-8", errors="replace") as f:
@@ -207,7 +224,36 @@ class ApplyPatchTool(Tool):
 
             new_c, tier, err = apply_edits_detailed(orig, blocks)
             if err:
-                return ToolResult(self.name, status="ERROR", error=f"Failed applying edit to {rel_path}: {err}")
+                is_ws_mismatch = False
+                for search_b, _ in blocks:
+                    clean_s = re.sub(r"\s+", "", search_b)
+                    clean_o = re.sub(r"\s+", "", orig)
+                    if clean_s and clean_s in clean_o:
+                        is_ws_mismatch = True
+                        break
+
+                if is_ws_mismatch:
+                    return ToolResult(
+                        self.name,
+                        status="ERROR",
+                        error=(
+                            f"SEARCH_WHITESPACE_MISMATCH: The SEARCH block matches content in '{rel_path}' "
+                            f"except for leading/trailing whitespace or indentation. You MUST copy lines "
+                            f"exactly verbatim from EDITABLE SOURCE — VERBATIM."
+                        ),
+                    )
+                elif "ambiguous" in err.lower():
+                    return ToolResult(
+                        self.name,
+                        status="ERROR",
+                        error=f"SEARCH_AMBIGUOUS: SEARCH block matches multiple locations in '{rel_path}'. Provide more surrounding lines.",
+                    )
+                else:
+                    return ToolResult(
+                        self.name,
+                        status="ERROR",
+                        error=f"SEARCH_NOT_FOUND: SEARCH block not found in '{rel_path}'. Verify lines against EDITABLE SOURCE — VERBATIM: {err}",
+                    )
 
             # AST validation gate
             valid_ast, ast_err = validate_ast(new_c, rel_path)
@@ -220,6 +266,13 @@ class ApplyPatchTool(Tool):
 
             files_changed.append(rel_path)
             new_contents[rel_path] = new_c
+
+            if args.get("write_to_disk", self.write_to_disk):
+                try:
+                    with open(full, "w", encoding="utf-8") as f:
+                        f.write(new_c)
+                except Exception as e:
+                    return ToolResult(self.name, status="ERROR", error=f"Failed to write '{rel_path}': {str(e)}")
 
             diff = list(difflib.unified_diff(
                 orig.splitlines(keepends=True),

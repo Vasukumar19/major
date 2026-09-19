@@ -32,3 +32,22 @@ class Hypothesis:
             "rank_score": self.rank_score,
             "rank_breakdown": self.rank_breakdown,
         }
+
+
+@dataclass
+class RefinedHypothesis:
+    """Hypothesis refined from concrete execution evidence and diagnosis."""
+    original_hypothesis: str = ""
+    execution_evidence_summary: str = ""
+    refined_hypothesis: str = ""
+    repair_plan: list[str] = field(default_factory=list)
+    repair_constraints: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict:
+        return {
+            "original_hypothesis": self.original_hypothesis,
+            "execution_evidence_summary": self.execution_evidence_summary,
+            "refined_hypothesis": self.refined_hypothesis,
+            "repair_plan": list(self.repair_plan),
+            "repair_constraints": list(self.repair_constraints),
+        }

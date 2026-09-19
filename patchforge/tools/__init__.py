@@ -5,11 +5,12 @@ from patchforge.tools.base import Tool, ToolCall, ToolRegistry, ToolResult
 from patchforge.tools.editor import ApplyPatchTool, GitDiffTool, ReadFileTool, ReadTestTool
 from patchforge.tools.execution import InspectFailureTool, RunReproductionTool, RunTargetedTestTool
 from patchforge.tools.graph import InspectGitHistoryTool, InspectGraphTool
+from patchforge.tools.reasoning import FormulateHypothesisTool, ProposePlanTool, SpecifyRepairTool
 from patchforge.tools.search import FindReferencesTool, FindSymbolTool, SearchCodeTool, SearchExactTool
 
 
 def create_default_tool_registry(repo_dir: str = "", repograph_adapter=None, tester=None) -> ToolRegistry:
-    """Instantiate and register all 13 core PatchForge v0.3 tools."""
+    """Instantiate and register core PatchForge v0.3 tools."""
     registry = ToolRegistry()
     registry.register(SearchCodeTool(repo_dir=repo_dir))
     registry.register(SearchExactTool(repo_dir=repo_dir))
@@ -22,6 +23,9 @@ def create_default_tool_registry(repo_dir: str = "", repograph_adapter=None, tes
     registry.register(RunTargetedTestTool(tester=tester))
     registry.register(RunReproductionTool())
     registry.register(InspectFailureTool())
+    registry.register(FormulateHypothesisTool())
+    registry.register(ProposePlanTool())
+    registry.register(SpecifyRepairTool())
     registry.register(ApplyPatchTool(repo_dir=repo_dir))
     registry.register(GitDiffTool())
     return registry
@@ -43,7 +47,11 @@ __all__ = [
     "RunTargetedTestTool",
     "RunReproductionTool",
     "InspectFailureTool",
+    "FormulateHypothesisTool",
+    "ProposePlanTool",
+    "SpecifyRepairTool",
     "ApplyPatchTool",
     "GitDiffTool",
     "create_default_tool_registry",
 ]
+

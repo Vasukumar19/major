@@ -37,10 +37,13 @@ def sample_repo(tmp_path):
 
 def test_tool_registry_initialization(sample_repo):
     reg = create_default_tool_registry(repo_dir=str(sample_repo))
-    assert len(reg.list_tools()) == 13
+    assert len(reg.list_tools()) == 16
     assert reg.get("search_code") is not None
     assert reg.get("apply_patch") is not None
-    assert len(reg.schemas()) == 13
+    assert reg.get("formulate_hypothesis") is not None
+    assert reg.get("propose_plan") is not None
+    assert reg.get("specify_repair") is not None
+    assert len(reg.schemas()) == 16
 
 
 def test_search_code_tool(sample_repo):
@@ -141,11 +144,17 @@ def test_apply_patch_tool_search_rejection_uses_shared_matcher(sample_repo):
 
 
 def test_apply_patch_schema_requires_verbatim_search_without_ellipsis():
-    schema = ApplyPatchTool().schema()
+    tool = ApplyPatchTool()
+    schema = tool.schema()
     description = schema["function"]["parameters"]["properties"]["patch_text"]["description"]
 
     assert "must exactly quote complete lines" in description
     assert "..." not in description
+
+    err_res = tool.execute({"patch_text": "invalid"})
+    assert err_res.status == "ERROR"
+    assert "..." not in err_res.error
+
 
 
 def test_inspect_failure_tool():

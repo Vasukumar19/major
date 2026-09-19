@@ -28,6 +28,13 @@ class EvalResult:
     infra_failure: bool = False
     error: str = ""
     run_id: str = ""
+    fail_to_pass_success: list[str] = field(default_factory=list)
+    fail_to_pass_failure: list[str] = field(default_factory=list)
+    pass_to_pass_success: list[str] = field(default_factory=list)
+    pass_to_pass_failure: list[str] = field(default_factory=list)
+    test_output: str = ""
+    stdout: str = ""
+    stderr: str = ""
 
     def to_dict(self) -> dict:
         return {
@@ -36,6 +43,10 @@ class EvalResult:
             "patch_applied": self.patch_applied,
             "fail_to_pass": {"passed": self.fail_to_pass_passed, "total": self.fail_to_pass_total},
             "pass_to_pass": {"passed": self.pass_to_pass_passed, "total": self.pass_to_pass_total},
+            "fail_to_pass_success": self.fail_to_pass_success,
+            "fail_to_pass_failure": self.fail_to_pass_failure,
+            "pass_to_pass_success": self.pass_to_pass_success,
+            "pass_to_pass_failure": self.pass_to_pass_failure,
             "infra_failure": self.infra_failure,
             "error": self.error,
             "run_id": self.run_id,
@@ -63,7 +74,8 @@ class SWEBenchAdapter:
                 ["git", "clone", f"https://github.com/{problem.repo}.git", dest],
                 check=True,
             )
-        subprocess.run(["git", "checkout", problem.base_commit], cwd=dest, check=True)
+        subprocess.run(["git", "checkout", "-f", problem.base_commit], cwd=dest, check=True)
+        subprocess.run(["git", "clean", "-fd"], cwd=dest, check=True)
         status = subprocess.run(
             ["git", "status", "--short"], cwd=dest, capture_output=True, text=True, check=True
         )
@@ -82,11 +94,16 @@ class SWEBenchAdapter:
         return path
 
     def evaluate(self, predictions_path: str, instance_id: str, run_id: str,
-                 timeout: int = 180) -> EvalResult:
+                 timeout: int = 300) -> EvalResult:
         env = dict(os.environ)
         env["PYTHONUTF8"] = "1"
+        docker_bin = r"C:\Program Files\Docker\Docker\resources\bin"
+        if os.path.exists(docker_bin) and docker_bin not in env.get("PATH", ""):
+            env["PATH"] = docker_bin + os.pathsep + env.get("PATH", "")
+
+        import sys
         proc = subprocess.run(
-            ["python", "-m", "swebench.harness.run_evaluation",
+            [sys.executable, "-m", "swebench.harness.run_evaluation",
              "--dataset_name", self.config.dataset_name,
              "-p", predictions_path, "-i", instance_id,
              "--run_id", run_id, "--max_workers", "1",
@@ -94,9 +111,13 @@ class SWEBenchAdapter:
             capture_output=True, text=True, env=env,
         )
         result = EvalResult(instance_id=instance_id, run_id=run_id)
+        result.stdout = proc.stdout or ""
+        result.stderr = proc.stderr or ""
+        result.test_output = self._find_test_output(run_id, instance_id) or (proc.stdout or "")
         report = self._find_report(run_id, instance_id)
         if report is None:
-            result.error = f"no report; harness rc={proc.returncode}: {proc.stderr[-500:]}"
+            err_msg = (proc.stderr or proc.stdout or "").strip()
+            result.error = f"no report; harness rc={proc.returncode}: {err_msg[-600:]}"
             return result
         entry = report.get(instance_id, {})
         result.patch_applied = bool(entry.get("patch_successfully_applied", False))
@@ -105,19 +126,50 @@ class SWEBenchAdapter:
         tests = entry.get("tests_status") or {}
         f2p = tests.get("FAIL_TO_PASS") or {}
         p2p = tests.get("PASS_TO_PASS") or {}
-        result.fail_to_pass_passed = len(f2p.get("success", []))
-        result.fail_to_pass_total = result.fail_to_pass_passed + len(f2p.get("failure", []))
-        result.pass_to_pass_passed = len(p2p.get("success", []))
-        result.pass_to_pass_total = result.pass_to_pass_passed + len(p2p.get("failure", []))
+        f2p_succ = f2p.get("success", []) or []
+        f2p_fail = f2p.get("failure", []) or []
+        p2p_succ = p2p.get("success", []) or []
+        p2p_fail = p2p.get("failure", []) or []
+        result.fail_to_pass_success = list(f2p_succ)
+        result.fail_to_pass_failure = list(f2p_fail)
+        result.pass_to_pass_success = list(p2p_succ)
+        result.pass_to_pass_failure = list(p2p_fail)
+        result.fail_to_pass_passed = len(f2p_succ)
+        result.fail_to_pass_total = len(f2p_succ) + len(f2p_fail)
+        result.pass_to_pass_passed = len(p2p_succ)
+        result.pass_to_pass_total = len(p2p_succ) + len(p2p_fail)
         return result
 
     @staticmethod
     def _find_report(run_id: str, instance_id: str) -> dict | None:
-        for logs in (Path("logs") / "evaluation" / run_id).rglob("report.json"):
-            try:
-                data = json.loads(logs.read_text(encoding="utf-8"))
-            except Exception:
+        search_dirs = [Path("logs") / "evaluation" / run_id, Path("logs") / "run_evaluation" / run_id, Path("logs"), Path(".")]
+        for base in search_dirs:
+            if not base.exists():
                 continue
-            if isinstance(data, dict) and instance_id in data:
-                return data
+            for logs in base.rglob("*.json"):
+                if "report" in logs.name.lower() or run_id in str(logs):
+                    try:
+                        data = json.loads(logs.read_text(encoding="utf-8"))
+                    except Exception:
+                        continue
+                    if isinstance(data, dict) and instance_id in data:
+                        return data
         return None
+
+    @staticmethod
+    def _find_test_output(run_id: str, instance_id: str) -> str:
+        search_dirs = [
+            Path("logs") / "run_evaluation" / run_id,
+            Path("logs") / "evaluation" / run_id,
+            Path("logs"),
+        ]
+        for base in search_dirs:
+            if not base.exists():
+                continue
+            for p in base.rglob("test_output.txt"):
+                if instance_id in str(p):
+                    try:
+                        return p.read_text(encoding="utf-8", errors="replace")
+                    except Exception:
+                        continue
+        return ""

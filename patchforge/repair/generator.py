@@ -118,6 +118,20 @@ def _apply_single_edit(content: str, search: str, replace: str) -> tuple[str, Ma
     if not s_lines or not c_lines:
         return content, MatchStatus.NOT_FOUND, "empty search or content"
 
+    # Diff marker cleaning pre-check
+    has_diff_markers = any(l.startswith(("+", "-")) for l in s_lines)
+    if has_diff_markers:
+        # Standard diff has '+' or '-' prepended directly to the line: line[1:]
+        clean_s_lines = [l[1:] if l.startswith(("+", "-")) else l for l in s_lines]
+        clean_search = "".join(clean_s_lines)
+        if clean_search in content and content.count(clean_search) == 1:
+            return content.replace(clean_search, replace, 1), MatchStatus.EXACT, ""
+        # Also try stripping '+ ' / '- ' if a space was added after the marker
+        clean_s_lines_sp = [l[2:] if l.startswith(("+ ", "- ")) else (l[1:] if l.startswith(("+", "-")) else l) for l in s_lines]
+        clean_search_sp = "".join(clean_s_lines_sp)
+        if clean_search_sp in content and content.count(clean_search_sp) == 1:
+            return content.replace(clean_search_sp, replace, 1), MatchStatus.EXACT, ""
+
     # Tier 2: Whitespace / line-ending normalized match
     s_rstripped = [l.rstrip() for l in search.splitlines()]
     c_rstripped = [l.rstrip() for l in content.splitlines()]
@@ -160,6 +174,8 @@ def _apply_single_edit(content: str, search: str, replace: str) -> tuple[str, Ma
         elif len(indent_matches) > 1:
             return content, MatchStatus.AMBIGUOUS, f"indentation-normalized SEARCH matches {len(indent_matches)} locations"
 
+    if has_diff_markers:
+        return content, MatchStatus.NOT_FOUND, "SEARCH block contains git diff markers ('+' or '-'). The repository on disk is clean; quote lines verbatim from VERIFIED EDITABLE SOURCE."
     return content, MatchStatus.NOT_FOUND, "SEARCH block not found verbatim or normalized"
 
 

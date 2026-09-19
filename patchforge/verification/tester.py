@@ -51,7 +51,7 @@ class Tester:
         return True, ""
 
     def official_eval(self, instance_id: str, patch: Patch, workdir: str, run_id: str,
-                      timeout: int = 180) -> EvalResult:
+                      timeout: int = 300) -> EvalResult:
         preds = self.swebench.write_predictions(
             instance_id, patch.patch_text, self.model_name,
             workdir + "/predictions.json")
@@ -64,9 +64,12 @@ class Tester:
         return TestReport(syntax_ok=True,
                           eval=self.official_eval(instance_id, patch, workdir, run_id))
 
-    def run(self, instance_id: str, patch_text: str, run_id: str = "eval", timeout: int = 180) -> EvalResult:
+    def run(self, instance_id: str, patch_text: str, run_id: str = "", timeout: int = 300) -> EvalResult:
         import os
         import tempfile
+        import time
+        if not run_id or run_id == "eval":
+            run_id = f"eval_{int(time.time())}"
         temp_dir = tempfile.mkdtemp(prefix="patchforge_eval_")
         preds_path = os.path.join(temp_dir, "predictions.json")
         preds = self.swebench.write_predictions(
