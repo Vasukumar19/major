@@ -67,7 +67,7 @@ def run_cohort(
     engine_name: str = "graph",
     workspace: str = ".",
     results_dir: str = "results/v05_graph",
-    max_retries: int = 2,
+    max_retries: int = 3,
     max_refinements: int = 3,
     force: bool = False,
 ):
@@ -149,6 +149,9 @@ def run_cohort(
                 "target_symbol": res.target.symbol if res.target else "",
                 "diagnosis": res.diagnosis.__dict__ if hasattr(res, "diagnosis") and res.diagnosis else {},
                 "refinement_history": res.refinement_history if hasattr(res, "refinement_history") else [],
+                "repair_unit": res.repair_unit.to_dict() if hasattr(res, "repair_unit") and res.repair_unit else {},
+                "ranked_sites": [s.to_dict() for s in res.ranked_sites] if hasattr(res, "ranked_sites") and res.ranked_sites else [],
+                "validation_result": res.validation_result.to_dict() if hasattr(res, "validation_result") and res.validation_result else {},
                 "telemetry": res.telemetry,
                 "test_summary": res.test_summary,
             }

@@ -19,6 +19,12 @@ class FailureClass(str, Enum):
     REGRESSION = "REGRESSION"
     TIMEOUT = "TIMEOUT"
     INFRA_FAILURE = "INFRA_FAILURE"
+    # New V0.6 Structured Repair failure modes
+    REPAIR_SCHEMA_FAILURE = "REPAIR_SCHEMA_FAILURE"
+    REPAIR_TARGET_MISMATCH = "REPAIR_TARGET_MISMATCH"
+    REPAIR_VALIDATION_FAILURE = "REPAIR_VALIDATION_FAILURE"
+    REPAIR_OVEREXPANSION = "REPAIR_OVEREXPANSION"
+    REPAIR_CONFLICT = "REPAIR_CONFLICT"
 
 
 def classify(patch: Patch, eval_result, candidates: list[Candidate] | None = None) -> FailureClass:
@@ -30,6 +36,12 @@ def classify(patch: Patch, eval_result, candidates: list[Candidate] | None = Non
     if eval_result.error and not getattr(eval_result, "patch_applied", True):
         return FailureClass.INFRA_FAILURE
     if not patch.valid or not patch.patch_text.strip():
+        if getattr(patch, "error", "") and "schema" in patch.error.lower():
+            return FailureClass.REPAIR_SCHEMA_FAILURE
+        if getattr(patch, "error", "") and "validation" in patch.error.lower():
+            return FailureClass.REPAIR_VALIDATION_FAILURE
+        if getattr(patch, "error", "") and "expansion" in patch.error.lower():
+            return FailureClass.REPAIR_OVEREXPANSION
         return FailureClass.PATCH_SYNTAX
     if not getattr(eval_result, "patch_applied", True):
         return FailureClass.PATCH_SYNTAX

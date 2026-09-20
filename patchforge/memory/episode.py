@@ -107,6 +107,10 @@ class RepairEpisode:
     test_evidence: dict = field(default_factory=dict)
     test_summary: dict = field(default_factory=dict)
     created_at: str = ""
+    # V0.6 Structured Repair Additions
+    repair_unit: dict = field(default_factory=dict)
+    ranked_candidates: list[dict] = field(default_factory=list)
+    validation_result: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return {
@@ -134,12 +138,14 @@ class RepairEpisode:
             "test_evidence": self.test_evidence,
             "test_summary": self.test_summary,
             "created_at": self.created_at,
+            "repair_unit": self.repair_unit,
+            "ranked_candidates": self.ranked_candidates,
+            "validation_result": self.validation_result,
         }
 
     @classmethod
     def from_dict(cls, data: dict) -> RepairEpisode:
         return cls(**{k: v for k, v in data.items() if k in cls.__dataclass_fields__})
-
 
 
 def save_repair_episode(episode: RepairEpisode, directory: str = "results/episodes") -> str:
