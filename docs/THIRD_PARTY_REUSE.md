@@ -63,9 +63,11 @@ Before incorporating code from external open-source projects, PatchForge require
 - **Commit / Version Inspected**: HEAD (`2024`)
 - **License**: Apache License 2.0
 - **Components Inspected**:
-  - AST symbol relationship extraction and graph querying.
+  - `repograph/construct_graph.py` (AST entity relationship extraction, class-function mappings, tag-to-graph conversion)
+  - `repograph/graph_searcher.py` (Breadth-first search and neighbor queries)
 - **Reuse Assessment**:
-  - Currently evaluated. Benchmark evidence shows local lexical + AST symbol navigation is currently sufficient for single-site and callers/callees. Full graph database integration is deferred until multi-site cross-file defects demonstrate the need.
+  - Fully adapted and re-architected in `patchforge/repository_intelligence/graph.py` and `indexer.py`.
+  - Upgraded from RepoGraph's fragile dynamic `exec()` import model to safe static AST extraction with NetworkX bidirectional MultiDiGraph queries (`callers`, `callees`, `references`, `tests_for`, `related_symbols`, `inheritance`).
 
 ---
 
@@ -74,7 +76,19 @@ Before incorporating code from external open-source projects, PatchForge require
 - **Commit / Version Inspected**: HEAD (`2024`)
 - **License**: MIT License (Copyright (c) 2024 Albert Örwall)
 - **Components Inspected**:
-  - `moatless/codeblocks/` (Hierarchical code block representation)
-  - `moatless/actions/` (Grounded semantic code editing)
+  - `moatless/codeblocks/` (Hierarchical block-level code representation)
+  - `moatless/file_context.py` (Context budgeting, span selection, and prompt formatting)
 - **Reuse Assessment**:
-  - Inspecting code block boundary tracking to improve multi-site `EditSite` verification.
+  - Adapted Moatless hierarchical codeblock principles into `patchforge/repository_intelligence/flow.py` for bounded CFG and state-flow extraction.
+  - Adapted context budgeting conventions into `patchforge/repository_intelligence/retriever.py` (`RepairContextRetriever`).
+
+---
+
+### F. tree-sitter & astroid
+- **Package**: `tree-sitter` (0.26.0), `tree-sitter-languages` (1.10.2), `astroid` (4.3.1)
+- **License**: MIT / LGPL
+- **Components Inspected**:
+  - Syntactic boundary parsing and AST traversal
+- **Reuse Assessment**:
+  - Integrated into `patchforge/repository_intelligence/parser.py` alongside standard Python `ast` for robust multi-level parsing.
+

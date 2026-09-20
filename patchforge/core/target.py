@@ -25,6 +25,8 @@ class EditSite:
     verified_source: str = ""
     verification_status: bool = False
     behavior_context: str = ""
+    site_role: str = "PRIMARY"  # PRIMARY, SECONDARY, RELATED_CALLER, RELATED_HELPER, PROTOCOL_SITE, TEST_DERIVED
+    rank: int = 1
 
     def to_dict(self) -> dict:
         return {
@@ -36,6 +38,8 @@ class EditSite:
             "verified_source": self.verified_source,
             "verification_status": self.verification_status,
             "behavior_context": self.behavior_context,
+            "site_role": self.site_role,
+            "rank": self.rank,
         }
 
     @classmethod
@@ -52,7 +56,10 @@ class EditSite:
             verified_source=data.get("verified_source", ""),
             verification_status=data.get("verification_status", False),
             behavior_context=data.get("behavior_context", ""),
+            site_role=data.get("site_role", "PRIMARY"),
+            rank=data.get("rank", 1),
         )
+
 
 
 @dataclass

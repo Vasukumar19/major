@@ -25,3 +25,5 @@ test_coder_models.py
 .pytest-temp/
 repos/
 third_party/
+.patchforge_cache/
+scratch/

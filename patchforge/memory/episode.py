@@ -88,6 +88,9 @@ class RepairEpisode:
     base_commit: str = ""
     model_name: str = ""
     target: dict = field(default_factory=dict)
+    graph_context: dict = field(default_factory=dict)
+    diagnosis: dict = field(default_factory=dict)  # cause, invariant, repair_strategy
+    causal_chain: list[str] = field(default_factory=list)
     state_flow_summary: str = ""
     resolved: bool = False
     patch_applied: bool = False
@@ -101,6 +104,7 @@ class RepairEpisode:
     refinement_cycles: int = 0
     refinement_history: list[dict] = field(default_factory=list)
     patch_text: str = ""
+    test_evidence: dict = field(default_factory=dict)
     test_summary: dict = field(default_factory=dict)
     created_at: str = ""
 
@@ -111,6 +115,9 @@ class RepairEpisode:
             "base_commit": self.base_commit,
             "model_name": self.model_name,
             "target": self.target,
+            "graph_context": self.graph_context,
+            "diagnosis": self.diagnosis,
+            "causal_chain": self.causal_chain,
             "state_flow_summary": self.state_flow_summary,
             "resolved": self.resolved,
             "patch_applied": self.patch_applied,
@@ -124,6 +131,7 @@ class RepairEpisode:
             "refinement_cycles": self.refinement_cycles,
             "refinement_history": self.refinement_history,
             "patch_text": self.patch_text,
+            "test_evidence": self.test_evidence,
             "test_summary": self.test_summary,
             "created_at": self.created_at,
         }
@@ -131,6 +139,7 @@ class RepairEpisode:
     @classmethod
     def from_dict(cls, data: dict) -> RepairEpisode:
         return cls(**{k: v for k, v in data.items() if k in cls.__dataclass_fields__})
+
 
 
 def save_repair_episode(episode: RepairEpisode, directory: str = "results/episodes") -> str:

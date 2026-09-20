@@ -27,8 +27,10 @@ from patchforge.core.config import PatchForgeConfig
 from patchforge.integrations.swebench import SWEBenchAdapter
 from patchforge.models.provider import OllamaProvider
 from patchforge.pipeline.baseline import BaselineRepairEngine
+from patchforge.pipeline.graph_engine import GraphRepairEngine
 from patchforge.verification.classifier import FailureClass
 from patchforge.verification.tester import Tester
+
 
 V05_COHORT_20 = [
     # Golden Regression Invariants (Requests & Flask)
@@ -61,9 +63,10 @@ V05_COHORT_20 = [
 
 def run_cohort(
     instances: list[str],
-    model: str = "qwen2.5-coder:7b",
+    model: str = "qwen2.5-coder:14b",
+    engine_name: str = "graph",
     workspace: str = ".",
-    results_dir: str = "results/v05_baseline",
+    results_dir: str = "results/v05_graph",
     max_retries: int = 2,
     max_refinements: int = 3,
     force: bool = False,
@@ -79,7 +82,7 @@ def run_cohort(
     records: list[dict[str, Any]] = []
     print("=" * 70, flush=True)
     print(f"PATCHFORGE V0.5 COHORT EVALUATION ({len(instances)} tasks)", flush=True)
-    print(f"Model: {model} | Results Dir: {results_dir} | Force: {force}", flush=True)
+    print(f"Engine: {engine_name.upper()} | Model: {model} | Results Dir: {results_dir} | Force: {force}", flush=True)
     print("=" * 70, flush=True)
 
     t_all_start = time.time()
@@ -103,7 +106,11 @@ def run_cohort(
             repos_dir = str(Path(workspace) / "experiments" / "phase_d_v03" / "repos")
             repo_dir = swebench.ensure_checkout(problem, repos_dir)
 
-            engine = BaselineRepairEngine(provider=provider, model_name=model, workspace=workspace)
+            if engine_name.lower() == "graph":
+                engine = GraphRepairEngine(provider=provider, model_name=model, workspace=workspace)
+            else:
+                engine = BaselineRepairEngine(provider=provider, model_name=model, workspace=workspace)
+
             res = engine.run(
                 problem=problem,
                 repo_dir=repo_dir,
@@ -111,6 +118,7 @@ def run_cohort(
                 max_retries=max_retries,
                 max_refinements=max_refinements,
             )
+
 
             ts = res.test_summary or {}
             f2p = ts.get("fail_to_pass", {})
@@ -205,9 +213,10 @@ def run_cohort(
 def main():
     parser = argparse.ArgumentParser(description="PatchForge V0.5 Cohort Evaluation")
     parser.add_argument("--instances", type=str, default="", help="Comma-separated instance IDs (default: all 20)")
-    parser.add_argument("--model", type=str, default="qwen2.5-coder:7b", help="Model name")
+    parser.add_argument("--engine", type=str, default="graph", choices=["graph", "baseline"], help="Repair engine (graph or baseline)")
+    parser.add_argument("--model", type=str, default="qwen2.5-coder:14b", help="Model name")
     parser.add_argument("--workspace", type=str, default=".", help="Workspace path")
-    parser.add_argument("--results-dir", type=str, default="results/v05_baseline", help="Directory for JSON results")
+    parser.add_argument("--results-dir", type=str, default="results/v05_graph", help="Directory for JSON results")
     parser.add_argument("--max-retries", type=int, default=2, help="Max patch retries")
     parser.add_argument("--max-refinements", type=int, default=3, help="Max refinement cycles")
     parser.add_argument("--force", action="store_true", help="Force re-evaluation of completed instances")
@@ -217,12 +226,14 @@ def main():
     run_cohort(
         instances=instances,
         model=args.model,
+        engine_name=args.engine,
         workspace=args.workspace,
         results_dir=args.results_dir,
         max_retries=args.max_retries,
         max_refinements=args.max_refinements,
         force=args.force,
     )
+
 
 
 if __name__ == "__main__":

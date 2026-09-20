@@ -259,3 +259,79 @@ class OllamaProvider(ModelProvider):
             request_id=str(data.get("id", "")),
         )
 
+
+class OpenAICompatibleProvider(ModelProvider):
+    """Generic OpenAI-compatible API provider (OpenAI, DeepSeek, vLLM, LiteLLM)."""
+
+    def __init__(
+        self,
+        model: str,
+        base_url: str | None = None,
+        api_key: str | None = None,
+        transport=None,
+    ):
+        self.model = model
+        self.base_url = (base_url or os.getenv("OPENAI_BASE_URL") or "https://api.openai.com/v1").rstrip("/")
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY", "")
+        self._transport = transport or self._default_transport
+
+    def _default_transport(self, payload: dict) -> dict:
+        url = f"{self.base_url}/chat/completions"
+        headers = {
+            "Content-Type": "application/json",
+        }
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+            
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers=headers,
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=300) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            try:
+                detail = e.read().decode("utf-8", errors="replace")[:500]
+            except Exception:
+                detail = ""
+            raise OpenRouterError(f"OpenAI API HTTP {e.code}: {detail}") from e
+
+    def generate_one(
+        self,
+        prompt: str,
+        system: str = "You are a helpful assistant.",
+        max_tokens: int = 2048,
+        temperature: float = 0.0,
+    ) -> Generation:
+        payload = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": system},
+                {"role": "user", "content": prompt},
+            ],
+            "max_tokens": max_tokens,
+            "temperature": temperature,
+        }
+        start = time.time()
+        data = self._transport(payload)
+        latency = time.time() - start
+        try:
+            choice = data["choices"][0]
+            msg = choice.get("message", {})
+            text = msg.get("content") or msg.get("reasoning_content") or msg.get("reasoning") or ""
+        except (KeyError, IndexError, TypeError) as e:
+            raise OpenRouterError(f"Unexpected OpenAI response shape: {str(data)[:300]}") from e
+        usage = data.get("usage") or {}
+        return Generation(
+            text=text,
+            model=data.get("model", self.model),
+            input_tokens=int(usage.get("prompt_tokens", 0) or 0),
+            output_tokens=int(usage.get("completion_tokens", 0) or 0),
+            cost_usd=0.0,
+            latency_s=latency,
+            request_id=str(data.get("id", "")),
+        )
+
+
