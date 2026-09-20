@@ -147,7 +147,7 @@ def run_cohort(
                 "refinement_cycles": res.refinement_cycles,
                 "target_file": res.target.file_path if res.target else "",
                 "target_symbol": res.target.symbol if res.target else "",
-                "diagnosis": res.diagnosis.__dict__ if hasattr(res, "diagnosis") and res.diagnosis else {},
+                "diagnosis": res.diagnosis.to_dict() if hasattr(res, "diagnosis") and hasattr(res.diagnosis, "to_dict") else (res.diagnosis.__dict__ if hasattr(res, "diagnosis") and res.diagnosis else {}),
                 "refinement_history": res.refinement_history if hasattr(res, "refinement_history") else [],
                 "repair_unit": res.repair_unit.to_dict() if hasattr(res, "repair_unit") and res.repair_unit else {},
                 "ranked_sites": [s.to_dict() for s in res.ranked_sites] if hasattr(res, "ranked_sites") and res.ranked_sites else [],

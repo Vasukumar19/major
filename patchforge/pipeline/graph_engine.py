@@ -42,6 +42,16 @@ from patchforge.repair.structured_repair import (
     StructuredRepairPromptBuilder,
 )
 from patchforge.repair.validator import StaticRepairValidator
+from patchforge.diagnosis import (
+    BehavioralEvidenceEngine,
+    CandidateBehaviorAnalyzer,
+    CandidateProfile,
+    CompetingDiagnosisEngine,
+    CompetingDiagnosisResult,
+    DiagnosisHypothesis,
+    IssueBehaviorExtractor,
+    IssueBehaviorMap,
+)
 from patchforge.repository.map import RepoMap
 from patchforge.repository_intelligence.diagnosis import (
     BehavioralDiagnosisEngine,
@@ -178,99 +188,136 @@ class GraphRepairEngine:
                 best_f_score = score
                 candidate_file = pf
 
+        # Step 2: Stage 1 Candidate Site Discovery (bounded top 5-10)
+        behavior_map = IssueBehaviorExtractor.extract(problem.problem_statement, getattr(problem, "hints_text", ""))
         symbols = repo_map.extract_symbols(candidate_file)
-        candidate_sym = symbols[0].name if symbols else ""
-        best_s_score = -1.0
+
+        # Collect candidate symbols
+        candidate_syms_set: set[str] = set()
         for s in symbols:
-            score = 0.0
-            if s.name.lower() in issue_text.lower():
-                score += 25.0
-            if score > best_s_score:
-                best_s_score = score
-                candidate_sym = s.name
+            s_low = s.name.lower()
+            if any(kw in s_low for kw in issue_text.lower().split() if len(kw) > 3) or s.name in behavior_map.mentioned_symbols:
+                candidate_syms_set.add(s.name)
+        # Class methods if class is located
+        for s in symbols:
+            if s.kind == "class":
+                for m in symbols:
+                    if m.kind in ("method", "function") and m.name != s.name:
+                        candidate_syms_set.add(m.name)
 
-        source_win, win_start, win_end, behavior_context = repo_map.extract_surgical_unit(
-            candidate_file, candidate_sym, issue_text
-        )
+        if not candidate_syms_set and symbols:
+            candidate_syms_set.add(symbols[0].name)
 
-        target = RepairTarget(
-            repository=problem.repo,
-            file_path=candidate_file,
-            symbol=candidate_sym,
-            line_start=win_start,
-            line_end=win_end,
-            source_span=(win_start, win_end),
-            verified_source=source_win,
-            verification_status=bool(source_win),
-            behavior_context=behavior_context,
-        )
-
-        # Graph secondary sites
-        callees = graph.callees(candidate_sym)
-        for c in callees:
-            if c.file_path == candidate_file and c.name != candidate_sym and c.start_line > 0:
-                c_source, c_start, c_end, _ = repo_map.extract_surgical_unit(c.file_path, c.name, "")
-                if c_source:
-                    target.add_secondary_site(
-                        EditSite(
-                            file_path=c.file_path,
-                            symbol=c.name,
-                            line_start=c_start,
-                            line_end=c_end,
-                            source_span=(c_start, c_end),
-                            verified_source=c_source,
-                            verification_status=True,
-                            site_role="RELATED_HELPER",
-                            rank=2,
-                        )
+        stage1_candidates: List[EditSite] = []
+        for sym_name in list(candidate_syms_set)[:8]:
+            s_src, w_start, w_end, b_ctx = repo_map.extract_surgical_unit(candidate_file, sym_name, issue_text)
+            if s_src:
+                stage1_candidates.append(
+                    EditSite(
+                        file_path=candidate_file,
+                        symbol=sym_name,
+                        line_start=w_start,
+                        line_end=w_end,
+                        source_span=(w_start, w_end),
+                        verified_source=s_src,
+                        verification_status=True,
+                        behavior_context=b_ctx,
+                        site_role="PRIMARY",
                     )
+                )
 
-        result.target = target
+        if not stage1_candidates:
+            s_src, w_start, w_end, b_ctx = repo_map.extract_surgical_unit(candidate_file, symbols[0].name if symbols else "", issue_text)
+            stage1_candidates.append(
+                EditSite(
+                    file_path=candidate_file,
+                    symbol=symbols[0].name if symbols else "",
+                    line_start=w_start,
+                    line_end=w_end,
+                    source_span=(w_start, w_end),
+                    verified_source=s_src,
+                    verification_status=bool(s_src),
+                    behavior_context=b_ctx,
+                    site_role="PRIMARY",
+                )
+            )
 
-        if not target.verification_status or not target.verified_source:
-            result.failure_class = FailureClass.INFRA_FAILURE.value
-            result.runtime_s = round(time.time() - t0, 2)
-            result.telemetry = telemetry_logger.get_breakdown()
-            _cleanup()
-            return result
+        # Step 3: Behavioral Evidence Engine Analysis
+        evidence_engine = BehavioralEvidenceEngine(repo_dir=repo_dir, graph=graph, test_index=test_index)
+        candidate_profiles: List[CandidateProfile] = []
+        state_flows: dict[str, Any] = {}
 
-        # Step 3: Graph Context Retrieval
-        retriever = RepairContextRetriever(repo_dir, graph, test_index)
-        repair_context = retriever.retrieve(
-            problem_statement=problem.problem_statement,
-            target_file=target.file_path,
-            target_symbol=target.symbol,
-        )
+        for c in stage1_candidates:
+            prof = evidence_engine.candidate_analyzer.analyze_candidate(
+                symbol=c.symbol,
+                file_path=c.file_path,
+                start_line=c.line_start,
+                end_line=c.line_end,
+                behavior_map=behavior_map,
+                failing_traceback=None,
+            )
+            candidate_profiles.append(prof)
+            s_flow = evidence_engine.analyze_candidate_state_flow(c.file_path, c.symbol)
+            if s_flow:
+                state_flows[c.symbol] = s_flow
 
-        # Step 4: Behavioral Diagnosis
+        # Bounded large-class context if applicable
+        class_ctx_str = ""
+        for s in symbols:
+            if s.kind == "class":
+                bounded = evidence_engine.extract_bounded_class_context(
+                    file_path=candidate_file,
+                    class_name=s.name,
+                    active_symbols=[c.symbol for c in stage1_candidates],
+                )
+                if bounded:
+                    class_ctx_str = bounded.format_for_prompt()
+                    break
+
+        # Step 4: Competing Behavioral Diagnosis
         diag_t0 = time.time()
-        diag_prompt = BehavioralDiagnosisEngine.build_diagnostic_prompt(
-            problem.problem_statement,
-            repair_context,
+        diag_prompt = CompetingDiagnosisEngine.build_diagnostic_prompt(
+            problem_statement=problem.problem_statement,
+            behavior_map=behavior_map,
+            candidate_profiles=candidate_profiles,
+            failure_evidence=None,
+            state_flows=state_flows,
+            class_context=class_ctx_str,
         )
         try:
             diag_resp = self.provider.generate_one(diag_prompt, system=SYSTEM_DIAGNOSIS_PROMPT)
-            diagnosis = BehavioralDiagnosisEngine.parse_diagnosis(diag_resp.text)
+            diagnosis = CompetingDiagnosisEngine.parse_competing_diagnosis(
+                response_text=diag_resp.text,
+                candidate_profiles=candidate_profiles,
+                behavior_map=behavior_map,
+            )
             telemetry_logger.log_event(
                 "DIAGNOSIS", "DIAGNOSIS_COMPLETED", duration_ms=(time.time() - diag_t0) * 1000.0,
                 input_tokens=diag_resp.input_tokens, output_tokens=diag_resp.output_tokens,
-                details={"cause_len": len(diagnosis.cause), "strategy_len": len(diagnosis.repair_strategy)}
+                details={"cause_len": len(diagnosis.cause), "strategy_len": len(diagnosis.repair_strategy), "hyps_count": len(diagnosis.hypotheses)}
             )
         except Exception as e:
-            logger.warning(f"Diagnosis generation failed: {e}")
-            diagnosis = DiagnosisResult(
-                cause="Identified divergence in target.",
-                invariant="Preserve callers.",
-                repair_strategy="Fix target behavior.",
-                affected_sites=[f"{target.file_path}:{target.symbol}"],
+            logger.warning(f"Competing diagnosis generation failed: {e}")
+            top_sym = stage1_candidates[0].symbol if stage1_candidates else "unknown"
+            diagnosis = CompetingDiagnosisResult(
+                hypotheses=[
+                    DiagnosisHypothesis(
+                        id="A",
+                        cause="Identified divergence in target.",
+                        invariant="Preserve callers.",
+                        repair_strategy="Fix target behavior.",
+                        affected_sites=[f"{candidate_file}:{top_sym}"],
+                        confidence=0.8,
+                    )
+                ],
+                selected_hypothesis_idx=0,
+                repair_sites=[f"{candidate_file}:{top_sym}"],
                 raw_response="",
             )
         result.diagnosis = diagnosis
 
-        # Step 5: Candidate Repair Site Ranking
-        ranker = RepairSiteRanker(graph)
-        all_candidates = list(target.all_sites())
-        # Add diagnosis affected sites if discovered in repo
+        # Step 5: Stage 2 Candidate Site Evaluation & Ranking
+        all_candidates = list(stage1_candidates)
         for aff in diagnosis.affected_sites:
             if ":" in aff:
                 aff_file, aff_sym = aff.split(":", 1)
@@ -294,17 +341,36 @@ class GraphRepairEngine:
                             )
                         )
 
+        cand_profiles_dict = {p.symbol: p for p in candidate_profiles}
+        for p in candidate_profiles:
+            cand_profiles_dict[p.symbol.split(".")[-1]] = p
+
+        ranker = RepairSiteRanker(graph)
         ranked_sites = ranker.rank_sites(
             candidates=all_candidates,
             problem=problem,
             diagnosis=diagnosis,
             test_traceback=None,
-            primary_file=target.file_path,
+            primary_file=candidate_file,
+            behavior_map=behavior_map,
+            candidate_profiles=cand_profiles_dict,
         )
         result.ranked_sites = ranked_sites
 
-        # Select top-ranked repair site
-        selected_site = ranked_sites[0] if ranked_sites else target
+        # Select top-ranked repair site as target
+        selected_site = ranked_sites[0] if ranked_sites else stage1_candidates[0]
+        target = RepairTarget(
+            repository=problem.repo,
+            file_path=selected_site.file_path,
+            symbol=selected_site.symbol,
+            line_start=selected_site.line_start,
+            line_end=selected_site.line_end,
+            source_span=(selected_site.line_start, selected_site.line_end),
+            verified_source=getattr(selected_site, "verified_source", "") or repo_map.extract_surgical_unit(selected_site.file_path, selected_site.symbol, "")[0],
+            verification_status=True,
+            behavior_context="",
+        )
+        result.target = target
         target_file_rel = selected_site.file_path
         target_file_abs = repo_p / target_file_rel
 
@@ -314,7 +380,15 @@ class GraphRepairEngine:
             logger.warning(f"Failed to read file {target_file_rel}: {e}")
             original_code = target.verified_source
 
-        # Step 6: AST-Grounded Repair Unit Planning
+        # Step 6: Graph Context Retrieval for Selected Target
+        retriever = RepairContextRetriever(repo_dir, graph, test_index)
+        repair_context = retriever.retrieve(
+            problem_statement=problem.problem_statement,
+            target_file=target.file_path,
+            target_symbol=target.symbol,
+        )
+
+        # Step 7: AST-Grounded Repair Unit Planning
         unit = RepairUnitPlanner.plan_repair_unit(
             file_path=target_file_rel,
             source_code=original_code,

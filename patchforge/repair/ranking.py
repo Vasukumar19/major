@@ -31,9 +31,11 @@ class RepairSiteRanker:
         self,
         candidates: List[EditSite | GraphNode | dict[str, Any]],
         problem: Optional[Problem] = None,
-        diagnosis: Optional[DiagnosisResult] = None,
+        diagnosis: Optional[DiagnosisResult | Any] = None,
         test_traceback: Optional[str] = None,
         primary_file: str = "",
+        behavior_map: Optional[Any] = None,
+        candidate_profiles: Optional[Dict[str, Any]] = None,
     ) -> List[RankedRepairSite]:
         """Ranks candidate repair sites and returns sorted list of RankedRepairSite."""
         ranked: List[RankedRepairSite] = []
@@ -160,6 +162,49 @@ class RepairSiteRanker:
             elif span_lines <= 30:
                 score += 10.0
                 reasons.append(f"Compact code span ({span_lines} lines) preferred (+10)")
+
+            # 8. Behavioral Evidence & Counterfactual Integration (v0.7)
+            if candidate_profiles:
+                c_prof = candidate_profiles.get(symbol) or candidate_profiles.get(clean_sym)
+                if c_prof:
+                    cf = getattr(c_prof, "counterfactual", None)
+                    if cf:
+                        if getattr(cf, "verdict", "") == "HIGHLY_PLAUSIBLE":
+                            score += 30.0
+                            reasons.append("Counterfactual: highly plausible causal coverage (+30)")
+                        elif getattr(cf, "verdict", "") == "PLAUSIBLE":
+                            score += 15.0
+                            reasons.append("Counterfactual: plausible coverage (+15)")
+                        elif getattr(cf, "verdict", "") in ("INSUFFICIENT_SCOPE", "WEAK"):
+                            score -= 25.0
+                            reasons.append(f"Counterfactual: {getattr(cf, 'verdict', '')} causal link (-25)")
+
+                        unexp = getattr(cf, "unexplained_symptoms", [])
+                        if unexp:
+                            p = min(20.0, len(unexp) * 10.0)
+                            score -= p
+                            reasons.append(f"Fails to cover {len(unexp)} issue symptoms (-{p:.0f})")
+                        else:
+                            score += 15.0
+                            reasons.append("Covers all observed issue symptoms (+15)")
+
+                    br = getattr(c_prof, "blast_radius", None)
+                    if br and hasattr(br, "classification"):
+                        c_val = br.classification.value if hasattr(br.classification, "value") else str(br.classification)
+                        if c_val == "FEATURE_LOCAL":
+                            score += 25.0
+                            reasons.append("Blast radius: FEATURE_LOCAL with bounded impact (+25)")
+                        elif c_val == "FEATURE_SHARED":
+                            score += 10.0
+                            reasons.append("Blast radius: FEATURE_SHARED within feature (+10)")
+                        elif c_val == "GLOBAL_INFRASTRUCTURE":
+                            score -= 30.0
+                            reasons.append("Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)")
+
+                    d_tests = getattr(c_prof, "direct_tests", [])
+                    if d_tests:
+                        score += 15.0
+                        reasons.append(f"Direct tests available: {len(d_tests)} test(s) (+15)")
 
             ranked.append(
                 RankedRepairSite(
