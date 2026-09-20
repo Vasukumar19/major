@@ -31,16 +31,16 @@ client.py:send_request
 """
             return Generation(text=text, model="mock-14b", input_tokens=500, output_tokens=80)
         else:
-            # Patch synthesis response
+            # Structured repair synthesis response
             text = """```json
 {
-  "thought": "Add url validation check",
-  "action": {
-    "name": "apply_patch",
-    "arguments": {
-      "patch_text": "### client.py\\n<<<<<<< SEARCH\\n    def send_request(self, method, url):\\n        self.connect()\\n=======\\n    def send_request(self, method, url):\\n        if not url:\\n            raise ValueError('Invalid URL')\\n        self.connect()\\n>>>>>>> REPLACE"
-    }
-  }
+  "repair_action": "replace_method",
+  "target_unit_id": "client.py::send_request::METHOD::5-7",
+  "target_symbol": "send_request",
+  "replacement": "    def send_request(self, method, url):\\n        if not url:\\n            raise ValueError('Invalid URL')\\n        self.connect()\\n        return f\\"OK: {method} {url}\\"",
+  "reasoning": "Add url validation check",
+  "invariant": "Preserve existing valid urls",
+  "confidence": 0.95
 }
 ```"""
             return Generation(text=text, model="mock-14b", input_tokens=800, output_tokens=100)

@@ -9,8 +9,12 @@ from patchforge.repair.schema import (
     RepairAction,
     RepairUnit,
     RepairUnitType,
+    SchemaValidationResult,
+    SemanticValidationResult,
     StaticValidationResult,
     StructuredRepairOutput,
+    UNIT_CANONICAL_ACTIONS,
+    UNIT_PERMITTED_ACTIONS,
 )
 from patchforge.repair.structured_repair import (
     StructuredRepairParser,
@@ -25,6 +29,10 @@ __all__ = [
     "RepairAction",
     "RankedRepairSite",
     "StructuredRepairOutput",
+    "SchemaValidationResult",
+    "SemanticValidationResult",
+    "UNIT_CANONICAL_ACTIONS",
+    "UNIT_PERMITTED_ACTIONS",
     "ReconstructedPatch",
     "StaticValidationResult",
     "RepairSiteRanker",

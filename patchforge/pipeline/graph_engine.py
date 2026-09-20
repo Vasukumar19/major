@@ -340,25 +340,38 @@ class GraphRepairEngine:
             full_source=original_code,
         )
 
+        last_error = ""
+        repair_protocol_info: dict[str, Any] = {}
+
         for attempt in range(1, max_retries + 1):
             llm_t0 = time.time()
+            if attempt == 1:
+                prompt_to_use = repair_prompt
+                strategy_name = "strict_structured_json"
+            elif attempt == 2:
+                prompt_to_use = StructuredRepairPromptBuilder.build_minimal_prompt(unit, error_feedback=last_error)
+                strategy_name = "minimal_target_bound_json"
+            else:
+                prompt_to_use = StructuredRepairPromptBuilder.build_replacement_only_prompt(unit, error_feedback=last_error)
+                strategy_name = "replacement_only_code"
+
             try:
-                resp = self.provider.generate_one(repair_prompt, system=SYSTEM_STRUCTURED_REPAIR_PROMPT)
+                resp = self.provider.generate_one(prompt_to_use, system=SYSTEM_STRUCTURED_REPAIR_PROMPT)
                 telemetry_logger.log_event(
                     "REPAIR", "STRUCTURED_LLM_GENERATE", duration_ms=(time.time() - llm_t0) * 1000.0,
                     input_tokens=resp.input_tokens, output_tokens=resp.output_tokens,
-                    details={"attempt": attempt}
+                    details={"attempt": attempt, "strategy": strategy_name}
                 )
             except Exception as e:
-                telemetry_logger.log_event("REPAIR", "LLM_ERROR", details={"error": str(e), "attempt": attempt})
+                telemetry_logger.log_event("REPAIR", "LLM_ERROR", details={"error": str(e), "attempt": attempt, "strategy": strategy_name})
                 continue
 
             # Parse structured output
             try:
                 structured_out = StructuredRepairParser.parse(resp.text, unit)
             except Exception as e:
-                telemetry_logger.log_event("REPAIR", "SCHEMA_PARSE_ERROR", details={"error": str(e), "attempt": attempt})
-                repair_prompt += f"\n\n[PARSE ERROR]: {str(e)}\nOutput ONLY the valid JSON object without surrounding commentary."
+                last_error = str(e)
+                telemetry_logger.log_event("REPAIR", "SCHEMA_PARSE_ERROR", details={"error": str(e), "attempt": attempt, "strategy": strategy_name})
                 continue
 
             # Deterministic Source Reconstruction
@@ -370,8 +383,8 @@ class GraphRepairEngine:
             )
 
             if not reconstructed.success:
-                telemetry_logger.log_event("REPAIR", "RECONSTRUCTION_FAILED", details={"error": reconstructed.error, "attempt": attempt})
-                repair_prompt += f"\n\n[RECONSTRUCTION ERROR]: {reconstructed.error}\nEnsure your replacement code aligns with the target code unit."
+                last_error = reconstructed.error
+                telemetry_logger.log_event("REPAIR", "RECONSTRUCTION_FAILED", details={"error": reconstructed.error, "attempt": attempt, "strategy": strategy_name})
                 continue
 
             # Static Validation Gate
@@ -383,8 +396,8 @@ class GraphRepairEngine:
             result.validation_result = validation_res
 
             if not validation_res.valid:
-                telemetry_logger.log_event("REPAIR", "VALIDATION_FAILED", details={"errors": validation_res.errors, "attempt": attempt})
-                repair_prompt += f"\n\n[STATIC VALIDATION FAILED]: {'; '.join(validation_res.errors)}\nFix syntax/AST errors in replacement."
+                last_error = "; ".join(validation_res.errors)
+                telemetry_logger.log_event("REPAIR", "VALIDATION_FAILED", details={"errors": validation_res.errors, "attempt": attempt, "strategy": strategy_name})
                 continue
 
             # Write reconstructed source to disk
@@ -402,7 +415,15 @@ class GraphRepairEngine:
                     output_tokens=resp.output_tokens,
                     new_contents=reconstructed.modified_contents,
                 )
-                telemetry_logger.log_event("APPLY", "STRUCTURED_PATCH_APPLIED", details={"diff_len": len(applied_patch.patch_text)})
+                repair_protocol_info = {
+                    "attempts": attempt,
+                    "strategy": strategy_name,
+                    "target_unit_id": unit.id,
+                    "target_unit_type": unit.unit_type.value,
+                    "repair_action": structured_out.repair_action,
+                    "accepted": True,
+                }
+                telemetry_logger.log_event("APPLY", "STRUCTURED_PATCH_APPLIED", details={"diff_len": len(applied_patch.patch_text), "strategy": strategy_name})
                 break
             except Exception as e:
                 telemetry_logger.log_event("APPLY", "WRITE_DISK_FAILED", details={"error": str(e)})
@@ -416,7 +437,13 @@ class GraphRepairEngine:
             else:
                 result.failure_class = FailureClass.REPAIR_SCHEMA_FAILURE.value
             result.runtime_s = round(time.time() - t0, 2)
-            result.telemetry = telemetry_logger.get_breakdown()
+            breakdown = telemetry_logger.get_breakdown()
+            breakdown["repair_protocol"] = repair_protocol_info or {
+                "attempts": max_retries,
+                "last_error": last_error,
+                "accepted": False,
+            }
+            result.telemetry = breakdown
             _cleanup()
             return result
 

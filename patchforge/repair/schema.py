@@ -40,6 +40,99 @@ class RepairAction(str, Enum):
     MULTI_SITE = "multi_site"
 
 
+UNIT_CANONICAL_ACTIONS: dict[RepairUnitType, RepairAction] = {
+    RepairUnitType.EXPRESSION: RepairAction.REPLACE_EXPRESSION,
+    RepairUnitType.STATEMENT: RepairAction.REPLACE_STATEMENT,
+    RepairUnitType.STATEMENT_BLOCK: RepairAction.REPLACE_BLOCK,
+    RepairUnitType.FUNCTION: RepairAction.REPLACE_METHOD,
+    RepairUnitType.METHOD: RepairAction.REPLACE_METHOD,
+    RepairUnitType.CLASS_MEMBER: RepairAction.REPLACE_STATEMENT,
+    RepairUnitType.IMPORT_BLOCK: RepairAction.MODIFY_IMPORT,
+    RepairUnitType.DECORATOR: RepairAction.REPLACE_DECORATOR,
+    RepairUnitType.MULTI_SITE: RepairAction.MULTI_SITE,
+}
+
+UNIT_PERMITTED_ACTIONS: dict[RepairUnitType, set[RepairAction]] = {
+    RepairUnitType.EXPRESSION: {RepairAction.REPLACE_EXPRESSION},
+    RepairUnitType.STATEMENT: {
+        RepairAction.REPLACE_STATEMENT,
+        RepairAction.INSERT_STATEMENT,
+        RepairAction.DELETE_STATEMENT,
+    },
+    RepairUnitType.STATEMENT_BLOCK: {
+        RepairAction.REPLACE_BLOCK,
+        RepairAction.REPLACE_STATEMENT,
+        RepairAction.INSERT_STATEMENT,
+        RepairAction.DELETE_STATEMENT,
+    },
+    RepairUnitType.FUNCTION: {
+        RepairAction.REPLACE_METHOD,
+        RepairAction.REPLACE_FUNCTION_BODY,
+    },
+    RepairUnitType.METHOD: {
+        RepairAction.REPLACE_METHOD,
+        RepairAction.REPLACE_FUNCTION_BODY,
+    },
+    RepairUnitType.CLASS_MEMBER: {
+        RepairAction.REPLACE_STATEMENT,
+        RepairAction.REPLACE_BLOCK,
+        RepairAction.INSERT_STATEMENT,
+        RepairAction.DELETE_STATEMENT,
+    },
+    RepairUnitType.IMPORT_BLOCK: {
+        RepairAction.MODIFY_IMPORT,
+        RepairAction.REPLACE_STATEMENT,
+        RepairAction.REPLACE_BLOCK,
+    },
+    RepairUnitType.DECORATOR: {
+        RepairAction.REPLACE_DECORATOR,
+        RepairAction.DELETE_STATEMENT,
+    },
+    RepairUnitType.MULTI_SITE: {
+        RepairAction.MULTI_SITE,
+    },
+}
+
+
+@dataclass
+class SchemaValidationResult:
+    """Layer A: Schema validation of raw structured repair output."""
+    valid: bool = True
+    error: str = ""
+    failure_category: str = ""
+    repaired: bool = False
+    raw_snippet: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "valid": self.valid,
+            "error": self.error,
+            "failure_category": self.failure_category,
+            "repaired": self.repaired,
+            "raw_snippet": self.raw_snippet[:200] if self.raw_snippet else "",
+        }
+
+
+@dataclass
+class SemanticValidationResult:
+    """Layer B: Semantic and AST category validation of the replacement."""
+    valid: bool = True
+    ast_category_ok: bool = True
+    action_compatible: bool = True
+    no_target_escape: bool = True
+    errors: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "valid": self.valid,
+            "ast_category_ok": self.ast_category_ok,
+            "action_compatible": self.action_compatible,
+            "no_target_escape": self.no_target_escape,
+            "errors": self.errors,
+        }
+
+
+
 @dataclass
 class RepairUnit:
     """A grounded, AST-verified code unit designated for repair."""
@@ -147,6 +240,8 @@ class StructuredRepairOutput:
     target_symbol: str = ""
     confidence: float = 1.0
     sub_edits: list[dict[str, Any]] = field(default_factory=list)  # For multi-site edits
+    schema_validation: Optional[SchemaValidationResult] = None
+    semantic_validation: Optional[SemanticValidationResult] = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -158,6 +253,8 @@ class StructuredRepairOutput:
             "target_symbol": self.target_symbol,
             "confidence": self.confidence,
             "sub_edits": self.sub_edits,
+            "schema_validation": self.schema_validation.to_dict() if self.schema_validation else {},
+            "semantic_validation": self.semantic_validation.to_dict() if self.semantic_validation else {},
         }
 
 
