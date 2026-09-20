@@ -471,11 +471,13 @@ class FailureAnalyzer:
             "test", "requests", "request", "http", "get", "post", "put",
             "delete", "patch", "head", "options", "check", "assert", "verify",
             "ensure", "is", "are", "the", "with", "from", "to", "for",
+            "decorator", "custom", "wrapper", "helper",
         }
 
         sites: list[EditSite] = []
         seen_sites: set = set()
         repo_p = Path(repo_map.repo_dir) if hasattr(repo_map, "repo_dir") else Path(".")
+        norm_primary = target.file_path.replace("\\", "/").strip().lstrip("/")
 
         # Collect all unique symbols in the repo (non-test source files)
         all_symbols = []
@@ -489,6 +491,9 @@ class FailureAnalyzer:
                 except Exception:
                     pass
 
+        # Prioritize symbols from the primary target file over distant files
+        all_symbols.sort(key=lambda x: (0 if x[0] == norm_primary else 1))
+
         for ft in (evidence.failed_target_tests or []):
             simple_name = ft.split("::")[-1]
             # Extract meaningful keywords from snake_case test name
@@ -496,15 +501,16 @@ class FailureAnalyzer:
             if not words:
                 continue
 
-            # Find repo symbols that contain any of the keywords
+            # Find repo symbols that contain any of the keywords strictly within the target file
             for rel_path, sym in all_symbols:
+                if rel_path != norm_primary:
+                    continue
                 sym_name_lower = sym.name.lower() if hasattr(sym, "name") else str(sym).lower()
                 if not any(kw in sym_name_lower for kw in words):
                     continue
 
                 # Skip if this is the primary target
-                norm_primary = target.file_path.replace("\\", "/").strip().lstrip("/")
-                if rel_path == norm_primary and target.line_start <= sym.line_start <= target.line_end:
+                if target.line_start <= sym.line_start <= target.line_end:
                     continue
 
                 # Skip if already in secondary sites

@@ -16,8 +16,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from patchforge.analysis.state_flow import format_state_flow_summary
 from patchforge.core.target import EditSite, MultiSiteRepairTarget, RepairTarget
 from patchforge.issue.problem import Problem
+from patchforge.memory.episode import RepairEpisode, save_repair_episode
 from patchforge.models.provider import ModelProvider, OllamaProvider
 from patchforge.reasoning.hypothesis import RefinedHypothesis
 from patchforge.repair.generator import parse_edits
@@ -245,6 +247,18 @@ class BaselineRepairEngine:
                 "",
             ])
 
+        state_flow_diagnostics = []
+        for site in all_sites:
+            if site.verified_source:
+                sf = format_state_flow_summary(site.verified_source, site.symbol)
+                if sf:
+                    state_flow_diagnostics.append(sf)
+        if state_flow_diagnostics:
+            sections.extend([
+                "\n\n".join(state_flow_diagnostics),
+                "",
+            ])
+
         sections.append("=== EDITABLE SOURCE — VERBATIM ===")
         for site in all_sites:
             sections.extend([
@@ -413,6 +427,18 @@ class BaselineRepairEngine:
             sections.extend([
                 f"--- File: {site.file_path} (Lines {site.line_start}-{site.line_end}, Symbol: {site.symbol}) ---",
                 site.verified_source,
+                "",
+            ])
+
+        state_flow_diagnostics = []
+        for site in all_sites:
+            if site.verified_source:
+                sf = format_state_flow_summary(site.verified_source, site.symbol)
+                if sf:
+                    state_flow_diagnostics.append(sf)
+        if state_flow_diagnostics:
+            sections.extend([
+                "\n\n".join(state_flow_diagnostics),
                 "",
             ])
 
@@ -847,5 +873,58 @@ class BaselineRepairEngine:
 
         result.runtime_s = round(time.time() - t0, 2)
         result.telemetry = logger.get_breakdown()
+
+        # Record repair episode for memory & structural diagnostics
+        try:
+            target_dict = {
+                "file_path": target.file_path if target else "",
+                "symbol": target.symbol if target else "",
+                "line_start": target.line_start if target else 0,
+                "line_end": target.line_end if target else 0,
+                "secondary_sites": [
+                    {"file_path": s.file_path, "symbol": s.symbol, "line_start": s.line_start, "line_end": s.line_end}
+                    for s in (target.secondary_sites if target else [])
+                ],
+            }
+            sf_summary = ""
+            if target and target.verified_source:
+                sf_summary = format_state_flow_summary(target.verified_source, target.symbol)
+            
+            f2p_p = 0
+            f2p_t = 0
+            p2p_p = 0
+            p2p_t = 0
+            if result.test_summary:
+                f2p_p = result.test_summary.get("fail_to_pass_passed", 0)
+                f2p_t = result.test_summary.get("fail_to_pass_total", 0)
+                p2p_p = result.test_summary.get("pass_to_pass_passed", 0)
+                p2p_t = result.test_summary.get("pass_to_pass_total", 0)
+
+            episode = RepairEpisode(
+                instance_id=problem.instance_id,
+                repo=problem.repo,
+                base_commit=problem.base_commit,
+                model_name=self.model_name,
+                target=target_dict,
+                state_flow_summary=sf_summary,
+                resolved=result.resolved,
+                patch_applied=result.patch_applied,
+                patch_valid=bool(result.patch and result.patch.valid),
+                failure_class=result.failure_class,
+                runtime_s=result.runtime_s,
+                f2p_passed=f2p_p,
+                f2p_total=f2p_t,
+                p2p_passed=p2p_p,
+                p2p_total=p2p_t,
+                refinement_cycles=len(result.refinement_history),
+                refinement_history=result.refinement_history,
+                patch_text=result.patch.patch_text if result.patch else "",
+                test_summary=result.test_summary,
+                created_at=time.strftime("%Y-%m-%d %H:%M:%S"),
+            )
+            save_repair_episode(episode)
+        except Exception as ep_err:
+            logger.log_event("EPISODE", "SAVE_ERROR", details={"error": str(ep_err)})
+
         _cleanup()
         return result

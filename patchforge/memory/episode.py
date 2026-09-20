@@ -78,3 +78,65 @@ class EpisodeStore:
             else:
                 json.dump(payload, f, indent=2)
         return path
+
+
+@dataclass
+class RepairEpisode:
+    """Fine-grained episode record for structural repair data collection."""
+    instance_id: str = ""
+    repo: str = ""
+    base_commit: str = ""
+    model_name: str = ""
+    target: dict = field(default_factory=dict)
+    state_flow_summary: str = ""
+    resolved: bool = False
+    patch_applied: bool = False
+    patch_valid: bool = False
+    failure_class: str = ""
+    runtime_s: float = 0.0
+    f2p_passed: int = 0
+    f2p_total: int = 0
+    p2p_passed: int = 0
+    p2p_total: int = 0
+    refinement_cycles: int = 0
+    refinement_history: list[dict] = field(default_factory=list)
+    patch_text: str = ""
+    test_summary: dict = field(default_factory=dict)
+    created_at: str = ""
+
+    def to_dict(self) -> dict:
+        return {
+            "instance_id": self.instance_id,
+            "repo": self.repo,
+            "base_commit": self.base_commit,
+            "model_name": self.model_name,
+            "target": self.target,
+            "state_flow_summary": self.state_flow_summary,
+            "resolved": self.resolved,
+            "patch_applied": self.patch_applied,
+            "patch_valid": self.patch_valid,
+            "failure_class": self.failure_class,
+            "runtime_s": self.runtime_s,
+            "f2p_passed": self.f2p_passed,
+            "f2p_total": self.f2p_total,
+            "p2p_passed": self.p2p_passed,
+            "p2p_total": self.p2p_total,
+            "refinement_cycles": self.refinement_cycles,
+            "refinement_history": self.refinement_history,
+            "patch_text": self.patch_text,
+            "test_summary": self.test_summary,
+            "created_at": self.created_at,
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> RepairEpisode:
+        return cls(**{k: v for k, v in data.items() if k in cls.__dataclass_fields__})
+
+
+def save_repair_episode(episode: RepairEpisode, directory: str = "results/episodes") -> str:
+    """Saves a RepairEpisode to JSON storage."""
+    p = Path(directory)
+    p.mkdir(parents=True, exist_ok=True)
+    file_path = p / f"{episode.instance_id}.json"
+    file_path.write_text(json.dumps(episode.to_dict(), indent=2), encoding="utf-8")
+    return str(file_path)

@@ -228,11 +228,63 @@ def build_prompt(problem: Problem, hypothesis: Hypothesis, code: list[str],
     return "\n".join(lines)
 
 
-def _shift_replace_indentation(rep_raw_lines: list[str], orig_indent: str) -> list[str]:
-    """Shifts replacement block lines relative to original line indentation."""
+def _shift_replace_indentation(
+    rep_raw_lines: list[str],
+    orig_indent: str,
+    matched_c: list[str] | None = None,
+    search_lines: list[str] | None = None,
+) -> list[str]:
+    """Shifts replacement block lines relative to original line indentation with anchor preservation."""
     rep_non_empty = [l for l in rep_raw_lines if l.strip()]
     if not rep_non_empty:
-        return [l + "\n" for l in rep_raw_lines]
+        return [l + "\n" if not l.endswith("\n") else l for l in rep_raw_lines]
+
+    # If matched_c and search_lines are provided, check for anchor alignment
+    if matched_c and search_lines:
+        s_non_empty = [l.strip() for l in search_lines if l.strip()]
+        c_non_empty = [l for l in matched_c if l.strip()]
+        if len(s_non_empty) == len(c_non_empty):
+            s_to_orig_indent = {}
+            for s_l, c_l in zip(s_non_empty, c_non_empty):
+                s_to_orig_indent[s_l] = c_l[:len(c_l) - len(c_l.lstrip())]
+
+            anchors = {}
+            for orig_r_idx, line in enumerate(rep_raw_lines):
+                strip_l = line.strip()
+                if strip_l in s_to_orig_indent:
+                    anchors[orig_r_idx] = s_to_orig_indent[strip_l]
+
+            # If at least one anchor line was found, perform anchor-relative alignment
+            if anchors:
+                res = []
+                for i, line in enumerate(rep_raw_lines):
+                    if not line.strip():
+                        res.append("\n")
+                        continue
+                    strip_l = line.strip()
+                    if i in anchors:
+                        res.append(anchors[i] + strip_l + "\n")
+                    else:
+                        prec_anchors = [a for a in anchors if a < i]
+                        succ_anchors = [a for a in anchors if a > i]
+                        if prec_anchors:
+                            nearest_a = prec_anchors[-1]
+                            model_base = len(rep_raw_lines[nearest_a]) - len(rep_raw_lines[nearest_a].lstrip())
+                            model_curr = len(line) - len(line.lstrip())
+                            delta = model_curr - model_base
+                            target_indent_len = max(0, len(anchors[nearest_a]) + delta)
+                            res.append((" " * target_indent_len) + strip_l + "\n")
+                        elif succ_anchors:
+                            nearest_a = succ_anchors[0]
+                            model_base = len(rep_raw_lines[nearest_a]) - len(rep_raw_lines[nearest_a].lstrip())
+                            model_curr = len(line) - len(line.lstrip())
+                            delta = model_curr - model_base
+                            target_indent_len = max(0, len(anchors[nearest_a]) + delta)
+                            res.append((" " * target_indent_len) + strip_l + "\n")
+                        else:
+                            res.append(orig_indent + strip_l + "\n")
+                return res
+
     rep_base_indent = rep_non_empty[0][:len(rep_non_empty[0]) - len(rep_non_empty[0].lstrip())]
     base_len = len(rep_base_indent)
 
@@ -249,6 +301,7 @@ def _shift_replace_indentation(rep_raw_lines: list[str], orig_indent: str) -> li
             unindent = max(0, len(orig_indent) + rel_offset)
             shifted.append((" " * unindent) + l.lstrip() + "\n")
     return shifted
+
 
 
 def _apply_single_edit(content: str, search: str, replace: str) -> tuple[str, MatchStatus, str]:
@@ -327,7 +380,7 @@ def _apply_single_edit(content: str, search: str, replace: str) -> tuple[str, Ma
             orig_indent = orig_first[:len(orig_first) - len(orig_first.lstrip())]
 
             rep_raw_lines = replace.splitlines()
-            shifted_rep = _shift_replace_indentation(rep_raw_lines, orig_indent)
+            shifted_rep = _shift_replace_indentation(rep_raw_lines, orig_indent, matched_c=c_lines[idx:idx+n], search_lines=s_lines)
             new_lines = c_lines[:idx] + shifted_rep + c_lines[idx+n:]
             return "".join(new_lines), MatchStatus.INDENTATION_NORMALIZED, ""
         elif len(indent_matches) > 1:
@@ -420,7 +473,7 @@ def _apply_single_edit(content: str, search: str, replace: str) -> tuple[str, Ma
             orig_first = c_lines[m_start]
             orig_indent = orig_first[:len(orig_first) - len(orig_first.lstrip())]
             rep_raw_lines = replace.splitlines()
-            shifted_rep = _shift_replace_indentation(rep_raw_lines, orig_indent)
+            shifted_rep = _shift_replace_indentation(rep_raw_lines, orig_indent, matched_c=c_lines[m_start:m_end+1], search_lines=s_lines)
             new_lines = c_lines[:m_start] + shifted_rep + c_lines[m_end + 1:]
             return "".join(new_lines), MatchStatus.ANCHORED_GAP, ""
         elif len(candidate_gap_matches) > 1:
