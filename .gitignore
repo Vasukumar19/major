@@ -18,3 +18,10 @@ experiments/**/state.json
 .vscode/
 *.log
 *.tmp
+patchforge.eval_*.json
+scratch_*.py
+test_micro_*.py
+test_coder_models.py
+.pytest-temp/
+repos/
+third_party/

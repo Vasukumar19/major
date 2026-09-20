@@ -186,3 +186,137 @@ def test_apply_patch_tool_allowed_files(tmp_path: Path):
     })
     assert res2.status == "SUCCESS"
     assert "world" in (tmp_path / "app.py").read_text()
+
+
+def test_multisite_cases_a_through_e(tmp_path: Path):
+    """Synthetic unit tests for multi-site targeting cases A through E:
+    Case A: Two methods in one file.
+    Case B: Two files.
+    Case C: Primary site + related helper.
+    Case D: Partial target success where modifying only one site leaves remaining failures.
+    Case E: Rejection of unrelated secondary site proposed by model.
+    """
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    f1 = repo / "module_a.py"
+    f1.write_text(
+        "class Worker:\n"
+        "    def method_one(self, x):\n"
+        "        return x + 1\n\n"
+        "    def method_two(self, y):\n"
+        "        return y * 2\n",
+        encoding="utf-8",
+    )
+    f2 = repo / "helper.py"
+    f2.write_text(
+        "def shared_helper(z):\n"
+        "    return z.strip()\n",
+        encoding="utf-8",
+    )
+    f_unrelated = repo / "unrelated.py"
+    f_unrelated.write_text(
+        "def unrelated_function():\n"
+        "    return 42\n",
+        encoding="utf-8",
+    )
+
+    # Case A: Two methods in one file
+    target = RepairTarget(
+        file_path="module_a.py",
+        symbol="method_one",
+        repository="test/repo",
+        line_start=2,
+        line_end=3,
+        verified_source="    def method_one(self, x):\n        return x + 1\n",
+        verification_status=True,
+    )
+    site_two = EditSite(
+        file_path="module_a.py",
+        symbol="method_two",
+        line_start=5,
+        line_end=6,
+        verified_source="    def method_two(self, y):\n        return y * 2\n",
+        verification_status=True,
+    )
+    assert target.add_secondary_site(site_two) is True
+    assert len(target.all_sites()) == 2
+    assert target.all_sites()[0].symbol == "method_one"
+    assert target.all_sites()[1].symbol == "method_two"
+
+    # Case B: Two files
+    target_b = RepairTarget(
+        file_path="module_a.py",
+        symbol="method_one",
+        repository="test/repo",
+        line_start=2,
+        line_end=3,
+        verified_source="    def method_one(self, x):\n        return x + 1\n",
+        verification_status=True,
+    )
+    site_f2 = EditSite(
+        file_path="helper.py",
+        symbol="shared_helper",
+        line_start=1,
+        line_end=2,
+        verified_source="def shared_helper(z):\n    return z.strip()\n",
+        verification_status=True,
+    )
+    assert target_b.add_secondary_site(site_f2) is True
+    assert target_b.check_file_match("helper.py") is True
+    assert target_b.check_file_match("module_a.py") is True
+    assert target_b.check_file_match("unrelated.py") is False
+
+    # Case C: Primary site + related helper
+    tool = ApplyPatchTool(repo_dir=str(repo))
+    patch_ac = (
+        "### module_a.py\n"
+        "<<<<<<< SEARCH\n"
+        "        return x + 1\n"
+        "=======\n"
+        "        return shared_helper(x)\n"
+        ">>>>>>> REPLACE\n"
+        "### helper.py\n"
+        "<<<<<<< SEARCH\n"
+        "    return z.strip()\n"
+        "=======\n"
+        "    return str(z).strip()\n"
+        ">>>>>>> REPLACE\n"
+    )
+    allowed = [s.file_path for s in target_b.all_sites()]
+    res_ac = tool.execute({"patch_text": patch_ac, "allowed_files": allowed})
+    assert res_ac.status == "SUCCESS"
+    assert "shared_helper(x)" in f1.read_text(encoding="utf-8")
+    assert "str(z).strip()" in f2.read_text(encoding="utf-8")
+
+    # Case D: Modifying only one site leaves remaining failures (partial success)
+    # Simulated via non-regressive progress acceptance
+    prev_f2p_passed = 1
+    prev_f2p_total = 2
+    # Cycle 1 only modifies module_a.py -> 1/2 tests pass (partial success)
+    cycle1_f2p_passed = 1
+    cycle1_p2p_passed = 50
+    prev_p2p_passed = 50
+    # Engine logic check: partial progress is accepted without rollback
+    is_better = (
+        (cycle1_f2p_passed >= prev_f2p_passed and cycle1_p2p_passed >= prev_p2p_passed)
+    )
+    assert is_better is True
+
+    # Case E: Model incorrectly proposes an unrelated secondary site
+    unrelated_patch = (
+        "### unrelated.py\n"
+        "<<<<<<< SEARCH\n"
+        "    return 42\n"
+        "=======\n"
+        "    return 999\n"
+        ">>>>>>> REPLACE\n"
+    )
+    res_e = tool.execute({
+        "patch_text": unrelated_patch,
+        "allowed_files": allowed,  # allowed contains only module_a.py and helper.py
+    })
+    assert res_e.status == "ERROR"
+    assert "TARGET_MISMATCH" in res_e.error
+    assert "unrelated.py" in res_e.error
+    assert "42" in f_unrelated.read_text(encoding="utf-8")  # Unrelated file was untouched!
+

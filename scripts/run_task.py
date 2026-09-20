@@ -16,6 +16,10 @@ from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
 
+docker_bin = r"C:\Program Files\Docker\Docker\resources\bin"
+if os.path.exists(docker_bin) and docker_bin not in os.environ.get("PATH", ""):
+    os.environ["PATH"] = docker_bin + os.pathsep + os.environ.get("PATH", "")
+
 sys.path.insert(0, ".")
 
 from patchforge.agent.controller import AgentController
@@ -143,8 +147,14 @@ def main():
     print(f"Refinement:     {summary.get('refinement_cycles', 0)} cycles", flush=True)
     if summary.get("test_summary"):
         ts = summary["test_summary"]
-        print(f"FAIL_TO_PASS:   {ts.get('fail_to_pass_passed', 0)}/{ts.get('fail_to_pass_total', 0)}", flush=True)
-        print(f"PASS_TO_PASS:   {ts.get('pass_to_pass_passed', 0)}/{ts.get('pass_to_pass_total', 0)}", flush=True)
+        f2p = ts.get("fail_to_pass", {})
+        p2p = ts.get("pass_to_pass", {})
+        f2p_p = f2p.get("passed", ts.get("fail_to_pass_passed", 0)) if isinstance(f2p, dict) else ts.get("fail_to_pass_passed", 0)
+        f2p_t = f2p.get("total", ts.get("fail_to_pass_total", 0)) if isinstance(f2p, dict) else ts.get("fail_to_pass_total", 0)
+        p2p_p = p2p.get("passed", ts.get("pass_to_pass_passed", 0)) if isinstance(p2p, dict) else ts.get("pass_to_pass_passed", 0)
+        p2p_t = p2p.get("total", ts.get("pass_to_pass_total", 0)) if isinstance(p2p, dict) else ts.get("pass_to_pass_total", 0)
+        print(f"FAIL_TO_PASS:   {f2p_p}/{f2p_t}", flush=True)
+        print(f"PASS_TO_PASS:   {p2p_p}/{p2p_t}", flush=True)
     print(f"Runtime:        {summary['runtime_s']}s", flush=True)
     print("=" * 60, flush=True)
 

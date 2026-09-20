@@ -305,9 +305,10 @@ def test_repeated_failure_and_budget_guards():
 
     try:
         res = engine.run(problem, repo_dir=".", tester=tester, max_retries=1, max_refinements=2)
-        # The first refinement cycle encounters the exact same failure as cycle 0 -> guard triggers!
+        # In V0.4.3, failure_history decouples from cycle 0, so cycle 1 and cycle 2 execute
+        # and cycle 2 triggers REFINEMENT_EXHAUSTED upon encountering cycle 1's signature.
         assert res.failure_class == "REFINEMENT_EXHAUSTED"
-        assert res.refinement_cycles == 1
+        assert res.refinement_cycles == 2
         assert tester.runs <= 3
     finally:
         bl.ApplyPatchTool = orig_apply

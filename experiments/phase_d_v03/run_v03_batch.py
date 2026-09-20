@@ -33,10 +33,11 @@ def save_record(instance_id: str, rec: dict) -> None:
         json.dump(rec, f, indent=2)
 
 
-def run_v03_instance(instance_id: str) -> dict:
+def run_v03_instance(instance_id: str, model: str = "") -> dict:
     t0 = time.time()
+    chosen_model = model or os.getenv("PATCHFORGE_MODEL", "qwen3:8b")
     cfg = PatchForgeConfig(
-        default_model="google/gemini-3.5-flash-lite",
+        default_model=chosen_model,
         max_patch_attempts=4,
         max_task_seconds=1500,
         workspace=".",
@@ -44,6 +45,7 @@ def run_v03_instance(instance_id: str) -> dict:
 
     orch = OrchestratorV03(config=cfg, workspace=".")
     best_patch, trajectory, state = orch.run_instance(instance_id=instance_id, max_turns=12)
+
 
     ee = state.last_execution_evidence
     patch_calls_count = sum(
@@ -94,6 +96,7 @@ def main():
     parser = argparse.ArgumentParser(description="Run PatchForge v0.3 on tasks.")
     parser.add_argument("--instance", type=str, help="Specific instance_id to run (e.g. psf__requests-863)")
     parser.add_argument("--smoke", action="store_true", help="Run the 4 regression smoke tasks")
+    parser.add_argument("--model", type=str, default="", help="Model name (e.g. qwen3:8b, gemma3:12b)")
     args = parser.parse_args()
 
     smoke_instances = [
@@ -104,13 +107,14 @@ def main():
     ]
 
     if args.instance:
-        run_v03_instance(args.instance)
+        run_v03_instance(args.instance, model=args.model)
     elif args.smoke:
         print(f"Starting smoke regression run on {len(smoke_instances)} tasks: {smoke_instances}")
         for inst in smoke_instances:
-            run_v03_instance(inst)
+            run_v03_instance(inst, model=args.model)
     else:
         print("Please provide --instance <id> or --smoke")
+
 
 
 if __name__ == "__main__":

@@ -85,6 +85,37 @@ def _normalize_stem(word: str) -> str:
     return word
 
 
+_COMMON_WORDS = {
+    "get", "set", "read", "write", "open", "close", "run", "start", "stop",
+    "call", "send", "update", "values", "items", "keys", "pop", "copy",
+    "clear", "count", "index", "head", "post", "put", "delete", "options",
+    "request", "session", "response", "type", "format", "parse", "data",
+    "body", "file", "code", "error", "text", "line", "string", "list", "dict",
+}
+
+
+def _is_meaningful_symbol_match(name: str, kind: str, issue_text: str, dot_calls: set[str], code_words: set[str]) -> tuple[bool, float]:
+    name_low = name.lower()
+    if name in dot_calls:
+        return True, 30.0
+    if name in code_words or name_low in code_words:
+        return True, 25.0
+    if re.search(r"\b" + re.escape(name) + r"\s*\(", issue_text):
+        return True, 25.0
+    if name_low in _COMMON_WORDS:
+        if kind == "class":
+            if re.search(r"\b(?:class\s+" + re.escape(name) + r"|" + re.escape(name) + r"\s+class)\b", issue_text, re.IGNORECASE):
+                return True, 25.0
+            if re.search(r"\b" + re.escape(name) + r"\.", issue_text):
+                return True, 25.0
+        return False, 0.0
+    if re.search(r"\b" + re.escape(name) + r"\b", issue_text, re.IGNORECASE):
+        if kind == "class":
+            return True, 20.0
+        return True, 15.0 if len(name) >= 6 else 8.0
+    return False, 0.0
+
+
 class BaselineRepairEngine:
     """Executes deterministic software repair with bounded semantic refinement."""
 
@@ -110,7 +141,7 @@ class BaselineRepairEngine:
         for mf in mentioned_files:
             clean_f = mf.strip().replace("\\", "/").lstrip("/")
             if (repo_p / clean_f).exists() and (repo_p / clean_f).is_file():
-                if not any(part in ("tests", "docs", ".git", "venv") for part in Path(clean_f).parts):
+                if not any(part in ("tests", "testing", "test", "docs", ".git", "venv", ".venv", "packages", "vendor") for part in Path(clean_f).parts):
                     candidate_file = clean_f
                     break
 
@@ -119,62 +150,59 @@ class BaselineRepairEngine:
             py_files = [
                 str(p.relative_to(repo_p)).replace("\\", "/")
                 for p in repo_p.glob("**/*.py")
-                if p.is_file() and not any(part in ("tests", "docs", ".git", "venv") for part in p.parts)
+                if p.is_file() and not any(part in ("tests", "testing", "test", "docs", ".git", "venv", ".venv", "packages", "vendor", "third_party", "build", "dist") for part in p.parts)
             ]
 
-            words = re.findall(r"[a-zA-Z_]\w*", issue_text.lower())
-            stop_words = {
-                "the", "a", "an", "in", "on", "of", "to", "for", "with", "is", "was",
-                "it", "that", "this", "and", "or", "as", "be", "at", "by", "from",
-                "not", "are", "from", "when", "if", "then", "into", "has", "have",
-                "should", "would", "could", "test", "tests", "reproduce", "expected",
-                "actual", "error", "bug", "issue", "fails", "failed", "failing",
-            }
-            filtered_words = [w for w in words if len(w) > 2 and w not in stop_words]
-            term_stems = {_normalize_stem(w) for w in filtered_words}
+            repo_name = repo_p.name.lower()
+            dot_calls = set(re.findall(r"\.([A-Za-z_][A-Za-z0-9_]+)", issue_text))
+            code_words = set(re.findall(r"`([^`]+)`", issue_text))
+            issue_stems = [_normalize_stem(w.lower()) for w in re.findall(r"[a-zA-Z_]\w*", issue_text)]
 
-            best_file = ""
-            max_score = -1.0
+            file_scores: list[tuple[float, str]] = []
             for pf in py_files:
                 score = 0.0
-                p_parts = Path(pf).parts
-                for part in p_parts:
-                    stem = _normalize_stem(part.replace(".py", ""))
-                    if stem in term_stems:
-                        score += 5.0
-
                 symbols = repo_map.extract_symbols(pf)
                 for s in symbols:
-                    s_stem = _normalize_stem(s.name)
-                    if s_stem in term_stems:
-                        score += 3.0
+                    if s.name.startswith("__") and s.name.endswith("__"):
+                        if s.parent_class and f"{s.parent_class}.{s.name}".lower() in issue_text.lower():
+                            score += 30.0
+                        continue
+                    matched, pts = _is_meaningful_symbol_match(s.name, s.kind, issue_text, dot_calls, code_words)
+                    if matched:
+                        score += pts
 
-                if score > max_score:
-                    max_score = score
-                    best_file = pf
+                stem = Path(pf).stem.lower()
+                stem_norm = _normalize_stem(stem)
+                if stem != repo_name and len(stem) > 3 and stem_norm not in _COMMON_WORDS:
+                    cnt = issue_stems.count(stem_norm)
+                    if cnt > 0:
+                        score += min(cnt, 3) * 15.0
 
-            candidate_file = best_file or (py_files[0] if py_files else "unknown.py")
+                file_scores.append((score, pf))
+
+            file_scores.sort(key=lambda x: x[0], reverse=True)
+            candidate_file = file_scores[0][1] if file_scores else (py_files[0] if py_files else "unknown.py")
 
         # 3. Identify candidate symbol in candidate file
         symbols = repo_map.extract_symbols(candidate_file)
-        candidate_sym = ""
-        max_sym_score = -1.0
-        words = re.findall(r"[a-zA-Z_]\w*", issue_text.lower())
-        term_stems = {_normalize_stem(w) for w in words if len(w) > 2}
-
+        dot_calls = set(re.findall(r"\.([A-Za-z_][A-Za-z0-9_]+)", issue_text))
+        code_words = set(re.findall(r"`([^`]+)`", issue_text))
+        sym_scores: list[tuple[float, str, str]] = []
         for s in symbols:
-            s_score = 0.0
-            s_stem = _normalize_stem(s.name)
-            if s_stem in term_stems:
-                s_score += 10.0
-            if s.name.lower() in issue_text.lower():
-                s_score += 15.0
-            if s_score > max_sym_score:
-                max_sym_score = s_score
-                candidate_sym = s.name
+            score = 0.0
+            if s.name.startswith("__") and s.name.endswith("__"):
+                if s.parent_class and f"{s.parent_class}.{s.name}".lower() in issue_text.lower():
+                    score += 35.0
+                elif s.name == "__init__" and any(w in issue_text.lower() for w in ("__init__", "init", "constructor")):
+                    score += 10.0
+            else:
+                matched, pts = _is_meaningful_symbol_match(s.name, s.kind, issue_text, dot_calls, code_words)
+                if matched:
+                    score += pts
+            sym_scores.append((score, s.name, s.kind))
 
-        if not candidate_sym and symbols:
-            candidate_sym = symbols[0].name
+        sym_scores.sort(key=lambda x: x[0], reverse=True)
+        candidate_sym = sym_scores[0][1] if sym_scores else (symbols[0].name if symbols else "")
 
         # 4. Extract surgical unit and behavior context
         source_win, win_start, win_end, behavior_context = repo_map.extract_surgical_unit(
@@ -236,8 +264,8 @@ class BaselineRepairEngine:
             "=== REPAIR CONSTRAINTS ===",
             f"1. Fix the issue strictly inside {target_files_str}.",
             f"2. You MUST use an apply_patch JSON action targeting the appropriate file(s).",
-            "3. The SEARCH block MUST match exact verbatim lines from EDITABLE SOURCE — VERBATIM above.",
-            "4. Do NOT include git diff markers ('+' or '-') in SEARCH blocks.",
+            "3. The SEARCH block MUST match exact verbatim lines from EDITABLE SOURCE — VERBATIM above (do NOT omit docstring lines or comments between functions).",
+            "4. Do NOT use git diff format, '+' or '-' markers, or diff headers. Format the patch strictly using SEARCH/REPLACE blocks.",
             "5. Preserve all existing function signatures and unmodified behaviors.",
             "6. Output ONLY the single valid JSON object.",
         ])
@@ -262,15 +290,62 @@ class BaselineRepairEngine:
 
         candidates.append(raw_text)
 
+        from patchforge.repair.generator import diff_to_search_replace, code_to_search_replace
+
         for cand in candidates:
+            data = None
             try:
                 data = json.loads(cand, strict=False)
+            except Exception:
+                # Fallback regex extraction for malformed JSON with unescaped quotes/newlines
+                m = re.search(r'"(?:patch_text|patch|diff|code)":\s*"(.*)"\s*(?:,\s*"|\}\s*\}|\}\s*,|\}\s*$)', cand, re.DOTALL)
+                if m:
+                    raw_val = m.group(1)
+                    try:
+                        extracted_val = raw_val.encode("utf-8").decode("unicode_escape")
+                    except Exception:
+                        extracted_val = raw_val.replace('\\"', '"').replace('\\n', '\n').replace('\\t', '\t')
+                    data = {"action": {"arguments": {"patch_text": extracted_val}}}
+
+            if not data or not isinstance(data, dict):
+                continue
+
+            try:
+                # Check top-level patch or diff fields
+                top_p = data.get("patch_text", "") or data.get("patch", "") or data.get("diff", "")
+                target_f = data.get("file", "") or data.get("file_path", "") or target.file_path
+                if top_p:
+                    if "<<<<<<< SEARCH" in top_p:
+                        return f"### {target_f}\n{top_p}" if "###" not in top_p else top_p
+                    converted = diff_to_search_replace(top_p, target_f)
+                    if converted:
+                        return converted
+                    converted_code = code_to_search_replace(top_p, target, target_f)
+                    if converted_code:
+                        return converted_code
+
                 action = data.get("action", {})
                 if isinstance(action, dict):
                     args = action.get("arguments", {}) or action.get("args", {}) or action.get("parameters", {})
-                    p = args.get("patch_text", "")
+                    p = args.get("patch_text", "") or args.get("patch", "") or args.get("diff", "")
+                    a_file = args.get("file_path", "") or args.get("file", "") or target.file_path
                     if p:
-                        return p
+                        if "<<<<<<< SEARCH" in p:
+                            return f"### {a_file}\n{p}" if "###" not in p else p
+                        converted = diff_to_search_replace(p, a_file)
+                        if converted:
+                            return converted
+                        converted_code = code_to_search_replace(p, target, a_file)
+                        if converted_code:
+                            return converted_code
+                # Check top-level or argument-level search and replace fields (e.g. lists or strings)
+                search_val = data.get("search") or (action.get("arguments", {}).get("search") if isinstance(action, dict) else None)
+                replace_val = data.get("replace") or (action.get("arguments", {}).get("replace") if isinstance(action, dict) else None)
+                if search_val is not None and replace_val is not None:
+                    s_str = "\n".join(search_val) if isinstance(search_val, list) else str(search_val)
+                    r_str = "\n".join(replace_val) if isinstance(replace_val, list) else str(replace_val)
+                    target_f = data.get("file") or data.get("file_path") or (action.get("arguments", {}).get("file_path") if isinstance(action, dict) else None) or target.file_path
+                    return f"### {target_f}\n<<<<<<< SEARCH\n{s_str}\n=======\n{r_str}\n>>>>>>> REPLACE"
             except Exception:
                 continue
 
@@ -280,6 +355,22 @@ class BaselineRepairEngine:
 
         if "<<<<<<< SEARCH" in raw_text:
             return f"### {target.file_path}\n" + raw_text
+
+        if "diff --git" in raw_text or "@@" in raw_text or "--- a/" in raw_text:
+            converted = diff_to_search_replace(raw_text, target.file_path)
+            if converted:
+                return converted
+
+        py_blocks = re.findall(r"```(?:python)?\s*(def\s+[\s\S]*?|class\s+[\s\S]*?)\s*```", raw_text)
+        for pb in py_blocks:
+            converted = code_to_search_replace(pb, target)
+            if converted:
+                return converted
+
+        if not (raw_text.strip().startswith("{") or "```json" in raw_text or '"action":' in raw_text):
+            converted_raw = code_to_search_replace(raw_text, target)
+            if converted_raw:
+                return converted_raw
 
         return ""
 
@@ -309,8 +400,13 @@ class BaselineRepairEngine:
             f"Target File: {target.file_path}",
             f"Target Symbol: {target.symbol}",
             f"Lines: {target.line_start}-{target.line_end}",
-            "",
         ]
+        if target.secondary_sites:
+            for idx, site in enumerate(target.secondary_sites, 1):
+                sections.append(
+                    f"Secondary Target {idx}: {site.file_path} (Symbol: {site.symbol}, Lines: {site.line_start}-{site.line_end})"
+                )
+        sections.append("")
 
         sections.append("=== VERIFIED EDITABLE SOURCE ===")
         for site in all_sites:
@@ -334,10 +430,10 @@ class BaselineRepairEngine:
             "",
             "=== REPAIR CONSTRAINTS ===",
             f"1. Fix the remaining failure strictly inside {target_files_str}.",
-            f"2. You MUST use an apply_patch JSON action targeting the appropriate file(s).",
+            f"2. You MUST use an apply_patch JSON action targeting the appropriate file(s) and symbol(s).",
             "3. The SEARCH block MUST match exact verbatim clean lines from VERIFIED EDITABLE SOURCE above.",
             "4. Do NOT include git diff markers ('+' or '-') in SEARCH blocks.",
-            "5. Address the concrete failure identified in SEMANTIC DIAGNOSIS above.",
+            "5. Address the concrete failure identified in SEMANTIC DIAGNOSIS above (e.g. if an AssertionError is raised, replace the assert statement with the expected exception type such as ValueError).",
             "6. Preserve all passing behavior and do not modify unaffected functions.",
             "7. Output ONLY the single valid JSON object.",
         ])
@@ -488,12 +584,12 @@ class BaselineRepairEngine:
 
             is_infra = bool(getattr(verdict, "infra_failure", False)) or "timeout" in getattr(verdict, "error", "").lower()
             if not result.resolved and not is_infra and max_refinements > 0:
-                failure_history = [
-                    (
-                        tuple(sorted(getattr(verdict, "fail_to_pass_failure", []) or [])),
-                        tuple(sorted(getattr(verdict, "pass_to_pass_failure", []) or [])),
-                    )
-                ]
+                # failure_history tracks refinement cycle signatures ONLY.
+                # Do NOT pre-populate with Cycle 0 signature so that a refinement cycle
+                # which produces the same failing test names (but a different root error)
+                # still gets another attempt. The guard only fires when two consecutive
+                # REFINEMENT cycles are strictly identical.
+                failure_history = []
                 current_patch = applied_patch
                 previous_eval = verdict
 
@@ -527,6 +623,10 @@ class BaselineRepairEngine:
                     analyzer = FailureAnalyzer()
                     repo_map = RepoMap(repo_dir)
                     new_sites = analyzer.extract_secondary_edit_sites(evidence, repo_map, target, max_secondary_sites=1)
+                    # Fallback: when no library traceback frames were available, use test-name keywords
+                    # to find repo functions that match what the failing test exercises.
+                    if not new_sites:
+                        new_sites = analyzer._test_name_fallback_sites(evidence, repo_map, target, max_secondary_sites=1)
                     for n_site in new_sites:
                         if target.add_secondary_site(n_site):
                             print(f"  [SCOPE EXPANSION] Secondary site added: {n_site.file_path}:{n_site.line_start}-{n_site.line_end} ({n_site.symbol})", flush=True)
@@ -569,6 +669,9 @@ class BaselineRepairEngine:
                     if f2p_fail and not p2p_fail:
                         short_failing = [t.split("::")[-1] for t in f2p_fail[:3]]
                         ref_text = f"The initial patch resolved {evidence.target_tests_passed}/{evidence.target_tests_total} target tests but failed on: {', '.join(short_failing)}. The repair must be refined to satisfy these failing assertions while strictly preserving passing tests."
+                        if target.secondary_sites:
+                            sec_symbols = [s.symbol for s in target.secondary_sites if s.symbol]
+                            ref_text += f" You may apply changes to the primary site or secondary site ({', '.join(sec_symbols)}) as needed to resolve the remaining failure."
                     elif p2p_fail:
                         c_desc = f" ({diagnosis.clusters[0].error_type}: {diagnosis.clusters[0].message[:40]})" if diagnosis.clusters else ""
                         ref_text = f"The initial patch repaired targeted defect behavior ({evidence.target_tests_passed}/{evidence.target_tests_total} target tests passed) but broke existing contracts or introduced runtime errors{c_desc}. Scope the change strictly to avoid regressions."
@@ -620,6 +723,20 @@ class BaselineRepairEngine:
                         continue
 
                     print(f"  [REFINEMENT CYCLE {cycle}] Refined patch text:\n{refined_patch_text}", flush=True)
+
+                    # Detect no-op patches where every SEARCH block is identical to its REPLACE block.
+                    # These burn a refinement cycle without making progress. Skip and continue.
+                    from patchforge.repair.generator import parse_edits as _parse_edits
+                    _parsed_noop = _parse_edits(refined_patch_text)
+                    if _parsed_noop and all(
+                        s.strip() == r.strip()
+                        for blocks in _parsed_noop.values()
+                        for s, r in blocks
+                    ):
+                        print(f"  [REFINEMENT CYCLE {cycle}] NO-OP PATCH DETECTED (SEARCH==REPLACE): skipping apply.", flush=True)
+                        logger.log_event("REFINE", "NOOP_PATCH_SKIPPED", details={"cycle": cycle})
+                        refine_prompt += f"\n\n[PREVIOUS ATTEMPT WAS A NO-OP]: Your SEARCH and REPLACE blocks were identical — you must actually CHANGE the code. Identify the exact lines that need to differ between SEARCH and REPLACE."
+                        continue
 
                     apply_tool = ApplyPatchTool(repo_dir=repo_dir)
                     if hasattr(apply_tool, "write_to_disk"):
@@ -700,6 +817,11 @@ class BaselineRepairEngine:
                         (refine_verdict.resolved and not previous_eval.resolved)
                         or (refine_verdict.fail_to_pass_passed > previous_eval.fail_to_pass_passed and refine_verdict.pass_to_pass_passed >= previous_eval.pass_to_pass_passed)
                         or (refine_verdict.fail_to_pass_passed == previous_eval.fail_to_pass_passed and refine_verdict.pass_to_pass_passed > previous_eval.pass_to_pass_passed)
+                        # Accept lateral/partial progress: no regression in P2P and F2P not worse.
+                        # This prevents the rollback from undoing intermediate multi-step fixes (e.g.
+                        # fixing one assertion out of two in the same method so the next cycle can
+                        # target the remaining assertion on the updated source).
+                        or (refine_verdict.fail_to_pass_passed >= previous_eval.fail_to_pass_passed and refine_verdict.pass_to_pass_passed >= previous_eval.pass_to_pass_passed)
                     )
 
                     if is_better or refine_verdict.resolved:
