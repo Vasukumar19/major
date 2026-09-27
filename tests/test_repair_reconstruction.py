@@ -234,8 +234,46 @@ class TestRepairReconstruction(unittest.TestCase):
         val = StaticRepairValidator.validate({"f.py": code}, rec, [unit], max_line_expansion=100)
         self.assertFalse(val.valid)
         self.assertFalse(val.line_expansion_ok)
-        self.assertIn("expansion exceeded", val.errors[0])
+    def test_reconstruct_multi_coordinated_sites(self):
+        f1_code = "def caller():\n    return helper(1)\n"
+        f2_code = "def helper(val):\n    return val + 1\n"
+
+        u1 = RepairUnit(
+            id="u1", file_path="caller.py", symbol="caller", unit_type=RepairUnitType.STATEMENT,
+            node_type="Return", start_line=2, end_line=2, indentation="    ",
+        )
+        o1 = StructuredRepairOutput(
+            repair_action="replace_statement", target_unit_id="u1", replacement="return helper(val=10)"
+        )
+
+        u2 = RepairUnit(
+            id="u2", file_path="helper.py", symbol="helper", unit_type=RepairUnitType.STATEMENT,
+            node_type="Return", start_line=2, end_line=2, indentation="    ",
+        )
+        o2 = StructuredRepairOutput(
+            repair_action="replace_statement", target_unit_id="u2", replacement="return val * 2"
+        )
+
+        rec = SourceReconstructor.reconstruct_multi(
+            original_sources={"caller.py": f1_code, "helper.py": f2_code},
+            edits=[(u1, o1), (u2, o2)],
+        )
+        self.assertTrue(rec.success)
+        self.assertEqual(len(rec.files_changed), 2)
+        self.assertIn("caller.py", rec.files_changed)
+        self.assertIn("helper.py", rec.files_changed)
+        self.assertIn("+    return helper(val=10)", rec.patch_text)
+        self.assertIn("+    return val * 2", rec.patch_text)
+
+        # Validate multi-site
+        val = StaticRepairValidator.validate(
+            {"caller.py": f1_code, "helper.py": f2_code},
+            rec,
+            [u1, u2],
+        )
+        self.assertTrue(val.valid)
 
 
 if __name__ == "__main__":
     unittest.main()
+

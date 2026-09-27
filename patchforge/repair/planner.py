@@ -257,3 +257,48 @@ class RepairUnitPlanner:
             line = lines[line_no - 1]
             return line[:len(line) - len(line.lstrip())]
         return ""
+
+    @staticmethod
+    def plan_multi_site_repair_units(
+        sources: Dict[str, str],
+        sites: List[Any],  # EditSite or dict or tuple
+        diagnosis: Optional[Any] = None,
+    ) -> List[RepairUnit]:
+        """Plans non-overlapping coordinated AST repair units across multiple sites."""
+        units: List[RepairUnit] = []
+        seen_spans: Dict[str, List[Tuple[int, int]]] = {}
+
+        for site in sites:
+            file_path = getattr(site, "file_path", "") or (site.get("file_path", "") if isinstance(site, dict) else "")
+            symbol = getattr(site, "symbol", "") or (site.get("symbol", "") if isinstance(site, dict) else "")
+            l_start = getattr(site, "line_start", 1) if hasattr(site, "line_start") else (site.get("line_start", 1) if isinstance(site, dict) else 1)
+            l_end = getattr(site, "line_end", 1) if hasattr(site, "line_end") else (site.get("line_end", 1) if isinstance(site, dict) else 1)
+            role = getattr(site, "site_role", "PRIMARY") if hasattr(site, "site_role") else "PRIMARY"
+
+            norm_file = file_path.replace("\\", "/")
+            source_code = sources.get(norm_file, "")
+            if not source_code:
+                continue
+
+            unit = RepairUnitPlanner.plan_repair_unit(
+                file_path=norm_file,
+                source_code=source_code,
+                target_symbol=symbol,
+                target_lines=(l_start, l_end),
+                diagnosis=diagnosis,
+                role=role,
+            )
+
+            # Check overlap against already planned units in the same file
+            overlaps = False
+            for span_s, span_e in seen_spans.get(norm_file, []):
+                if max(unit.start_line, span_s) <= min(unit.end_line, span_e):
+                    overlaps = True
+                    break
+
+            if not overlaps:
+                units.append(unit)
+                seen_spans.setdefault(norm_file, []).append((unit.start_line, unit.end_line))
+
+        return units
+

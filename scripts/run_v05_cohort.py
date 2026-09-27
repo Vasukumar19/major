@@ -28,6 +28,7 @@ from patchforge.integrations.swebench import SWEBenchAdapter
 from patchforge.models.provider import OllamaProvider
 from patchforge.pipeline.baseline import BaselineRepairEngine
 from patchforge.pipeline.graph_engine import GraphRepairEngine
+from patchforge.pipeline.v1_orchestrator import V1RepairOrchestrator
 from patchforge.verification.classifier import FailureClass
 from patchforge.verification.tester import Tester
 
@@ -106,7 +107,9 @@ def run_cohort(
             repos_dir = str(Path(workspace) / "experiments" / "phase_d_v03" / "repos")
             repo_dir = swebench.ensure_checkout(problem, repos_dir)
 
-            if engine_name.lower() == "graph":
+            if engine_name.lower() in ("v1", "orchestrator"):
+                engine = V1RepairOrchestrator(provider=provider, model_name=model, workspace=workspace)
+            elif engine_name.lower() == "graph":
                 engine = GraphRepairEngine(provider=provider, model_name=model, workspace=workspace)
             else:
                 engine = BaselineRepairEngine(provider=provider, model_name=model, workspace=workspace)

@@ -260,3 +260,103 @@ class SourceReconstructor:
         before = lines[: start_l - 1]
         after = lines[end_l:]
         return "".join(before + after)
+
+    @staticmethod
+    def reconstruct_multi(
+        original_sources: Dict[str, str],
+        edits: List[Tuple[RepairUnit, StructuredRepairOutput]],
+    ) -> ReconstructedPatch:
+        """Applies multiple coordinated RepairUnits across one or more files deterministically."""
+        if not edits:
+            return ReconstructedPatch(success=False, error="No edits provided for multi-site reconstruction.")
+
+        # Group edits by file
+        by_file: Dict[str, List[Tuple[RepairUnit, StructuredRepairOutput]]] = {}
+        for unit, out in edits:
+            rel_path = unit.file_path.replace("\\", "/")
+            by_file.setdefault(rel_path, []).append((unit, out))
+
+        modified_contents: Dict[str, str] = {}
+        all_diffs: List[str] = []
+        files_changed: List[str] = []
+        symbols_changed: List[str] = []
+        units_applied: List[RepairUnit] = []
+
+        for rel_path, file_edits in by_file.items():
+            orig_code = original_sources.get(rel_path, "")
+            if not orig_code:
+                return ReconstructedPatch(
+                    success=False,
+                    error=f"Original source missing for target file: {rel_path}",
+                )
+
+            current_lines = orig_code.splitlines(keepends=True)
+            newline = "\r\n" if "\r\n" in orig_code else "\n"
+
+            # Check for overlapping edits in the same file
+            for i, (u_a, _) in enumerate(file_edits):
+                for j, (u_b, _) in enumerate(file_edits):
+                    if i != j:
+                        if max(u_a.start_line, u_b.start_line) <= min(u_a.end_line, u_b.end_line):
+                            return ReconstructedPatch(
+                                success=False,
+                                error=f"Overlapping edits detected in file {rel_path} between lines {u_a.start_line}-{u_a.end_line} and {u_b.start_line}-{u_b.end_line}.",
+                            )
+
+            # Sort edits descending by start_line so earlier line spans remain valid
+            sorted_edits = sorted(file_edits, key=lambda x: x[0].start_line, reverse=True)
+
+            for unit, output in sorted_edits:
+                start_l = max(1, min(unit.start_line, len(current_lines)))
+                end_l = max(start_l, min(unit.end_line, len(current_lines)))
+                replacement_text = output.replacement.strip("\r\n")
+
+                if output.repair_action == RepairAction.INSERT_STATEMENT.value:
+                    new_code_str = SourceReconstructor._insert_statement(
+                        current_lines, start_l, unit.indentation, replacement_text, newline
+                    )
+                elif output.repair_action == RepairAction.DELETE_STATEMENT.value:
+                    new_code_str = SourceReconstructor._delete_line_span(current_lines, start_l, end_l)
+                else:
+                    new_code_str = SourceReconstructor._replace_line_span(
+                        current_lines, start_l, end_l, unit.indentation, replacement_text, newline
+                    )
+
+                current_lines = new_code_str.splitlines(keepends=True)
+                units_applied.append(unit)
+                if unit.symbol and unit.symbol not in symbols_changed:
+                    symbols_changed.append(unit.symbol)
+
+            final_file_code = "".join(current_lines)
+            modified_contents[rel_path] = final_file_code
+
+            # Compute diff for this file
+            orig_split = orig_code.splitlines(keepends=True)
+            new_split = final_file_code.splitlines(keepends=True)
+            diff = difflib.unified_diff(
+                orig_split,
+                new_split,
+                fromfile=f"a/{rel_path}",
+                tofile=f"b/{rel_path}",
+                lineterm="",
+            )
+            file_diff_text = "".join(diff)
+            if file_diff_text:
+                if not file_diff_text.endswith("\n"):
+                    file_diff_text += "\n"
+                all_diffs.append(file_diff_text)
+                files_changed.append(rel_path)
+
+        combined_patch = "".join(all_diffs)
+        success = bool(combined_patch.strip())
+
+        return ReconstructedPatch(
+            success=success,
+            files_changed=files_changed,
+            symbols_changed=symbols_changed,
+            patch_text=combined_patch,
+            modified_contents=modified_contents,
+            units_applied=units_applied,
+            error="" if success else "No net changes across multi-site targets.",
+        )
+
