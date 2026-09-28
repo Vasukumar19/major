@@ -52,14 +52,27 @@ class StructuredRepairPromptBuilder:
         state_flow_summary: str = "",
         surrounding_lines: int = 15,
         full_source: str = "",
+        contract_spec: str = "",
+        requirement_matrix_spec: str = "",
+        error_feedback: str = "",
     ) -> str:
         """Constructs a compact, structured Tier 1 repair prompt."""
+        feedback_sec = ""
+        if error_feedback:
+            feedback_sec = f"""### PREVIOUS REPAIR ATTEMPT FEEDBACK (CRITICAL - YOU MUST FIX THIS):
+{error_feedback}
+
+"""
+
         issue_sec = ""
         if problem:
             issue_stmt = getattr(problem, "problem_statement", "")[:1500]
             issue_sec = f"""### ISSUE SPECIFICATION:
 {issue_stmt}
 """
+
+        contract_sec = f"{contract_spec}\n" if contract_spec else ""
+        req_sec = f"{requirement_matrix_spec}\n" if requirement_matrix_spec else ""
 
         diag_sec = ""
         if diagnosis:
@@ -99,8 +112,8 @@ Repair Strategy: {diagnosis.repair_strategy}
 
         canonical_action = UNIT_CANONICAL_ACTIONS.get(unit.unit_type, RepairAction.REPLACE_STATEMENT).value
 
-        prompt = f"""{issue_sec}
-{diag_sec}
+        prompt = f"""{feedback_sec}{issue_sec}
+{contract_sec}{req_sec}{diag_sec}
 {graph_sec}
 ### REPAIR TARGET:
 File: {unit.file_path}
@@ -116,6 +129,12 @@ Target Lines: {unit.start_line} to {unit.end_line}
 ```python
 {unit.source_text}
 ```
+
+### MANDATORY IMPLEMENTATION RULES:
+1. If CONTRACT SPECIFICATION specifies required parameter(s), you MUST update the definition signature to include them with default values (e.g. `def {unit.symbol}(..., <param>=<default>):`).
+2. If REJECTED/FORBIDDEN PARAMETERS are specified, do NOT introduce them under any circumstances.
+3. Adhere strictly to the BEHAVIORAL DIAGNOSIS repair strategy and invariants.
+4. Maintain exact indentation matching the target code unit.
 
 ---
 ### REQUIRED OUTPUT FORMAT:
@@ -510,14 +529,15 @@ class StructuredRepairParser:
         """Strips surrounding backticks and cleans code string."""
         if not code:
             return ""
-        code = code.strip()
-        if code.startswith("```"):
+        code = code.strip("\r\n").rstrip()
+        if code.lstrip().startswith("```"):
             lines = code.splitlines()
-            if lines[0].startswith("```"):
+            if lines[0].lstrip().startswith("```"):
                 lines = lines[1:]
             if lines and lines[-1].strip() == "```":
                 lines = lines[:-1]
             code = "\n".join(lines)
+            code = code.strip("\r\n").rstrip()
         # Normalize smart/curly unicode quotation marks that invalidate Python syntax
         code = code.replace("\u201c", '"').replace("\u201d", '"').replace("\u2018", "'").replace("\u2019", "'")
         return code

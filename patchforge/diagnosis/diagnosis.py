@@ -26,6 +26,8 @@ class DiagnosisHypothesis:
     contradicting_evidence: List[str] = field(default_factory=list)
     affected_tests: List[str] = field(default_factory=list)
     unexplained_symptoms: List[str] = field(default_factory=list)
+    divergent_predicate: str = ""
+    expected_transition: str = ""
     semantic_radius: str = "FEATURE_LOCAL"
     confidence: float = 0.8
     eliminated: bool = False
@@ -36,6 +38,8 @@ class DiagnosisHypothesis:
         return {
             "id": self.id,
             "cause": self.cause,
+            "divergent_predicate": self.divergent_predicate,
+            "expected_transition": self.expected_transition,
             "invariant": self.invariant,
             "repair_strategy": self.repair_strategy,
             "affected_sites": self.affected_sites,
@@ -120,6 +124,7 @@ class CompetingDiagnosisEngine:
         failure_evidence: Optional[StructuredFailureEvidence] = None,
         state_flows: Optional[Dict[str, DeepStateFlowInfo]] = None,
         class_context: Optional[str] = None,
+        execution_path_summary: str = "",
     ) -> str:
         """Constructs prompt for competing hypotheses with deterministic evidence substrate."""
         sections = []
@@ -128,7 +133,11 @@ class CompetingDiagnosisEngine:
         sections.append(f"### ISSUE SPECIFICATION:\n{problem_statement}\n")
         sections.append(f"### STRUCTURED BEHAVIORAL REQUIREMENTS:\n{behavior_map.format_summary()}\n")
 
-        # 2. Failure Evidence
+        # 2. Execution Path & Algorithmic Divergence
+        if execution_path_summary:
+            sections.append(f"{execution_path_summary}\n")
+
+        # 3. Failure Evidence
         if failure_evidence and failure_evidence.failing_test:
             sections.append(f"### DETERMINISTIC EXECUTION FAILURE EVIDENCE:\n{failure_evidence.format_summary()}\n")
 
@@ -252,6 +261,8 @@ Output your diagnosis strictly as JSON within a ```json ... ``` code fence:
                         DiagnosisHypothesis(
                             id=str(rh.get("id", chr(65 + idx))),
                             cause=str(rh.get("cause", "")),
+                            divergent_predicate=str(rh.get("divergent_predicate", "")),
+                            expected_transition=str(rh.get("expected_transition", "")),
                             invariant=str(rh.get("invariant", "")),
                             repair_strategy=str(rh.get("repair_strategy", "")),
                             affected_sites=[str(s) for s in rh.get("affected_sites", [])],

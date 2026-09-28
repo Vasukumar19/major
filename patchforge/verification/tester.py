@@ -64,10 +64,12 @@ class Tester:
         return TestReport(syntax_ok=True,
                           eval=self.official_eval(instance_id, patch, workdir, run_id))
 
-    def run(self, instance_id: str, patch_text: str, run_id: str = "", timeout: int = 300) -> EvalResult:
+    def run(self, instance_id: str, patch_text: str = "", run_id: str = "", timeout: int = 300, patch: str = "") -> EvalResult:
         import os
         import tempfile
         import time
+        if not patch_text and patch:
+            patch_text = patch
         if not run_id or run_id == "eval":
             run_id = f"eval_{int(time.time())}"
         temp_dir = tempfile.mkdtemp(prefix="patchforge_eval_")

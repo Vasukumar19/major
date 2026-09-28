@@ -19,7 +19,7 @@ class MockV1ModelProvider(ModelProvider):
 
     def generate_one(self, prompt: str, system: Optional[str] = None, **kwargs) -> ModelOutput:
         # If diagnosis prompt
-        if "Principal Software Diagnosis Engine" in (system or "") or "### ISSUE SPECIFICATION" in prompt:
+        if "Principal Software Diagnosis Engine" in (system or "") or "=== ISSUE BEHAVIOR MAP ===" in prompt:
             diag_text = """
 === CAUSE ===
 Session.merge_environment_settings drops proxies if not explicitly provided in request.
@@ -48,16 +48,23 @@ requests/sessions.py:Session.merge_environment_settings
             return Generation(text=diag_text, model="mock-v1", input_tokens=100, output_tokens=50)
 
         # If structured repair prompt
-        repair_json = """
+        import re
+        unit_match = re.search(r'Target ID:\s*([^\s\n]+)|"target_unit_id":\s*"([^"]+)"|File:.*?\nSymbol:.*?\nTarget Lines:\s*(\d+\s*to\s*\d+)', prompt)
+        target_unit_id = "requests/sessions.py::merge_environment_settings::METHOD::5-8"
+        action = "replace_method"
+
+        rep_code = "    def merge_environment_settings(self, url, proxies, stream, verify, cert):\\n        settings = {}\\n        if proxies is not None:\\n            settings['proxies'] = proxies\\n        return settings"
+
+        repair_json = f"""
 ```json
-{
-  "repair_action": "replace_statement",
-  "target_unit_id": "requests/sessions.py::merge_environment_settings::STATEMENT::15-15",
-  "replacement": "if proxies is not None:\\n    settings['proxies'] = proxies",
+{{
+  "repair_action": "{action}",
+  "target_unit_id": "{target_unit_id}",
+  "replacement": "{rep_code}",
   "reasoning": "Only assign proxies if explicitly passed",
   "invariant": "Preserve existing proxies",
   "confidence": 0.95
-}
+}}
 ```
 """
         return Generation(text=repair_json, model="mock-v1", input_tokens=150, output_tokens=80)

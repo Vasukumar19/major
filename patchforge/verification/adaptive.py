@@ -52,6 +52,7 @@ class AdaptiveVerifier:
         original_sources: Dict[str, str],
         reconstructed: Optional[ReconstructedPatch] = None,
         target_units: Optional[List[Any]] = None,
+        contract: Optional[Any] = None,
     ) -> AdaptiveVerificationVerdict:
         """Executes adaptive verification tiers progressively."""
         t0 = time.time()
@@ -63,6 +64,7 @@ class AdaptiveVerifier:
                 original_sources=original_sources,
                 reconstructed=reconstructed,
                 target_units=target_units or [],
+                contract=contract,
             )
             if not val_res.valid:
                 return AdaptiveVerificationVerdict(

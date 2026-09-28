@@ -184,6 +184,7 @@ class SourceReconstructor:
     @staticmethod
     def _normalize_replacement_indentation(replacement: str, base_indent: str) -> List[str]:
         """Normalizes relative indentation of replacement lines to align with base_indent."""
+        import textwrap
         replacement = replacement.expandtabs(4)
         base_indent = base_indent.expandtabs(4)
         rep_lines = replacement.splitlines()
@@ -191,14 +192,13 @@ class SourceReconstructor:
         if not non_empty:
             return [base_indent]
 
-        min_indent = min(len(line) - len(line.lstrip()) for line in non_empty)
+        dedented = textwrap.dedent(replacement)
         adjusted = []
-        for line in rep_lines:
+        for line in dedented.splitlines():
             if not line.strip():
                 adjusted.append("")
             else:
-                rel_line = line[min_indent:] if len(line) >= min_indent else line.lstrip()
-                adjusted.append(f"{base_indent}{rel_line}")
+                adjusted.append(f"{base_indent}{line}")
         return adjusted
 
     @staticmethod

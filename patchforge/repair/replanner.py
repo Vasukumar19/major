@@ -51,11 +51,18 @@ class FailureDrivenReplanner:
                 reason=f"Exhausted maximum retry budget ({max_attempts} attempts).",
             )
 
-        # 1. Schema or Syntax Failure -> Protocol Fallback
+        # 1. Static Validation Gate Failure -> Refine with exact gate error feedback
+        if failure_class == FailureClass.REPAIR_VALIDATION_FAILURE.value:
+            return ReplanDecision(
+                action=ReplanAction.REFINE_SEMANTICS,
+                reason=f"Static validation gate rejected candidate: {error_message}",
+                prompt_guidance=f"VALIDATION FAILURE: {error_message}. Your replacement MUST fix this violation.",
+            )
+
+        # 2. Schema or Syntax Failure -> Protocol Fallback
         if failure_class in (
             FailureClass.PATCH_SYNTAX.value,
             FailureClass.REPAIR_SCHEMA_FAILURE.value,
-            FailureClass.REPAIR_VALIDATION_FAILURE.value,
         ):
             return ReplanDecision(
                 action=ReplanAction.FALLBACK_SYNTAX,

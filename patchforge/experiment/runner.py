@@ -53,7 +53,7 @@ class ExperimentRunner:
 
             # 2. Run targeted test via tester
             # Tester applies empty patch or current git diff to observe baseline failing test
-            verdict = self.tester.run(instance_id, patch="")
+            verdict = self.tester.run(instance_id, patch_text="")
             raw_output = getattr(verdict, "output", "") or getattr(verdict, "error", "") or str(verdict)
 
             # 3. Parse sentinel observations

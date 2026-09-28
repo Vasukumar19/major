@@ -42,8 +42,9 @@ class StaticRepairValidator:
         reconstructed: ReconstructedPatch,
         target_units: List[RepairUnit],
         max_line_expansion: int = 150,
+        contract: Optional[Any] = None,
     ) -> StaticValidationResult:
-        """Validates reconstructed source code against AST, expansion, and preservation gates."""
+        """Validates reconstructed source code against AST, expansion, preservation, and API signature gates."""
         res = StaticValidationResult(valid=True)
         errors: List[str] = []
 
@@ -129,6 +130,20 @@ class StaticRepairValidator:
                             )
                     else:
                         symbols_affected.add(sym_name)
+                        # 6. API Contract Signature Verification
+                        if contract and getattr(contract, "parameters", None) and getattr(contract, "is_signature_contract", False):
+                            target_contract_sym = getattr(contract, "target_symbol", "").split(".")[-1]
+                            if not target_contract_sym or target_contract_sym in (sym_name, "target"):
+                                modified_node = new_symbols.get(sym_name)
+                                if isinstance(modified_node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                                    present_args = {a.arg for a in modified_node.args.args} | {a.arg for a in modified_node.args.kwonlyargs}
+                                    for p in contract.parameters:
+                                        if getattr(p, "origin", "") in ("TEST_OBSERVED", "HINTS_TEXT", "ISSUE_EXPLICIT"):
+                                            if p.name not in present_args:
+                                                errors.append(
+                                                    f"Contract Signature Violation: Required parameter '{p.name}' is missing from modified signature of '{sym_name}' in {file_path}"
+                                                )
+                                                res.valid = False
 
         res.lines_added = total_added
         res.lines_deleted = total_deleted
@@ -137,12 +152,14 @@ class StaticRepairValidator:
 
         # Overall validity
         res.valid = (
-            res.syntax_ok
+            res.valid
+            and res.syntax_ok
             and res.ast_ok
             and res.target_changed
             and res.no_markdown_leakage
             and res.line_expansion_ok
             and res.unrelated_targets_preserved
+            and len(errors) == 0
         )
 
         return res

@@ -21,6 +21,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 import subprocess
 import time
 from dataclasses import dataclass, field
@@ -38,6 +39,12 @@ from patchforge.diagnosis import (
     IssueBehaviorExtractor,
     IssueBehaviorMap,
 )
+from patchforge.diagnosis.contract import APIContract, ContractExtractor
+from patchforge.diagnosis.contract_gate import (
+    BehavioralRequirementMatrix,
+    HypothesisContractGate,
+)
+from patchforge.diagnosis.execution_path import ExecutionPathBuilder, ExecutionPathModel
 from patchforge.diagnosis.unified_evidence import UnifiedEvidenceEngine
 from patchforge.experiment.runner import ExperimentRunner
 from patchforge.issue.problem import Problem
@@ -110,6 +117,9 @@ class V1OrchestratorResult:
     experiment_executed: bool = False
     experiment_summary: str = ""
     memory_exemplars_used: int = 0
+    contract: Optional[APIContract] = None
+    requirement_matrix: Optional[BehavioralRequirementMatrix] = None
+    execution_path: Optional[ExecutionPathModel] = None
 
 
 class V1RepairOrchestrator:
@@ -167,9 +177,13 @@ class V1RepairOrchestrator:
             },
         )
 
-        # Step 2: Specification Extraction
+        # Step 2: Specification & Contract Extraction
         issue_text = (problem.problem_statement or "") + "\n" + (problem.hints_text or "")
         behavior_map = IssueBehaviorExtractor.extract(problem.problem_statement, getattr(problem, "hints_text", ""))
+        api_contract = ContractExtractor.extract_contract(problem.problem_statement or "", getattr(problem, "hints_text", "") or "")
+        req_matrix = BehavioralRequirementMatrix.decompose(problem.problem_statement or "", getattr(problem, "hints_text", "") or "", contract=api_contract)
+        result.contract = api_contract
+        result.requirement_matrix = req_matrix
 
         # Step 3: Hybrid Multi-Channel Retrieval & Localization
         retriever = HybridRepositoryRetriever(
@@ -282,6 +296,43 @@ class V1RepairOrchestrator:
         if memory_context:
             result.memory_exemplars_used = 1
 
+        # Execution Path Modeling & Algorithmic Divergence Detection
+        primary_site = stage1_candidates[0] if stage1_candidates else None
+        exec_path: Optional[ExecutionPathModel] = None
+        if primary_site:
+            primary_file_abs = repo_p / primary_site.file_path
+            try:
+                primary_src = primary_file_abs.read_text(encoding="utf-8", errors="replace")
+            except Exception:
+                primary_src = primary_site.verified_source or ""
+
+            tb_lines: List[int] = []
+            f_name = Path(primary_site.file_path).name
+            for m in re.finditer(rf"{re.escape(f_name)}.*?line\s+(\d+)", issue_text, re.IGNORECASE):
+                try:
+                    tb_lines.append(int(m.group(1)))
+                except ValueError:
+                    pass
+
+            exec_path = ExecutionPathBuilder.build_path(
+                file_path=primary_site.file_path,
+                source_code=primary_src,
+                target_symbol=primary_site.symbol,
+                traceback_lines=tb_lines,
+                traceback_text=getattr(problem, "hints_text", "") or "",
+                problem_statement=problem.problem_statement or "",
+            )
+            result.execution_path = exec_path
+
+            # Re-decompose requirement matrix to synthesize algorithmic transition requirements
+            req_matrix = BehavioralRequirementMatrix.decompose(
+                problem_statement=problem.problem_statement or "",
+                hints_text=getattr(problem, "hints_text", "") or "",
+                contract=api_contract,
+                execution_path=exec_path,
+            )
+            result.requirement_matrix = req_matrix
+
         # Step 5: Competing Behavioral Diagnosis
         diag_prompt = CompetingDiagnosisEngine.build_diagnostic_prompt(
             problem_statement=problem.problem_statement,
@@ -290,11 +341,18 @@ class V1RepairOrchestrator:
             failure_evidence=None,
             state_flows=state_flows,
             class_context=class_ctx_str or None,
+            execution_path_summary=exec_path.format_for_prompt() if exec_path else "",
         )
         # Inject Unified Evidence Substrate
         unified_ev_summary = unified_evidence.format_summary_for_prompt()
         if unified_ev_summary:
             diag_prompt = diag_prompt + "\n" + unified_ev_summary + "\n"
+
+        if api_contract:
+            diag_prompt = diag_prompt + "\n" + api_contract.format_for_prompt() + "\n"
+
+        if req_matrix and req_matrix.requirements:
+            diag_prompt = diag_prompt + "\n" + req_matrix.format_for_prompt() + "\n"
 
         if memory_context:
             diag_prompt = memory_context + "\n" + diag_prompt
@@ -323,17 +381,23 @@ class V1RepairOrchestrator:
                 selected_hypothesis_idx=0,
                 repair_sites=[f"{candidate_file}:{top_sym}"],
             )
+
+        # V1.1 Hypothesis Contract Gate: Filter & eliminate conflicting hypotheses
+        diagnosis = HypothesisContractGate.evaluate_and_filter(diagnosis, api_contract, req_matrix)
         result.diagnosis = diagnosis
 
         # Step 6: Dynamic Sandboxed Probing & Executable Counterfactuals (Optional)
         if allow_dynamic_probes and tester and len(diagnosis.hypotheses) >= 2:
             probe_runner = ExperimentRunner(repo_dir=repo_dir, tester=tester)
+            target_probe_line = stage1_candidates[0].line_start
+            if exec_path and exec_path.divergence_node:
+                target_probe_line = exec_path.divergence_node.line_number
             exp_res = probe_runner.run_experiment(
                 instance_id=problem.instance_id,
                 diagnosis=diagnosis,
                 target_file=stage1_candidates[0].file_path,
                 target_symbol=stage1_candidates[0].symbol,
-                target_line=stage1_candidates[0].line_start,
+                target_line=target_probe_line,
             )
             result.experiment_executed = True
             result.experiment_summary = exp_res.summary
@@ -393,6 +457,8 @@ class V1RepairOrchestrator:
             behavior_context="",
         )
         result.target = target
+        if api_contract:
+            api_contract.target_symbol = target.symbol
         target_file_rel = selected_site.file_path
         target_file_abs = repo_p / target_file_rel
 
@@ -423,6 +489,7 @@ class V1RepairOrchestrator:
         # Step 9: Structured Repair Synthesis, Deterministic Rebuild & Adaptive Verification Loop
         verifier = AdaptiveVerifier(tester=tester)
         last_error = ""
+        current_action: Optional[ReplanAction] = None
         patch_applied = False
         applied_patch: Optional[Patch] = None
         attempt = 0
@@ -430,6 +497,7 @@ class V1RepairOrchestrator:
 
         while attempt < max_repair_attempts:
             attempt += 1
+            result.refinement_cycles = attempt
             llm_t0 = time.time()
 
             # Choose prompt strategy based on attempt and replanning
@@ -442,9 +510,25 @@ class V1RepairOrchestrator:
                     callees=[c.name for c in repair_context.callees[:4]] if repair_context else [],
                     state_flow_summary=repair_context.state_flow or "" if repair_context else "",
                     full_source=original_code,
+                    contract_spec=api_contract.format_for_prompt() if api_contract else "",
+                    requirement_matrix_spec=req_matrix.format_for_prompt() if req_matrix else "",
                 )
                 strategy_name = "strict_structured_json"
-            elif attempt == 2:
+            elif attempt == 2 and current_action != ReplanAction.FALLBACK_SYNTAX:
+                prompt_to_use = StructuredRepairPromptBuilder.build_repair_prompt(
+                    unit=unit,
+                    problem=problem,
+                    diagnosis=diagnosis,
+                    callers=[c.name for c in repair_context.callers[:4]] if repair_context else [],
+                    callees=[c.name for c in repair_context.callees[:4]] if repair_context else [],
+                    state_flow_summary=repair_context.state_flow or "" if repair_context else "",
+                    full_source=original_code,
+                    contract_spec=api_contract.format_for_prompt() if api_contract else "",
+                    requirement_matrix_spec=req_matrix.format_for_prompt() if req_matrix else "",
+                    error_feedback=last_error,
+                )
+                strategy_name = "refined_structured_json"
+            elif attempt == 2 or (attempt == 3 and current_action == ReplanAction.FALLBACK_SYNTAX):
                 prompt_to_use = StructuredRepairPromptBuilder.build_minimal_prompt(unit, error_feedback=last_error)
                 strategy_name = "minimal_target_bound_json"
             else:
@@ -475,6 +559,8 @@ class V1RepairOrchestrator:
 
             diff_proc = subprocess.run(["git", "diff"], cwd=repo_dir, capture_output=True, text=True)
             candidate_diff = diff_proc.stdout or reconstructed.patch_text
+            if req_matrix:
+                req_matrix.evaluate(candidate_diff)
 
             applied_patch = Patch(
                 hypothesis_id=f"STRUCTURED_V1_ATT_{attempt}",
@@ -495,6 +581,7 @@ class V1RepairOrchestrator:
                 original_sources={unit.file_path: original_code},
                 reconstructed=reconstructed,
                 target_units=[unit],
+                contract=api_contract,
             )
 
             result.test_executed = verdict.tests_executed
@@ -505,7 +592,19 @@ class V1RepairOrchestrator:
                 original_sources={unit.file_path: original_code},
                 reconstructed=reconstructed,
                 target_units=[unit],
+                contract=api_contract,
             )
+
+            result.refinement_history.append({
+                "attempt": attempt,
+                "strategy": strategy_name,
+                "static_valid": verdict.static_valid,
+                "tests_executed": verdict.tests_executed,
+                "resolved": verdict.resolved,
+                "failure_class": verdict.failure_class,
+                "error_message": verdict.error_message,
+                "patch_text": applied_patch.patch_text if applied_patch else "",
+            })
 
             if verdict.resolved:
                 patch_applied = True
@@ -526,6 +625,7 @@ class V1RepairOrchestrator:
             )
 
             telemetry_logger.log_event("REPLAN", "FAILURE_REPLAN_DECISION", details=decision.__dict__)
+            current_action = decision.action
 
             if decision.action == ReplanAction.SWITCH_HYPOTHESIS and decision.target_hypothesis_id:
                 active_hyp_idx += 1
@@ -579,4 +679,20 @@ class V1RepairOrchestrator:
         _cleanup()
         return result
 
-    run = repair
+    def run(
+        self,
+        problem: Problem,
+        repo_dir: str,
+        tester: Optional[Tester] = None,
+        max_retries: int = 3,
+        max_refinements: int = 3,
+        **kwargs,
+    ) -> V1OrchestratorResult:
+        """Cohort runner entry point."""
+        attempts = max(max_retries, max_refinements)
+        return self.repair(
+            problem=problem,
+            repo_dir=repo_dir,
+            tester=tester,
+            max_repair_attempts=attempts,
+        )

@@ -157,6 +157,11 @@ def run_cohort(
                 "validation_result": res.validation_result.to_dict() if hasattr(res, "validation_result") and res.validation_result else {},
                 "telemetry": res.telemetry,
                 "test_summary": res.test_summary,
+                "experiment_executed": getattr(res, "experiment_executed", False),
+                "experiment_summary": getattr(res, "experiment_summary", ""),
+                "memory_exemplars_used": getattr(res, "memory_exemplars_used", 0),
+                "contract": res.contract.to_dict() if getattr(res, "contract", None) else {},
+                "requirement_matrix": res.requirement_matrix.to_dict() if getattr(res, "requirement_matrix", None) else {},
             }
 
         except Exception as e:
@@ -222,14 +227,21 @@ def run_cohort(
 def main():
     parser = argparse.ArgumentParser(description="PatchForge V0.5 Cohort Evaluation")
     parser.add_argument("--instances", type=str, default="", help="Comma-separated instance IDs (default: all 20)")
-    parser.add_argument("--engine", type=str, default="graph", choices=["graph", "baseline"], help="Repair engine (graph or baseline)")
+    parser.add_argument("--engine", type=str, default="graph", choices=["graph", "baseline", "v1", "orchestrator"], help="Repair engine (graph, baseline, or v1)")
     parser.add_argument("--model", type=str, default="qwen2.5-coder:14b", help="Model name")
     parser.add_argument("--workspace", type=str, default=".", help="Workspace path")
-    parser.add_argument("--results-dir", type=str, default="results/v05_graph", help="Directory for JSON results")
+    parser.add_argument("--results-dir", type=str, default="", help="Directory for JSON results")
     parser.add_argument("--max-retries", type=int, default=2, help="Max patch retries")
     parser.add_argument("--max-refinements", type=int, default=3, help="Max refinement cycles")
     parser.add_argument("--force", action="store_true", help="Force re-evaluation of completed instances")
     args = parser.parse_args()
+
+    results_dir = args.results_dir
+    if not results_dir:
+        if args.engine.lower() in ("v1", "orchestrator"):
+            results_dir = "results/v1_orchestrator"
+        else:
+            results_dir = "results/v05_graph"
 
     instances = [s.strip() for s in args.instances.split(",") if s.strip()] if args.instances else V05_COHORT_20
     run_cohort(
@@ -237,7 +249,7 @@ def main():
         model=args.model,
         engine_name=args.engine,
         workspace=args.workspace,
-        results_dir=args.results_dir,
+        results_dir=results_dir,
         max_retries=args.max_retries,
         max_refinements=args.max_refinements,
         force=args.force,
