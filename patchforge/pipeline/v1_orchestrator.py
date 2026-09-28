@@ -39,6 +39,7 @@ from patchforge.diagnosis import (
     IssueBehaviorExtractor,
     IssueBehaviorMap,
 )
+from patchforge.diagnosis.causal_trace import BehavioralTrace, FirstDivergenceLocator
 from patchforge.diagnosis.contract import APIContract, ContractExtractor
 from patchforge.diagnosis.contract_gate import (
     BehavioralRequirementMatrix,
@@ -120,6 +121,7 @@ class V1OrchestratorResult:
     contract: Optional[APIContract] = None
     requirement_matrix: Optional[BehavioralRequirementMatrix] = None
     execution_path: Optional[ExecutionPathModel] = None
+    causal_trace: Optional[BehavioralTrace] = None
 
 
 class V1RepairOrchestrator:
@@ -324,6 +326,16 @@ class V1RepairOrchestrator:
             )
             result.execution_path = exec_path
 
+            # V1.3 Behavioral Trace & First Divergence Pinpointing
+            causal_trace = FirstDivergenceLocator.locate_divergence(
+                source_code=primary_src,
+                target_symbol=primary_site.symbol,
+                file_path=primary_site.file_path,
+                traceback_lines=tb_lines,
+                problem_statement=problem.problem_statement or "",
+            )
+            result.causal_trace = causal_trace
+
             # Re-decompose requirement matrix to synthesize algorithmic transition requirements
             req_matrix = BehavioralRequirementMatrix.decompose(
                 problem_statement=problem.problem_statement or "",
@@ -348,6 +360,9 @@ class V1RepairOrchestrator:
         if unified_ev_summary:
             diag_prompt = diag_prompt + "\n" + unified_ev_summary + "\n"
 
+        if causal_trace and causal_trace.events:
+            diag_prompt = diag_prompt + "\n" + causal_trace.format_for_prompt() + "\n"
+
         if api_contract:
             diag_prompt = diag_prompt + "\n" + api_contract.format_for_prompt() + "\n"
 
@@ -363,6 +378,7 @@ class V1RepairOrchestrator:
                 response_text=diag_resp.text,
                 candidate_profiles=candidate_profiles,
                 behavior_map=behavior_map,
+                causal_trace=causal_trace if primary_site else None,
             )
         except Exception as e:
             logger.warning(f"Competing diagnosis fallback: {e}")
@@ -390,7 +406,9 @@ class V1RepairOrchestrator:
         if allow_dynamic_probes and tester and len(diagnosis.hypotheses) >= 2:
             probe_runner = ExperimentRunner(repo_dir=repo_dir, tester=tester)
             target_probe_line = stage1_candidates[0].line_start
-            if exec_path and exec_path.divergence_node:
+            if primary_site and causal_trace and causal_trace.first_divergence_line:
+                target_probe_line = causal_trace.first_divergence_line
+            elif exec_path and exec_path.divergence_node:
                 target_probe_line = exec_path.divergence_node.line_number
             exp_res = probe_runner.run_experiment(
                 instance_id=problem.instance_id,

@@ -88,12 +88,18 @@ class FailureDrivenReplanner:
                 target_hypothesis_id=next_h_id,
             )
 
-        # 4. Partial Semantic Fix (F2P > 0) -> Semantic Refinement
+        # 4. Partial Semantic Fix (F2P > 0) -> Behavioral Completeness Refinement Loop
         if f2p_passed > 0 or failure_class == FailureClass.PATCH_SEMANTICS.value:
+            guidance = (
+                f"BEHAVIORAL REPAIR COMPLETENESS: Your patch successfully passed {f2p_passed} test assertions, "
+                f"confirming your core hypothesis is directionally correct. DO NOT discard your logic or rewrite from scratch. "
+                f"You only need to complete the remaining failing assertion: {error_message[:300]}. "
+                f"Refine the conditional edge case while preserving your existing state transformation."
+            )
             return ReplanDecision(
                 action=ReplanAction.REFINE_SEMANTICS,
-                reason=f"Patch advanced test execution ({f2p_passed} F2P passed). Refining edge-case handling.",
-                prompt_guidance=f"Inspect failing assertion and refine the conditional logic: {error_message[:200]}",
+                reason=f"Patch advanced test execution ({f2p_passed} F2P passed). Targeting remaining unfulfilled edge case.",
+                prompt_guidance=guidance,
             )
 
         # Default: Refine semantics or expand context

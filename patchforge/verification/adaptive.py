@@ -96,6 +96,18 @@ class AdaptiveVerifier:
         tier = VerificationTier.REGRESSION_P2P if (f2p_p > 0 or resolved) else VerificationTier.TARGETED_F2P
         summary = verdict.to_dict() if hasattr(verdict, "to_dict") else {}
 
+        err_msg = getattr(verdict, "error", "") or ""
+        if not err_msg:
+            f2p_info = summary.get("fail_to_pass", {})
+            f2p_fail_list = f2p_info.get("failure", []) if isinstance(f2p_info, dict) else []
+            if f2p_fail_list:
+                err_msg = f"Failing F2P test(s): {', '.join(f2p_fail_list[:3])}"
+            elif getattr(verdict, "output", ""):
+                lines = str(getattr(verdict, "output", "")).splitlines()
+                err_lines = [l.strip() for l in lines if any(k in l for k in ("FAIL:", "FAILED", "AssertionError", "Error:"))]
+                if err_lines:
+                    err_msg = "; ".join(err_lines[-2:])
+
         return AdaptiveVerificationVerdict(
             tier_reached=tier,
             static_valid=True,
@@ -106,7 +118,7 @@ class AdaptiveVerifier:
             f2p_total=f2p_t,
             p2p_passed=p2p_p,
             p2p_total=p2p_t,
-            error_message=getattr(verdict, "error", "") or "",
+            error_message=err_msg,
             test_summary=summary,
             runtime_s=round(time.time() - t0, 2),
         )

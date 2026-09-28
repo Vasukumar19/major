@@ -41,24 +41,32 @@ class ExperimentPlanner:
             )
         ]
 
-        # Probe 2: State observation if keywords present
+        # Probe 2: Information-directed state observation to discriminate H1 vs H2
         probe_var = ""
-        for word in ["proxies", "kwargs", "config", "settings", "headers", "args", "params", "options", "state"]:
-            if word in h1.cause.lower() or word in h2.cause.lower():
-                probe_var = word
-                break
+        if getattr(h1, "prediction", None) and h1.prediction.discriminating_variable:
+            probe_var = h1.prediction.discriminating_variable
+        elif getattr(h2, "prediction", None) and h2.prediction.discriminating_variable:
+            probe_var = h2.prediction.discriminating_variable
+
+        if not probe_var:
+            for word in ["proxies", "kwargs", "config", "settings", "headers", "args", "params", "options", "state", "mode", "text", "scope", "encoding"]:
+                if word in h1.cause.lower() or word in h2.cause.lower():
+                    probe_var = word
+                    break
 
         if probe_var:
+            exp1 = h1.prediction.expected_output_state.get(probe_var, "observed") if getattr(h1, "prediction", None) else "defined"
+            exp2 = h2.prediction.expected_output_state.get(probe_var, "contradicts") if getattr(h2, "prediction", None) else "None or different"
             probes.append(
                 ProbeSpecification(
                     probe_id=f"P_{probe_var.upper()}",
                     probe_type=ProbeType.VARIABLE_VALUE,
                     file_path=target_file,
                     symbol=target_symbol,
-                    target_line=target_line + 2,
+                    target_line=target_line,
                     variable_name=probe_var,
-                    expected_if_h1_true="not empty",
-                    expected_if_h2_true="None or empty",
+                    expected_if_h1_true=exp1,
+                    expected_if_h2_true=exp2,
                 )
             )
 

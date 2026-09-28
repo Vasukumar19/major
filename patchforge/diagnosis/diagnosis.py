@@ -15,6 +15,29 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
+class CausalPrediction:
+    """Falsifiable causal prediction declared by a hypothesis."""
+    expected_branch: str = ""
+    expected_mutations: List[str] = field(default_factory=list)
+    expected_output_state: Dict[str, str] = field(default_factory=dict)
+    forbidden_events: List[str] = field(default_factory=list)
+    discriminating_variable: str = ""
+    support_count: int = 0
+    contradiction_count: int = 0
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "expected_branch": self.expected_branch,
+            "expected_mutations": self.expected_mutations,
+            "expected_output_state": self.expected_output_state,
+            "forbidden_events": self.forbidden_events,
+            "discriminating_variable": self.discriminating_variable,
+            "support_count": self.support_count,
+            "contradiction_count": self.contradiction_count,
+        }
+
+
+@dataclass
 class DiagnosisHypothesis:
     """A competing behavioral hypothesis explaining a defect."""
     id: str = "A"
@@ -28,6 +51,9 @@ class DiagnosisHypothesis:
     unexplained_symptoms: List[str] = field(default_factory=list)
     divergent_predicate: str = ""
     expected_transition: str = ""
+    prediction: Optional[CausalPrediction] = None
+    support_count: int = 0
+    contradiction_count: int = 0
     semantic_radius: str = "FEATURE_LOCAL"
     confidence: float = 0.8
     eliminated: bool = False
@@ -40,6 +66,9 @@ class DiagnosisHypothesis:
             "cause": self.cause,
             "divergent_predicate": self.divergent_predicate,
             "expected_transition": self.expected_transition,
+            "prediction": self.prediction.to_dict() if self.prediction else None,
+            "support_count": self.support_count,
+            "contradiction_count": self.contradiction_count,
             "invariant": self.invariant,
             "repair_strategy": self.repair_strategy,
             "affected_sites": self.affected_sites,
@@ -174,9 +203,10 @@ For each hypothesis, evaluate:
 2. Invariant to preserve existing callers
 3. Repair Strategy
 4. Affected Sites (file_path:symbol)
-5. Supporting Evidence (from tests, causal paths, state flow)
-6. Contradicting Evidence / Risks (e.g. high blast radius, unaffected tests)
-7. Unexplained Symptoms (if any observed symptoms are not explained by this hypothesis)
+5. Causal Prediction: Falsifiable predictions (expected branch, expected mutations, forbidden events, discriminating variable)
+6. Supporting Evidence (from tests, causal paths, state flow)
+7. Contradicting Evidence / Risks (e.g. high blast radius, unaffected tests)
+8. Unexplained Symptoms (if any observed symptoms are not explained by this hypothesis)
 
 Output your diagnosis strictly as JSON within a ```json ... ``` code fence:
 ```json
@@ -188,6 +218,12 @@ Output your diagnosis strictly as JSON within a ```json ... ``` code fence:
       "invariant": "...",
       "repair_strategy": "...",
       "affected_sites": ["<file_path>:<symbol>"],
+      "causal_prediction": {
+        "expected_branch": "...",
+        "expected_mutations": ["..."],
+        "forbidden_events": ["..."],
+        "discriminating_variable": "..."
+      },
       "supporting_evidence": ["..."],
       "contradicting_evidence": ["..."],
       "unexplained_symptoms": [],
@@ -199,6 +235,12 @@ Output your diagnosis strictly as JSON within a ```json ... ``` code fence:
       "invariant": "...",
       "repair_strategy": "...",
       "affected_sites": ["<file_path>:<symbol>"],
+      "causal_prediction": {
+        "expected_branch": "...",
+        "expected_mutations": ["..."],
+        "forbidden_events": ["..."],
+        "discriminating_variable": "..."
+      },
       "supporting_evidence": ["..."],
       "contradicting_evidence": ["..."],
       "unexplained_symptoms": [],
@@ -220,6 +262,7 @@ Output your diagnosis strictly as JSON within a ```json ... ``` code fence:
         candidate_profiles: List[CandidateProfile],
         failure_evidence: Optional[StructuredFailureEvidence] = None,
         behavior_map: Optional[IssueBehaviorMap] = None,
+        causal_trace: Optional[Any] = None,
     ) -> CompetingDiagnosisResult:
         """Parses model response into hypotheses and runs deterministic elimination."""
         hypotheses: List[DiagnosisHypothesis] = []
@@ -257,12 +300,24 @@ Output your diagnosis strictly as JSON within a ```json ... ``` code fence:
 
             for idx, rh in enumerate(raw_hyps):
                 if isinstance(rh, dict):
+                    pred_raw = rh.get("causal_prediction") or rh.get("prediction") or {}
+                    prediction = None
+                    if isinstance(pred_raw, dict) and pred_raw:
+                        prediction = CausalPrediction(
+                            expected_branch=str(pred_raw.get("expected_branch", "")),
+                            expected_mutations=[str(m) for m in pred_raw.get("expected_mutations", [])],
+                            expected_output_state=dict(pred_raw.get("expected_output_state", {})),
+                            forbidden_events=[str(f) for f in pred_raw.get("forbidden_events", [])],
+                            discriminating_variable=str(pred_raw.get("discriminating_variable", "")),
+                        )
+
                     hypotheses.append(
                         DiagnosisHypothesis(
                             id=str(rh.get("id", chr(65 + idx))),
                             cause=str(rh.get("cause", "")),
                             divergent_predicate=str(rh.get("divergent_predicate", "")),
                             expected_transition=str(rh.get("expected_transition", "")),
+                            prediction=prediction,
                             invariant=str(rh.get("invariant", "")),
                             repair_strategy=str(rh.get("repair_strategy", "")),
                             affected_sites=[str(s) for s in rh.get("affected_sites", [])],
@@ -298,6 +353,7 @@ Output your diagnosis strictly as JSON within a ```json ... ``` code fence:
             candidate_profiles=candidate_profiles,
             failure_evidence=failure_evidence,
             behavior_map=behavior_map,
+            causal_trace=causal_trace,
         )
 
         # Select top non-eliminated hypothesis
@@ -330,6 +386,7 @@ Output your diagnosis strictly as JSON within a ```json ... ``` code fence:
         candidate_profiles: List[CandidateProfile],
         failure_evidence: Optional[StructuredFailureEvidence],
         behavior_map: Optional[IssueBehaviorMap],
+        causal_trace: Optional[Any] = None,
     ):
         """Applies deterministic repository facts to eliminate or boost hypotheses."""
         cand_by_sym = {c.symbol.split(".")[-1].lower(): c for c in candidate_profiles}
@@ -378,11 +435,43 @@ Output your diagnosis strictly as JSON within a ```json ... ``` code fence:
                             f"Target '{site}' is FEATURE_LOCAL with bounded blast radius (+20)"
                         )
 
+            # Rule 5: Causal Prediction Verification against BehavioralTrace
+            if h.prediction and causal_trace:
+                pred = h.prediction
+                # Check forbidden events against observed trace
+                if pred.forbidden_events:
+                    for fe in pred.forbidden_events:
+                        fe_lower = fe.lower()
+                        for event in getattr(causal_trace, "events", []):
+                            if fe_lower in event.code_snippet.lower() or fe_lower in getattr(event, "predicate_evaluated", "").lower():
+                                pred.contradiction_count += 1
+                                h.contradiction_count += 1
+                                score -= 30.0
+                                h.contradicting_evidence.append(
+                                    f"Causal Contradiction: Forbidden event '{fe}' was observed at L{event.line}"
+                                )
+
+                # Check expected branch against first divergence
+                if pred.expected_branch and getattr(causal_trace, "divergence_transition", ""):
+                    if any(tok in getattr(causal_trace, "divergence_transition", "").lower() for tok in pred.expected_branch.lower().split()):
+                        pred.support_count += 1
+                        h.support_count += 1
+                        score += 15.0
+                        h.supporting_evidence.append(
+                            "Causal Support: Predicted branch matches observed divergence transition."
+                        )
+
+                # If severe contradictions dominate support
+                if h.contradiction_count > h.support_count and h.contradiction_count >= 2:
+                    h.eliminated = True
+                    h.elimination_reason = f"Eliminated by causal contradiction: {h.contradiction_count} predictions contradicted observed trace."
+
             # Rule 4: Eliminate if score collapses
             h.counterfactual_score = round(score, 2)
             if score < 20.0:
                 h.eliminated = True
-                h.elimination_reason = "Eliminated by deterministic evidence (traceback divergence or severe blast radius)."
+                if not h.elimination_reason:
+                    h.elimination_reason = "Eliminated by deterministic evidence (traceback divergence or severe blast radius)."
 
     @classmethod
     def _parse_legacy_text(
