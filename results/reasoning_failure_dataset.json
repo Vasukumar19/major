@@ -1,0 +1,137 @@
+{
+  "description": "PatchForge Reasoning Failure Dataset — Forensic Analysis of 13 WRONG_HYPOTHESIS Tasks",
+  "version": "1.2",
+  "total_wrong_hypothesis_tasks": 13,
+  "cases": [
+    {
+      "instance_id": "pallets__flask-4045",
+      "repo": "pallets/flask",
+      "defect_category": "BLUEPRINT_ROUTING",
+      "what_patchforge_believed": "Believed url_for was improperly validating schemes or endpoint strings.",
+      "ground_truth_defect": "Nested dotted blueprint names were missing recursive dot-splitting in Blueprint.name validation.",
+      "ignored_evidence": "Blueprint registration hierarchy in Flask app context and test assertion asserting dotted name raises ValueError.",
+      "missing_causal_signal": "Branch predicate checking if '.' in blueprint.name vs validating during register_blueprint.",
+      "discriminating_variable": "name containing dot character"
+    },
+    {
+      "instance_id": "psf__requests-3362",
+      "repo": "psf/requests",
+      "defect_category": "STREAMING_DECODE",
+      "what_patchforge_believed": "Believed json.loads was failing due to improper kwargs forwarding.",
+      "ground_truth_defect": "r.json() decoding r.text when content is chunked and contains raw bytes with encoding mismatch.",
+      "ignored_evidence": "Traceback showed UnicodeDecodeError in r.text getter invoked before json decoding.",
+      "missing_causal_signal": "First divergence at r.text property call instead of json() parsing logic.",
+      "discriminating_variable": "self.encoding vs detected charset in r.text"
+    },
+    {
+      "instance_id": "pallets__flask-5063",
+      "repo": "pallets/flask",
+      "defect_category": "CLI_FORMATTING",
+      "what_patchforge_believed": "Believed click CLI option was not registered on flask routes command.",
+      "ground_truth_defect": "Table formatting in routes command failed to sort domain/subdomain rules correctly.",
+      "ignored_evidence": "CLI output string comparison in test_routes showed mismatch in table column ordering.",
+      "missing_causal_signal": "State mutation where rule table rows are appended without subdomains.",
+      "discriminating_variable": "rule.subdomain in row representation"
+    },
+    {
+      "instance_id": "pytest-dev__pytest-5103",
+      "repo": "pytest-dev/pytest",
+      "defect_category": "ASSERTION_REWRITE",
+      "what_patchforge_believed": "Believed assertion rewriter was not handling generator expressions.",
+      "ground_truth_defect": "Unrolling of iterables (all/any) in assertion failure explanation produced unreadable diff.",
+      "ignored_evidence": "Assertion failure message formatting helper in _pytest.assertion.",
+      "missing_causal_signal": "First divergence at explanation generator where all() expression elements were truncated.",
+      "discriminating_variable": "is_all_any_call in explanation AST node"
+    },
+    {
+      "instance_id": "pytest-dev__pytest-5221",
+      "repo": "pytest-dev/pytest",
+      "defect_category": "FIXTURE_DISPLAY",
+      "what_patchforge_believed": "Believed fixture manager was dropping fixture scopes from dict.",
+      "ground_truth_defect": "--fixtures display flag showed 'function' scope when it should be hidden by default unless verbose.",
+      "ignored_evidence": "Test assertion checking terminal output lines for scope prefix strings.",
+      "missing_causal_signal": "Branch predicate checking if scope == 'function' before printing scope tag.",
+      "discriminating_variable": "fixture_def.scope == 'function'"
+    },
+    {
+      "instance_id": "pytest-dev__pytest-5227",
+      "repo": "pytest-dev/pytest",
+      "defect_category": "LOGGING_CAPTURE",
+      "what_patchforge_believed": "Believed log capture handler was attached to wrong root logger.",
+      "ground_truth_defect": "Default log_level override was resetting custom handler log level unconditionally.",
+      "ignored_evidence": "Logging config test showing handler.level altered after fixture setup.",
+      "missing_causal_signal": "State mutation mutating handler.level without checking if explicitly set by user.",
+      "discriminating_variable": "handler.level != NOTSET"
+    },
+    {
+      "instance_id": "pytest-dev__pytest-5692",
+      "repo": "pytest-dev/pytest",
+      "defect_category": "JUNIT_XML_REPORT",
+      "what_patchforge_believed": "Believed xml generator was omitting suite attributes.",
+      "ground_truth_defect": "Hostname and timestamp XML attributes were missing from testsuite root node in junitxml.",
+      "ignored_evidence": "XML schema validation test asserting attribute presence on root tag.",
+      "missing_causal_signal": "Trace event at testsuite XML element creation where socket.gethostname() was not called.",
+      "discriminating_variable": "root.attrib.get('hostname')"
+    },
+    {
+      "instance_id": "pytest-dev__pytest-7220",
+      "repo": "pytest-dev/pytest",
+      "defect_category": "UNITTEST_TEARDOWN",
+      "what_patchforge_believed": "Believed tearDown method was deleted or renamed in TestCase runner.",
+      "ground_truth_defect": "tearDown was being executed for skipped tests when it should be bypassed if setUp was skipped.",
+      "ignored_evidence": "unittest test runner hook checking test._outcome.skipped or skipped attribute.",
+      "missing_causal_signal": "Branch predicate in runtest(): if not skipped: tearDown().",
+      "discriminating_variable": "getattr(test, '__unittest_skip__', False)"
+    },
+    {
+      "instance_id": "pytest-dev__pytest-7373",
+      "repo": "pytest-dev/pytest",
+      "defect_category": "HOOK_TEARDOWN",
+      "what_patchforge_believed": "Believed fixture teardown generator was raising unhandled exception.",
+      "ground_truth_defect": "Teardown was being called even if setup was not executed due to skip exception.",
+      "ignored_evidence": "Hook call runner exception inspection in runner.py.",
+      "missing_causal_signal": "Trace event checking whether setup phase succeeded before invoking item.teardown().",
+      "discriminating_variable": "setup_report.passed is True"
+    },
+    {
+      "instance_id": "pytest-dev__pytest-7490",
+      "repo": "pytest-dev/pytest",
+      "defect_category": "DYNAMIC_MARKERS",
+      "what_patchforge_believed": "Believed mark decorator was improperly applied to test function.",
+      "ground_truth_defect": "Dynamically added markers via request.node.add_marker() were not evaluated by xfail runner in time.",
+      "ignored_evidence": "Test checking xfail evaluation order relative to dynamic marker attachment.",
+      "missing_causal_signal": "State mutation where own_markers list was not re-queried during evaluation.",
+      "discriminating_variable": "node.iter_markers(name='xfail')"
+    },
+    {
+      "instance_id": "pylint-dev__pylint-5859",
+      "repo": "pylint-dev/pylint",
+      "defect_category": "OPTION_PARSING",
+      "what_patchforge_believed": "Believed notes checker was skipping comment tokens completely.",
+      "ground_truth_defect": "--notes option with punctuation (e.g. 'TODO:') was stripped by regex word boundary.",
+      "ignored_evidence": "Regex pattern using \\b boundary which fails on trailing punctuation like ':'.",
+      "missing_causal_signal": "Regex compilation where re.escape() or non-word-boundary matching should be used.",
+      "discriminating_variable": "note_pattern with punctuation boundary"
+    },
+    {
+      "instance_id": "pylint-dev__pylint-7114",
+      "repo": "pylint-dev/pylint",
+      "defect_category": "NAMESPACE_RESOLUTION",
+      "what_patchforge_believed": "Believed module import graph was failing on relative imports.",
+      "ground_truth_defect": "Checking module folder with same name as a file confused module resolution in expand_modules.",
+      "ignored_evidence": "os.path.isdir vs os.path.isfile precedence in directory walker.",
+      "missing_causal_signal": "Branch predicate checking if isdir and has __init__.py before checking .py file.",
+      "discriminating_variable": "is_namespace_package vs module_file"
+    },
+    {
+      "instance_id": "pylint-dev__pylint-7228",
+      "repo": "pylint-dev/pylint",
+      "defect_category": "REGEX_PATTERN_VALIDATION",
+      "what_patchforge_believed": "Believed configuration parser was not loading regex strings.",
+      "ground_truth_defect": "Valid regexes containing '\\p' triggered regex validation error because re module does not support Unicode property escapes.",
+      "ignored_evidence": "re.error traceback on pattern compilation in config checker.",
+      "missing_causal_signal": "Try/except block catching re.error vs regex pre-processing.",
+      "discriminating_variable": "re.compile with fallback or regex library"
+    }
+  ]
+}
