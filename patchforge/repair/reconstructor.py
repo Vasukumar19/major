@@ -297,7 +297,20 @@ class SourceReconstructor:
                 if exc in used_names and exc not in mod_imp:
                     needed_exception_imports.add(exc)
 
-        if not needed_std_imports and not needed_exception_imports:
+        # 3. Project-level compat utilities (e.g. to_native_string, builtin_str)
+        needed_compat_imports = set()
+        compat_node = None
+        for node in orig_tree.body:
+            if isinstance(node, ast.ImportFrom) and node.module and 'compat' in node.module:
+                compat_node = node
+                break
+        if compat_node:
+            common_compat = {'to_native_string', 'builtin_str', 'str', 'bytes', 'is_py2', 'is_py3'}
+            for util in common_compat:
+                if util in used_names and util not in mod_imp:
+                    needed_compat_imports.add(util)
+
+        if not needed_std_imports and not needed_exception_imports and not needed_compat_imports:
             return modified_code
 
         lines = modified_code.splitlines(keepends=True)
@@ -309,6 +322,14 @@ class SourceReconstructor:
             dots = '.' * exceptions_node.level if hasattr(exceptions_node, 'level') else ''
             full_mod = f"{dots}{mod_name}"
             imp_line = f"from {full_mod} import " + ", ".join(sorted(needed_exception_imports)) + newline
+            lines.insert(end_l, imp_line)
+
+        if needed_compat_imports and compat_node:
+            end_l = getattr(compat_node, 'end_lineno', compat_node.lineno)
+            mod_name = compat_node.module or ''
+            dots = '.' * compat_node.level if hasattr(compat_node, 'level') else ''
+            full_mod = f"{dots}{mod_name}"
+            imp_line = f"from {full_mod} import " + ", ".join(sorted(needed_compat_imports)) + newline
             lines.insert(end_l, imp_line)
 
         try:

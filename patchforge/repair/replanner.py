@@ -59,6 +59,14 @@ class FailureDrivenReplanner:
                 prompt_guidance=f"VALIDATION FAILURE: {error_message}. Your replacement MUST fix this violation.",
             )
 
+        # 1b. No-op or Empty Patch / UNRESOLVED -> Insist on concrete modification
+        if failure_class == FailureClass.UNRESOLVED.value or "No changes produced" in error_message or "no-op repair" in error_message:
+            return ReplanDecision(
+                action=ReplanAction.REFINE_SEMANTICS,
+                reason="Patch candidate produced no modifications to the target code unit.",
+                prompt_guidance="CRITICAL: Your replacement code was identical or produced no changes. You MUST introduce the necessary bug fix logic to modify the target code unit.",
+            )
+
         # 2. Schema or Syntax Failure -> Protocol Fallback
         if failure_class in (
             FailureClass.PATCH_SYNTAX.value,

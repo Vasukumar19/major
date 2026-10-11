@@ -36,6 +36,7 @@ CRITICAL RULES:
 4. The 'replacement' field must contain ONLY valid, executable Python code to replace the target unit.
 5. If your replacement code contains double quotes (e.g. docstrings \"\"\" or strings \"...\"), escape them properly as \\\" or use single quotes ' so the JSON is strictly valid.
 6. Adhere strictly to the behavioral invariant and diagnosis provided.
+7. Your replacement code must contain the concrete modification fixing the issue; do NOT return the original code unchanged.
 """
 
 
@@ -138,6 +139,7 @@ Target Lines: {unit.start_line} to {unit.end_line}
 5. In streaming response generators or iter_content, any low-level socket, protocol, or stream errors (such as socket.error / OSError / IncompleteRead) must be caught and raised as corresponding Requests exceptions (e.g. `requests.exceptions.ConnectionError`, `ChunkedEncodingError`, or `ContentDecodingError`). Ensure all exception types used (like `socket`) are imported or available.
 6. When preparing HTTP method strings (e.g. in `prepare_method` or `request`), support byte strings by converting them to native string before normalization (e.g. `if isinstance(method, bytes): method = method.decode('utf-8')` or `to_native_string(method)`), ensuring methods like `b'GET'` normalize cleanly to `'GET'`.
 7. In redirect loops (e.g. resolve_redirects), ensure the loop state updates the base request reference (e.g. `req = prepared_request`) before invoking send/yielding, so successive redirect hops and callers receive the mutated request rather than the stale original request. Purge body and Content-Length/Type when switching POST to GET.
+8. When displaying or printing fixture scopes (e.g. with `--fixtures`), show the scope tag (e.g. `[<scope>]` or `(scope: <scope>)`) for non-standard or user-visible scopes, but filter out or format the default function scope as specified by the issue requirements.
 
 ---
 ### REQUIRED OUTPUT FORMAT:
@@ -176,9 +178,10 @@ Provide ONLY the minimal JSON replacement matching this schema:
 {{
   "repair_action": "{canonical_action}",
   "target_unit_id": "{unit.id}",
-  "replacement": "<exact replacement Python code>"
+  "replacement": "<exact replacement Python code containing the bug fix modification>"
 }}
 ```
+IMPORTANT: The 'replacement' field must contain the modified code that fixes the defect, NOT the unchanged original code.
 Do NOT output commentary, diff markers, or explanations.
 """
 
@@ -188,7 +191,7 @@ Do NOT output commentary, diff markers, or explanations.
         feedback_sec = f"\n[PREVIOUS ATTEMPT ERROR]: {error_feedback}\n" if error_feedback else ""
 
         return f"""{feedback_sec}
-Return ONLY the replacement Python code for the target code unit below.
+Return ONLY the modified replacement Python code for the target code unit below.
 Target ID: {unit.id}
 Type: {unit.unit_type.value}
 Current Code:
@@ -197,6 +200,7 @@ Current Code:
 ```
 
 Format: Return ONLY the raw Python replacement code inside a ```python ``` code block.
+IMPORTANT: Your replacement code MUST contain the bug fix modification. Do NOT return the current code unchanged.
 Do NOT output JSON, unified diffs, or markdown commentary.
 """
 
@@ -381,6 +385,12 @@ class StructuredRepairParser:
                 res.valid = False
                 errors.append(f"Diff marker '{marker}' leaked into replacement code.")
 
+        # Check for no-op identical replacement
+        clean_orig = target_unit.source_text.strip()
+        if clean_orig and rep == clean_orig and output.repair_action != RepairAction.DELETE_STATEMENT.value:
+            res.valid = False
+            errors.append("Replacement code is identical to original target code (no-op repair).")
+
         # 2. Check AST Category
         unit_type = target_unit.unit_type
         if unit_type == RepairUnitType.EXPRESSION:
@@ -454,7 +464,12 @@ class StructuredRepairParser:
                 try:
                     tree = ast.parse(rep, mode="exec")
                     has_func = any(isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) for n in tree.body)
-                    res.ast_category_ok = True
+                    if not has_func:
+                        res.ast_category_ok = False
+                        res.valid = False
+                        errors.append("Replacement code for FUNCTION/METHOD does not contain a valid function definition ('def ...').")
+                    else:
+                        res.ast_category_ok = True
                 except SyntaxError as e:
                     res.ast_category_ok = False
                     res.valid = False
