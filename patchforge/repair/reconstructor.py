@@ -77,6 +77,9 @@ class SourceReconstructor:
                 lines, start_l, end_l, unit.indentation, replacement_text, newline
             )
 
+        # Auto-heal missing imports introduced by replacement snippets
+        new_code = SourceReconstructor._auto_heal_missing_imports(original_code, new_code)
+
         # Build deterministic unified diff
         orig_split = original_code.splitlines(keepends=True)
         new_split = new_code.splitlines(keepends=True)
@@ -184,6 +187,7 @@ class SourceReconstructor:
     @staticmethod
     def _normalize_replacement_indentation(replacement: str, base_indent: str) -> List[str]:
         """Normalizes relative indentation of replacement lines to align with base_indent."""
+        import ast
         import textwrap
         replacement = replacement.expandtabs(4)
         base_indent = base_indent.expandtabs(4)
@@ -191,6 +195,35 @@ class SourceReconstructor:
         non_empty = [line for line in rep_lines if line.strip()]
         if not non_empty:
             return [base_indent]
+
+        # Inconsistent indentation healing:
+        # Check if replacement contains sibling def/class definitions at inconsistent indentation levels
+        def_indents = [len(l) - len(l.lstrip()) for l in rep_lines if l.lstrip().startswith(('def ', 'async def ', 'class '))]
+        if len(def_indents) > 1 and len(set(def_indents)) > 1:
+            try:
+                ast.parse(textwrap.dedent(replacement))
+            except (IndentationError, SyntaxError):
+                target_def_indent = min(def_indents)
+                normalized_cand = []
+                current_shift = 0
+                for l in rep_lines:
+                    if not l.strip():
+                        normalized_cand.append('')
+                        continue
+                    stripped = l.lstrip()
+                    lead = len(l) - len(stripped)
+                    if stripped.startswith(('def ', 'async def ', 'class ')):
+                        current_shift = lead - target_def_indent
+                        normalized_cand.append(' ' * target_def_indent + stripped)
+                    else:
+                        new_lead = max(0, lead - current_shift)
+                        normalized_cand.append(' ' * new_lead + stripped)
+                healed_text = '\n'.join(normalized_cand)
+                try:
+                    ast.parse(textwrap.dedent(healed_text))
+                    replacement = healed_text
+                except Exception:
+                    pass
 
         dedented = textwrap.dedent(replacement)
         adjusted = []
@@ -200,6 +233,107 @@ class SourceReconstructor:
             else:
                 adjusted.append(f"{base_indent}{line}")
         return adjusted
+
+    @staticmethod
+    def _auto_heal_missing_imports(original_code: str, modified_code: str) -> str:
+        """Heals missing top-level standard library and exception imports introduced by replacement snippets."""
+        import ast
+        import sys
+        try:
+            mod_tree = ast.parse(modified_code)
+            orig_tree = ast.parse(original_code)
+        except Exception:
+            return modified_code
+
+        def get_imported(tree):
+            imported = set()
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+                    for a in node.names:
+                        imported.add(a.asname or a.name.split('.')[0])
+                elif isinstance(node, ast.ImportFrom):
+                    for a in node.names:
+                        imported.add(a.asname or a.name)
+            return imported
+
+        orig_imp = get_imported(orig_tree)
+        mod_imp = get_imported(mod_tree)
+
+        # 1. Standard library module attributes (e.g., socket.error without 'import socket')
+        std_mods = set(sys.stdlib_module_names) if hasattr(sys, 'stdlib_module_names') else {
+            'socket', 'sys', 'os', 'json', 're', 'collections', 'datetime', 'io', 'math'
+        }
+        needed_std_imports = set()
+        for node in ast.walk(mod_tree):
+            if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name):
+                mod_name = node.value.id
+                if mod_name in std_mods and mod_name not in mod_imp:
+                    needed_std_imports.add(mod_name)
+
+        # 2. Module-level exception imports (e.g., ConnectionError from .exceptions)
+        needed_exception_imports = set()
+        used_names = set()
+        for node in ast.walk(mod_tree):
+            if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
+                used_names.add(node.id)
+
+        exceptions_node = None
+        for node in orig_tree.body:
+            if isinstance(node, ast.ImportFrom) and node.module == 'exceptions':
+                exceptions_node = node
+                break
+        if not exceptions_node:
+            for node in orig_tree.body:
+                if isinstance(node, ast.ImportFrom) and node.module and node.module.endswith('exceptions'):
+                    exceptions_node = node
+                    break
+
+        if exceptions_node:
+            common_exceptions = {
+                'ConnectionError', 'ChunkedEncodingError', 'ContentDecodingError',
+                'StreamConsumedError', 'HTTPError', 'RequestException', 'Timeout', 'TooManyRedirects'
+            }
+            for exc in common_exceptions:
+                if exc in used_names and exc not in mod_imp:
+                    needed_exception_imports.add(exc)
+
+        if not needed_std_imports and not needed_exception_imports:
+            return modified_code
+
+        lines = modified_code.splitlines(keepends=True)
+        newline = "\r\n" if "\r\n" in modified_code else "\n"
+
+        if needed_exception_imports and exceptions_node:
+            end_l = getattr(exceptions_node, 'end_lineno', exceptions_node.lineno)
+            mod_name = exceptions_node.module or ''
+            dots = '.' * exceptions_node.level if hasattr(exceptions_node, 'level') else ''
+            full_mod = f"{dots}{mod_name}"
+            imp_line = f"from {full_mod} import " + ", ".join(sorted(needed_exception_imports)) + newline
+            lines.insert(end_l, imp_line)
+
+        try:
+            curr_tree = ast.parse("".join(lines))
+        except Exception:
+            curr_tree = mod_tree
+
+        if needed_std_imports:
+            last_imp_idx = 0
+            for node in curr_tree.body:
+                if isinstance(node, (ast.Import, ast.ImportFrom)):
+                    end_l = getattr(node, 'end_lineno', node.lineno)
+                    last_imp_idx = max(last_imp_idx, end_l)
+            insert_stmts = [f"import {m}{newline}" for m in sorted(needed_std_imports)]
+            if last_imp_idx > 0:
+                lines = lines[:last_imp_idx] + insert_stmts + lines[last_imp_idx:]
+            else:
+                lines = insert_stmts + lines
+
+        healed_code = "".join(lines)
+        try:
+            ast.parse(healed_code)
+            return healed_code
+        except Exception:
+            return modified_code
 
     @staticmethod
     def _replace_line_span(
@@ -328,6 +462,7 @@ class SourceReconstructor:
                     symbols_changed.append(unit.symbol)
 
             final_file_code = "".join(current_lines)
+            final_file_code = SourceReconstructor._auto_heal_missing_imports(orig_code, final_file_code)
             modified_contents[rel_path] = final_file_code
 
             # Compute diff for this file

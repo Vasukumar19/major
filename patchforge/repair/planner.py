@@ -220,7 +220,38 @@ class RepairUnitPlanner:
                 role=role,
             )
 
-        # 4. Fallback: line slice
+        # 4. If enclosing class found and no enclosing function, narrow to target method or class body
+        if visitor.enclosing_class:
+            cls_node = visitor.enclosing_class
+            # Check if any method in the class covers or is near target range
+            covering_methods = [
+                m for m in cls_node.body
+                if isinstance(m, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and not (getattr(m, "end_lineno", m.lineno) < start_l or m.lineno > end_l)
+            ]
+            if covering_methods:
+                m = covering_methods[0]
+                m_start = m.lineno
+                m_end = getattr(m, "end_lineno", m_start)
+                indent = RepairUnitPlanner._get_indentation(lines, m_start)
+                source_seg = "".join(lines[m_start - 1:m_end])
+                return RepairUnit(
+                    id=f"{file_path}::{m.name}::METHOD::{m_start}-{m_end}",
+                    file_path=file_path,
+                    symbol=m.name,
+                    unit_type=RepairUnitType.METHOD,
+                    node_type=m.__class__.__name__,
+                    start_line=m_start,
+                    end_line=m_end,
+                    start_col=m.col_offset,
+                    end_col=getattr(m, "end_col_offset", 0),
+                    source_text=source_seg,
+                    parent_symbol=cls_node.name,
+                    indentation=indent,
+                    role=role,
+                )
+
+        # 5. Fallback: line slice
         indent = RepairUnitPlanner._get_indentation(lines, start_l)
         source_seg = "".join(lines[start_l - 1:end_l])
         return RepairUnit(

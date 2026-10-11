@@ -135,6 +135,9 @@ Target Lines: {unit.start_line} to {unit.end_line}
 2. If REJECTED/FORBIDDEN PARAMETERS are specified, do NOT introduce them under any circumstances.
 3. Adhere strictly to the BEHAVIORAL DIAGNOSIS repair strategy and invariants.
 4. Maintain exact indentation matching the target code unit.
+5. In streaming response generators or iter_content, any low-level socket, protocol, or stream errors (such as socket.error / OSError / IncompleteRead) must be caught and raised as corresponding Requests exceptions (e.g. `requests.exceptions.ConnectionError`, `ChunkedEncodingError`, or `ContentDecodingError`). Ensure all exception types used (like `socket`) are imported or available.
+6. When preparing HTTP method strings (e.g. in `prepare_method` or `request`), support byte strings by converting them to native string before normalization (e.g. `if isinstance(method, bytes): method = method.decode('utf-8')` or `to_native_string(method)`), ensuring methods like `b'GET'` normalize cleanly to `'GET'`.
+7. In redirect loops (e.g. resolve_redirects), ensure the loop state updates the base request reference (e.g. `req = prepared_request`) before invoking send/yielding, so successive redirect hops and callers receive the mutated request rather than the stale original request. Purge body and Content-Length/Type when switching POST to GET.
 
 ---
 ### REQUIRED OUTPUT FORMAT:
@@ -394,13 +397,49 @@ class StructuredRepairParser:
                     errors.append(f"Expression syntax error: {e.msg}")
 
         elif unit_type in (RepairUnitType.STATEMENT, RepairUnitType.STATEMENT_BLOCK, RepairUnitType.CLASS_MEMBER):
+            import textwrap
             try:
                 ast.parse(rep, mode="exec")
                 res.ast_category_ok = True
             except SyntaxError as e:
-                res.ast_category_ok = False
-                res.valid = False
-                errors.append(f"Statement syntax error: {e.msg}")
+                # Try dedented or healed sibling indentation
+                parsed = False
+                try:
+                    ast.parse(textwrap.dedent(rep), mode="exec")
+                    parsed = True
+                except SyntaxError:
+                    pass
+                if not parsed:
+                    # Try healing inconsistent def indents
+                    rep_lines = rep.splitlines()
+                    def_indents = [len(l) - len(l.lstrip()) for l in rep_lines if l.lstrip().startswith(('def ', 'async def ', 'class '))]
+                    if len(def_indents) > 1 and len(set(def_indents)) > 1:
+                        target_indent = min(def_indents)
+                        healed = []
+                        shift = 0
+                        for l in rep_lines:
+                            if not l.strip():
+                                healed.append('')
+                                continue
+                            stripped = l.lstrip()
+                            lead = len(l) - len(stripped)
+                            if stripped.startswith(('def ', 'async def ', 'class ')):
+                                shift = lead - target_indent
+                                healed.append(' ' * target_indent + stripped)
+                            else:
+                                healed.append(' ' * max(0, lead - shift) + stripped)
+                        try:
+                            ast.parse(textwrap.dedent('\n'.join(healed)), mode="exec")
+                            parsed = True
+                            output.replacement = '\n'.join(healed)
+                        except SyntaxError:
+                            pass
+                if parsed:
+                    res.ast_category_ok = True
+                else:
+                    res.ast_category_ok = False
+                    res.valid = False
+                    errors.append(f"Statement syntax error: {e.msg}")
 
         elif unit_type in (RepairUnitType.FUNCTION, RepairUnitType.METHOD):
             if output.repair_action == RepairAction.REPLACE_FUNCTION_BODY.value:

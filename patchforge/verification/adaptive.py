@@ -97,16 +97,22 @@ class AdaptiveVerifier:
         summary = verdict.to_dict() if hasattr(verdict, "to_dict") else {}
 
         err_msg = getattr(verdict, "error", "") or ""
+        raw_output = getattr(verdict, "test_output", "") or getattr(verdict, "stderr", "") or getattr(verdict, "stdout", "") or getattr(verdict, "output", "") or ""
+        err_details = []
+        if raw_output:
+            lines = str(raw_output).splitlines()
+            err_lines = [l.strip() for l in lines if any(k in l for k in ("FAIL:", "FAILED", "AssertionError", "Error:", "TypeError", "OSError", "Exception:"))]
+            if err_lines:
+                err_details = err_lines[-3:]
+
         if not err_msg:
             f2p_info = summary.get("fail_to_pass", {})
             f2p_fail_list = f2p_info.get("failure", []) if isinstance(f2p_info, dict) else []
             if f2p_fail_list:
-                err_msg = f"Failing F2P test(s): {', '.join(f2p_fail_list[:3])}"
-            elif getattr(verdict, "output", ""):
-                lines = str(getattr(verdict, "output", "")).splitlines()
-                err_lines = [l.strip() for l in lines if any(k in l for k in ("FAIL:", "FAILED", "AssertionError", "Error:"))]
-                if err_lines:
-                    err_msg = "; ".join(err_lines[-2:])
+                detail_suffix = f" | Details: {'; '.join(err_details)}" if err_details else ""
+                err_msg = f"Failing F2P test(s): {', '.join(f2p_fail_list[:3])}{detail_suffix}"
+            elif err_details:
+                err_msg = "; ".join(err_details)
 
         return AdaptiveVerificationVerdict(
             tier_reached=tier,

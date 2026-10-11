@@ -93,7 +93,7 @@ class FailureDrivenReplanner:
             guidance = (
                 f"BEHAVIORAL REPAIR COMPLETENESS: Your patch successfully passed {f2p_passed} test assertions, "
                 f"confirming your core hypothesis is directionally correct. DO NOT discard your logic or rewrite from scratch. "
-                f"You only need to complete the remaining failing assertion: {error_message[:300]}. "
+                f"You only need to complete the remaining failing assertion: {error_message[:800]}. "
                 f"Refine the conditional edge case while preserving your existing state transformation."
             )
             return ReplanDecision(

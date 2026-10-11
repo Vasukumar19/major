@@ -163,13 +163,24 @@ class HybridRepositoryRetriever:
                     if t_prof.bug_fix_commits > 0:
                         prov.append(f"historically involved in {t_prof.bug_fix_commits} bug fixes")
 
+                # Channel F: Explicit File Mention in Issue Description
+                file_mention_bonus = 0.0
+                node_fp_lower = node.file_path.lower().replace("\\", "/")
+                node_fn_lower = Path(node.file_path).name.lower()
+                for q_word in query_tokens:
+                    if q_word.endswith(".py") and (q_word in node_fp_lower or q_word == node_fn_lower):
+                        file_mention_bonus = 1.0
+                        prov.append(f"file explicitly mentioned in issue description ({q_word})")
+                        break
+
                 # Fuse Scores
                 total_score = (
                     self.weights.get("lexical", 0.25) * lex_score
                     + self.weights.get("dense", 0.15) * dense_score
-                    + self.weights.get("graph", 0.25) * graph_score
+                    + self.weights.get("graph", 0.20) * graph_score
                     + self.weights.get("traceback", 0.20) * tb_score
-                    + self.weights.get("temporal", 0.15) * temp_score
+                    + self.weights.get("temporal", 0.10) * temp_score
+                    + 0.10 * file_mention_bonus
                 )
 
                 candidates_map[cand_key] = RetrievedCandidate(

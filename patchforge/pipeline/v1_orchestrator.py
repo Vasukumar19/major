@@ -532,7 +532,7 @@ class V1RepairOrchestrator:
                     requirement_matrix_spec=req_matrix.format_for_prompt() if req_matrix else "",
                 )
                 strategy_name = "strict_structured_json"
-            elif attempt == 2 and current_action != ReplanAction.FALLBACK_SYNTAX:
+            elif (attempt == 2 or (attempt == 3 and current_action == ReplanAction.REFINE_SEMANTICS)) and current_action != ReplanAction.FALLBACK_SYNTAX:
                 prompt_to_use = StructuredRepairPromptBuilder.build_repair_prompt(
                     unit=unit,
                     problem=problem,
