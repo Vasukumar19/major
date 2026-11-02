@@ -1,0 +1,525 @@
+{
+  "instance_id": "pytest-dev__pytest-5227",
+  "repo": "pytest-dev/pytest",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "48e0408bb74599c3",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "e2008182d3ff683a",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "d60390742cfb49db",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "c6576310d2f24640",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": false,
+  "patch_tier": null,
+  "patch_text": "",
+  "test_executed": false,
+  "failure_class": "UNRESOLVED",
+  "runtime_s": 296.35,
+  "f2p_passed": 0,
+  "f2p_total": 0,
+  "p2p_passed": 0,
+  "p2p_total": 0,
+  "refinement_cycles": 3,
+  "target_file": "src/_pytest/python.py",
+  "target_symbol": "collect",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "src/_pytest/python.py:collect"
+    ],
+    "selected_target": "src/_pytest/python.py:collect",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'src/_pytest/python.py:collect'.",
+    "target_unjustified": true,
+    "target_changes": []
+  },
+  "generation_attempted": true,
+  "structurally_valid": false,
+  "submitted_to_harness": false,
+  "test_time_s": 0.0,
+  "generation_time_s": 171.71699999999998,
+  "reconstruction_time_s": 0.0,
+  "indexing_time_s": 1.022,
+  "retrieval_diagnosis_time_s": 122.789,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.0,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "d60390742cfb49db",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "psf__requests-863",
+      "pallets__flask-4992"
+    ],
+    "exemplars_included_in_prompt": [
+      "psf__requests-863",
+      "pallets__flask-4992"
+    ],
+    "prompt_included_episode_ids": [
+      "psf__requests-863",
+      "pallets__flask-4992"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pytest-dev__pytest-5227",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The `collect` function in `src/_pytest/python.py` does not handle the `__test__` attribute correctly, leading to unexpected behavior.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Modify the `collect` function to correctly handle the `__test__` attribute and ensure it satisfies the required postconditions.",
+    "affected_sites": [
+      "src/_pytest/python.py:collect"
+    ],
+    "defect_confidence": 0.75,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 0,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The `collect` function in `src/_pytest/python.py` does not handle the `__test__` attribute correctly, leading to unexpected behavior.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "if getattr(self.obj, '__test__', True):",
+          "expected_mutations": [
+            "dicts = [getattr(self.obj, '__dict__', {})]",
+            "seen = {}",
+            "values = []"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "if not getattr(self.obj, '__test__', True):"
+          ],
+          "discriminating_variable": "self.obj.__test__",
+          "support_count": 1,
+          "contradiction_count": 0
+        },
+        "support_count": 1,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Modify the `collect` function to correctly handle the `__test__` attribute and ensure it satisfies the required postconditions.",
+        "affected_sites": [
+          "src/_pytest/python.py:collect"
+        ],
+        "supporting_evidence": [
+          "E1 | CODE_GRAPH: `collect` is GLOBAL_INFRASTRUCTURE with 13 callers (7 cross-module). Mutating it risks high regression.",
+          "E2 | TEMPORAL: `collect` has a history of 5 bug fixes (churn score: 1.00).",
+          "E3 | STATE_FLOW: `collect` overwrites state variables: res.",
+          "E4 | STATE_FLOW: `collect` mutates attributes/containers: seen[name].",
+          "Causal Support: Predicted branch matches observed divergence transition."
+        ],
+        "contradicting_evidence": [
+          "Target 'src/_pytest/python.py:collect' is GLOBAL_INFRASTRUCTURE with 7 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "E1 | CODE_GRAPH: `collect` is GLOBAL_INFRASTRUCTURE with 13 callers (7 cross-module). Mutating it risks high regression.",
+          "E2 | TEMPORAL: `collect` has a history of 5 bug fixes (churn score: 1.00).",
+          "E3 | STATE_FLOW: `collect` overwrites state variables: res.",
+          "E4 | STATE_FLOW: `collect` mutates attributes/containers: seen[name]."
+        ],
+        "contradicting_facts": [],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 65.0
+      },
+      {
+        "id": "B",
+        "cause": "The `parametrize` function in `src/_pytest/python.py` does not handle the `__test__` attribute correctly, leading to unexpected behavior.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "if getattr(self.obj, '__test__', True):",
+          "expected_mutations": [
+            "self._calls = []"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "if not getattr(self.obj, '__test__', True):"
+          ],
+          "discriminating_variable": "self.obj.__test__",
+          "support_count": 1,
+          "contradiction_count": 0
+        },
+        "support_count": 1,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Modify the `parametrize` function to correctly handle the `__test__` attribute and ensure it satisfies the required postconditions.",
+        "affected_sites": [
+          "src/_pytest/python.py:parametrize"
+        ],
+        "supporting_evidence": [
+          "E5 | CODE_GRAPH: `parametrize` is GLOBAL_INFRASTRUCTURE with 165 callers (163 cross-module). Mutating it risks high regression.",
+          "E6 | TEMPORAL: `parametrize` has a history of 1 bug fixes (churn score: 0.20).",
+          "E7 | STATE_FLOW: `parametrize` mutates attributes/containers: self._calls.",
+          "Causal Support: Predicted branch matches observed divergence transition."
+        ],
+        "contradicting_evidence": [
+          "Target 'src/_pytest/python.py:parametrize' is GLOBAL_INFRASTRUCTURE with 163 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "E5 | CODE_GRAPH: `parametrize` is GLOBAL_INFRASTRUCTURE with 165 callers (163 cross-module). Mutating it risks high regression.",
+          "E6 | TEMPORAL: `parametrize` has a history of 1 bug fixes (churn score: 0.20).",
+          "E7 | STATE_FLOW: `parametrize` mutates attributes/containers: self._calls."
+        ],
+        "contradicting_facts": [],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 65.0
+      }
+    ],
+    "repair_sites": [
+      "src/_pytest/python.py:collect"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "hypothesis_id": "A",
+      "strategy": "strict_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 2,
+      "hypothesis_id": "A",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 3,
+      "hypothesis_id": "A",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    }
+  ],
+  "repair_unit": {
+    "id": "src/_pytest/python.py::collect::METHOD::364-387",
+    "file_path": "src/_pytest/python.py",
+    "symbol": "collect",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 364,
+    "end_line": 387,
+    "start_col": 4,
+    "end_col": 21,
+    "source_text": "    def collect(self):\n        if not getattr(self.obj, \"__test__\", True):\n            return []\n\n        # NB. we avoid random getattrs and peek in the __dict__ instead\n        # (XXX originally introduced from a PyPy need, still true?)\n        dicts = [getattr(self.obj, \"__dict__\", {})]\n        for basecls in inspect.getmro(self.obj.__class__):\n            dicts.append(basecls.__dict__)\n        seen = {}\n        values = []\n        for dic in dicts:\n            for name, obj in list(dic.items()):\n                if name in seen:\n                    continue\n                seen[name] = True\n                res = self._makeitem(name, obj)\n                if res is None:\n                    continue\n                if not isinstance(res, list):\n                    res = [res]\n                values.extend(res)\n        values.sort(key=lambda item: item.reportinfo()[:2])\n        return values\n",
+    "parent_symbol": "PyCollector",
+    "indentation": "    ",
+    "role": "PRIMARY",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "src/_pytest/python.py",
+      "symbol": "collect",
+      "role": "PRIMARY",
+      "score": 152.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'collect' (+80)",
+        "High regression risk: symbol has 7 cross-module callers (-28)",
+        "Located in primary localized file (+15)",
+        "Compact code span (24 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 7 test(s) (+15)"
+      ],
+      "line_start": 364,
+      "line_end": 387,
+      "unrelated_callers_count": 7,
+      "in_failing_traceback": false,
+      "semantic_radius": 24,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/cacheprovider.py",
+      "symbol": "cache",
+      "role": "PRIMARY",
+      "score": 60.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Compact code span (13 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_LOCAL with bounded impact (+25)",
+        "Direct tests available: 7 test(s) (+15)"
+      ],
+      "line_start": 376,
+      "line_end": 388,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 13,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/python.py",
+      "symbol": "parametrize",
+      "role": "PRIMARY",
+      "score": -30.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 163 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 15 test(s) (+15)"
+      ],
+      "line_start": 961,
+      "line_end": 1041,
+      "unrelated_callers_count": 163,
+      "in_failing_traceback": false,
+      "semantic_radius": 81,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/cacheprovider.py",
+      "symbol": "get",
+      "role": "PRIMARY",
+      "score": -35.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 15 cross-module callers (-40)",
+        "Compact code span (17 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 8 test(s) (+15)"
+      ],
+      "line_start": 91,
+      "line_end": 107,
+      "unrelated_callers_count": 15,
+      "in_failing_traceback": false,
+      "semantic_radius": 17,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/cacheprovider.py",
+      "symbol": "set",
+      "role": "PRIMARY",
+      "score": -35.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 14 cross-module callers (-40)",
+        "Compact code span (28 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 9 test(s) (+15)"
+      ],
+      "line_start": 109,
+      "line_end": 136,
+      "unrelated_callers_count": 14,
+      "in_failing_traceback": false,
+      "semantic_radius": 28,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/python_api.py",
+      "symbol": "approx",
+      "role": "PRIMARY",
+      "score": -45.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 38 cross-module callers (-40)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 39 test(s) (+15)"
+      ],
+      "line_start": 350,
+      "line_end": 537,
+      "unrelated_callers_count": 38,
+      "in_failing_traceback": false,
+      "semantic_radius": 188,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {},
+  "telemetry": {
+    "task_id": "pytest-dev__pytest-5227",
+    "total_wall_s": 296.35,
+    "llm_time_s": 0.0,
+    "test_time_s": 0.0,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 1.022,
+    "retrieval_diagnosis_time_s": 122.789,
+    "probing_time_s": null,
+    "generation_time_s": 171.717,
+    "reconstruction_time_s": 0.0,
+    "static_validation_time_s": 0.0,
+    "replanning_time_s": 0.0,
+    "runtime_s": 296.35
+  },
+  "test_summary": {},
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "collect",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [
+      "just"
+    ],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "At line 387 (`return values`), implement required transition: Must intercept this condition and produce the expected state transformation.",
+        "category": "ALGORITHMIC_TRANSITION",
+        "source": "EXECUTION_PATH",
+        "affected_symbols": [
+          "collect"
+        ],
+        "expected_state": "",
+        "expected_transition": "Must intercept this condition and produce the expected state transformation.",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [
+          "return",
+          "values"
+        ],
+        "satisfied": false
+      },
+      {
+        "id": "R2",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

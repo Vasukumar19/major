@@ -20,6 +20,8 @@ EXCLUDE_DIRS = {
 
 
 def _get_git_commit(repo_path: str) -> str:
+    commit = "unknown_commit"
+    dirty_part = ""
     try:
         res = subprocess.run(
             ["git", "rev-parse", "HEAD"],
@@ -30,10 +32,84 @@ def _get_git_commit(repo_path: str) -> str:
             check=False,
         )
         if res.returncode == 0 and res.stdout.strip():
-            return res.stdout.strip()
+            commit = res.stdout.strip()
+            diff_res = subprocess.run(
+                ["git", "diff", "HEAD"],
+                cwd=repo_path,
+                capture_output=True,
+                text=True,
+                timeout=5,
+                check=False,
+            )
+            # Use -uall so untracked subdirectories are expanded into individual files
+            status_res = subprocess.run(
+                ["git", "status", "--porcelain", "-uall"],
+                cwd=repo_path,
+                capture_output=True,
+                text=True,
+                timeout=5,
+                check=False,
+            )
+
+            # Untracked Python file contents: git diff HEAD does not track them,
+            # and git status --porcelain output is static even if untracked file content changes.
+            # Cryptographically hash contents of all untracked .py files so cache invalidation is sound.
+            untracked_content_hashes = []
+            if status_res.stdout:
+                for line in status_res.stdout.splitlines():
+                    line = line.strip()
+                    if line.startswith("??"):
+                        rel_file = line[2:].strip().strip('"')
+                        if rel_file.endswith(".py"):
+                            parts = set(rel_file.replace("\\", "/").split("/"))
+                            if not parts.intersection(EXCLUDE_DIRS):
+                                full_p = os.path.join(repo_path, rel_file)
+                                if os.path.isfile(full_p):
+                                    try:
+                                        with open(full_p, "rb") as uf:
+                                            h = hashlib.sha256(uf.read()).hexdigest()[:16]
+                                        untracked_content_hashes.append(f"{rel_file}:{h}")
+                                    except Exception:
+                                        pass
+                                else:
+                                    untracked_content_hashes.append(f"{rel_file}:deleted")
+
+            dirty_raw = (
+                (diff_res.stdout or "")
+                + "\n"
+                + (status_res.stdout or "")
+                + "\n"
+                + "\n".join(sorted(untracked_content_hashes))
+            )
+            if dirty_raw.strip():
+                dirty_part = ":" + hashlib.sha256(dirty_raw.encode("utf-8")).hexdigest()[:16]
     except Exception:
         pass
-    return "unknown_commit"
+
+    # Non-git fallback: if git is unavailable or repo is not a git checkout,
+    # hash all discoverable Python files so cache invalidation remains sound across content changes.
+    if commit == "unknown_commit":
+        try:
+            py_fingerprints = []
+            for root, dirs, files in os.walk(repo_path):
+                dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS and not d.endswith(".egg-info")]
+                for f in sorted(files):
+                    if f.endswith(".py"):
+                        full_f = os.path.join(root, f)
+                        rel_f = os.path.relpath(full_f, repo_path).replace("\\", "/")
+                        try:
+                            with open(full_f, "rb") as pf:
+                                pf_hash = hashlib.sha256(pf.read()).hexdigest()[:16]
+                            py_fingerprints.append(f"{rel_f}:{pf_hash}")
+                        except Exception:
+                            pass
+            if py_fingerprints:
+                non_git_hash = hashlib.sha256("\n".join(py_fingerprints).encode("utf-8")).hexdigest()[:16]
+                commit = f"nongit_{non_git_hash}"
+        except Exception:
+            pass
+
+    return f"{commit}{dirty_part}"
 
 
 def _parse_single_file(args: Tuple[str, str]):
@@ -64,13 +140,21 @@ class RepositoryIndexer:
 
     def index(self, force_rebuild: bool = False, max_workers: int = 8) -> Tuple[RepositoryGraph, TestGraphIndex]:
         cache_path = self._get_cache_path()
+        test_cache_path = cache_path.replace(".graph.json", ".test_index.json")
         test_index = TestGraphIndex()
         
         if not force_rebuild and os.path.exists(cache_path):
             try:
                 logger.info(f"Loading cached repository intelligence graph from {cache_path}")
                 graph = RepositoryGraph.load(cache_path)
-                # Re-index test files quickly
+                if os.path.exists(test_cache_path):
+                    try:
+                        test_index = TestGraphIndex.load(test_cache_path)
+                        logger.info(f"Loaded cached test index from {test_cache_path} ({len(test_index.tests)} tests)")
+                        return graph, test_index
+                    except Exception as te:
+                        logger.warning(f"Failed to load cached test index: {te}, re-indexing test files...")
+                # Re-index test files quickly if test index cache missing/corrupt
                 for node in graph.nodes.values():
                     if "test" in node.file_path.lower() and node.file_path.endswith(".py"):
                         full_p = os.path.join(self.repo_path, node.file_path)
@@ -80,6 +164,10 @@ class RepositoryIndexer:
                                     test_index.index_test_file(node.file_path, f.read())
                             except Exception:
                                 pass
+                try:
+                    test_index.save(test_cache_path)
+                except Exception:
+                    pass
                 return graph, test_index
             except Exception as e:
                 logger.warning(f"Error loading cached graph from {cache_path}: {e}, rebuilding...")
@@ -114,7 +202,9 @@ class RepositoryIndexer:
         try:
             graph.save(cache_path)
             logger.info(f"Repository graph cached successfully to {cache_path} ({len(graph.nodes)} nodes, {graph.g.number_of_edges()} edges)")
+            test_index.save(test_cache_path)
+            logger.info(f"Test graph index cached successfully to {test_cache_path} ({len(test_index.tests)} tests)")
         except Exception as e:
-            logger.warning(f"Failed to cache repository graph: {e}")
+            logger.warning(f"Failed to cache repository graph or test index: {e}")
 
         return graph, test_index

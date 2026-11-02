@@ -1,0 +1,549 @@
+{
+  "instance_id": "pylint-dev__pylint-7114",
+  "repo": "pylint-dev/pylint",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "48e0408bb74599c3",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "e2008182d3ff683a",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "d60390742cfb49db",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "c6576310d2f24640",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": true,
+  "patch_tier": "AST_GROUNDED",
+  "patch_text": "diff --git a/pylint/lint/pylinter.py b/pylint/lint/pylinter.py\nindex bc227d2c4..feca2ca9c 100644\n--- a/pylint/lint/pylinter.py\n+++ b/pylint/lint/pylinter.py\n@@ -267,75 +267,81 @@ class PyLinter(\n     }\n \n     def __init__(\n-        self,\n-        options: Options = (),\n-        reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,\n-        option_groups: tuple[tuple[str, str], ...] = (),\n-        # TODO: Deprecate passing the pylintrc parameter\n-        pylintrc: str | None = None,  # pylint: disable=unused-argument\n-    ) -> None:\n-        _ArgumentsManager.__init__(self, prog=\"pylint\")\n-        _MessageStateHandler.__init__(self, self)\n-\n-        # Some stuff has to be done before initialization of other ancestors...\n-        # messages store / checkers / reporter / astroid manager\n-\n-        # Attributes for reporters\n-        self.reporter: reporters.BaseReporter | reporters.MultiReporter\n-        if reporter:\n-            self.set_reporter(reporter)\n-        else:\n-            self.set_reporter(TextReporter())\n-        self._reporters: dict[str, type[reporters.BaseReporter]] = {}\n-        \"\"\"Dictionary of possible but non-initialized reporters.\"\"\"\n-\n-        # Attributes for checkers and plugins\n-        self._checkers: defaultdict[\n-            str, list[checkers.BaseChecker]\n-        ] = collections.defaultdict(list)\n-        \"\"\"Dictionary of registered and initialized checkers.\"\"\"\n-        self._dynamic_plugins: set[str] = set()\n-        \"\"\"Set of loaded plugin names.\"\"\"\n-\n-        # Attributes related to registering messages and their handling\n-        self.msgs_store = MessageDefinitionStore()\n-        self.msg_status = 0\n-        self._by_id_managed_msgs: list[ManagedMessage] = []\n-\n-        # Attributes related to visiting files\n-        self.file_state = FileState(\"\", self.msgs_store, is_base_filestate=True)\n-        self.current_name: str | None = None\n-        self.current_file: str | None = None\n-        self._ignore_file = False\n-\n-        # Attributes related to stats\n-        self.stats = LinterStats()\n+            self,\n+            options: Options = (),\n+            reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,\n+            option_groups: tuple[tuple[str, str], ...] = (),\n+            # TODO: Deprecate passing the pylintrc parameter\n+            pylintrc: str | None = None,  # pylint: disable=unused-argument\n+        ) -> None:\n+            _ArgumentsManager.__init__(self, prog=\"pylint\")\n+            _MessageStateHandler.__init__(self, self)\n+\n+            # Some stuff has to be done before initialization of other ancestors...\n+            # messages store / checkers / reporter / astroid manager\n+\n+            # Attributes for reporters\n+            self.reporter: reporters.BaseReporter | reporters.MultiReporter\n+            if reporter:\n+                self.set_reporter(reporter)\n+            else:\n+                self.set_reporter(TextReporter())\n+            self._reporters: dict[str, type[reporters.BaseReporter]] = {}\n+            \"\"\"Dictionary of possible but non-initialized reporters.\"\"\"\n+\n+            # Attributes for checkers and plugins\n+            self._checkers: defaultdict[\n+                str, list[checkers.BaseChecker]\n+            ] = collections.defaultdict(list)\n+            \"\"\"Dictionary of registered and initialized checkers.\"\"\"\n+            self._dynamic_plugins: set[str] = set()\n+            \"\"\"Set of loaded plugin names.\"\"\"\n+\n+            # Attributes related to registering messages and their handling\n+            self.msgs_store = MessageDefinitionStore()\n+            self.msg_status = 0\n+            self._by_id_managed_msgs: list[ManagedMessage] = []\n+\n+            # Attributes related to visiting files\n+            self.file_state = FileState(\"\", self.msgs_store, is_base_filestate=True)\n+            self.current_name: str | None = None\n+            self.current_file: str | None = None\n+            self._ignore_file = False\n+\n+            # Attributes related to stats\n+            self.stats = LinterStats()\n+\n+            # Attributes related to (command-line) options and their parsing\n+            self.options: Options = options + _make_linter_options(self)\n+            for opt_group in option_groups:\n+                self.option_groups_descs[opt_group[0]] = opt_group[1]\n+            self._option_groups: tuple[tuple[str, str], ...] = option_groups + (\n+                (\"Messages control\", \"Options controlling analysis messages\"),\n+                (\"Reports\", \"Options related to output formatting and reporting\"),\n+            )\n+            self.fail_on_symbols: list[str] = []\n+            \"\"\"List of message symbols on which pylint should fail, set by --fail-on.\"\"\"\n+            self._error_mode = False\n+\n+            reporters.ReportsHandlerMixIn.__init__(self)\n+            checkers.BaseChecker.__init__(self, self)\n+            # provided reports\n+            self.reports = (\n+                (\"RP0001\", \"Messages by category\", report_total_messages_stats),\n+                (\n+                    \"RP0002\",\n+                    \"% errors / warnings by module\",\n+                    report_messages_by_module_stats,\n+                ),\n+                (\"RP0003\", \"Messages\", report_messages_stats),\n+            )\n+            self.register_checker(self)\n \n-        # Attributes related to (command-line) options and their parsing\n-        self.options: Options = options + _make_linter_options(self)\n-        for opt_group in option_groups:\n-            self.option_groups_descs[opt_group[0]] = opt_group[1]\n-        self._option_groups: tuple[tuple[str, str], ...] = option_groups + (\n-            (\"Messages control\", \"Options controlling analysis messages\"),\n-            (\"Reports\", \"Options related to output formatting and reporting\"),\n-        )\n-        self.fail_on_symbols: list[str] = []\n-        \"\"\"List of message symbols on which pylint should fail, set by --fail-on.\"\"\"\n-        self._error_mode = False\n-\n-        reporters.ReportsHandlerMixIn.__init__(self)\n-        checkers.BaseChecker.__init__(self, self)\n-        # provided reports\n-        self.reports = (\n-            (\"RP0001\", \"Messages by category\", report_total_messages_stats),\n-            (\n-                \"RP0002\",\n-                \"% errors / warnings by module\",\n-                report_messages_by_module_stats,\n-            ),\n-            (\"RP0003\", \"Messages\", report_messages_stats),\n-        )\n-        self.register_checker(self)\n+            # Ensure __init__.py is created if it doesn't exist\n+            init_py_path = os.path.join(self.current_file, \"__init__.py\")\n+            if not os.path.exists(init_py_path):\n+                with open(init_py_path, 'w') as f:\n+                    f.write(\"\")\n \n     @property\n     def option_groups(self) -> tuple[tuple[str, str], ...]:\n@@ -435,6 +441,7 @@ class PyLinter(\n         \"\"\"Set the reporter used to display messages and reports.\"\"\"\n         self.reporter = reporter\n         reporter.linter = self\n+        self._state = 'init'\n \n     def register_reporter(self, reporter_class: type[reporters.BaseReporter]) -> None:\n         \"\"\"Registers a reporter class on the _reporters attribute.\"\"\"\n",
+  "test_executed": true,
+  "failure_class": "PATCH_SYNTAX",
+  "runtime_s": 385.88,
+  "f2p_passed": 0,
+  "f2p_total": 0,
+  "p2p_passed": 0,
+  "p2p_total": 0,
+  "refinement_cycles": 3,
+  "target_file": "pylint/lint/pylinter.py",
+  "target_symbol": "PyLinter",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "pylint/lint/pylinter.py:set_reporter"
+    ],
+    "selected_target": "pylint/lint/pylinter.py:set_reporter",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'pylint/lint/pylinter.py:set_reporter'.",
+    "target_unjustified": true,
+    "target_changes": [
+      {
+        "switched_to_hypothesis": "B",
+        "target": "pylint/lint/pylinter.py:PyLinter",
+        "justification": "Target matches hypothesized affected site 'pylint/lint/pylinter.py:PyLinter'."
+      }
+    ]
+  },
+  "generation_attempted": true,
+  "structurally_valid": true,
+  "submitted_to_harness": true,
+  "test_time_s": 69.806,
+  "generation_time_s": 175.195,
+  "reconstruction_time_s": 8.978,
+  "indexing_time_s": 0.691,
+  "retrieval_diagnosis_time_s": 130.211,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.045,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "d60390742cfb49db",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "exemplars_included_in_prompt": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "prompt_included_episode_ids": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pylint-dev__pylint-7114",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The `PyLinter` class in `pylint/lint/pylinter.py` is not correctly initializing or managing its state, leading to potential issues in the linting process.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Ensure that the `PyLinter` class correctly initializes and manages its state, particularly in the `set_reporter` method.",
+    "affected_sites": [
+      "pylint/lint/pylinter.py:PyLinter"
+    ],
+    "defect_confidence": 0.75,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 1,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The `set_reporter` method in `pylint/lint/pylinter.py` is not correctly setting the reporter, leading to potential issues in the linting process.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The default branch should be taken at line 436 where `self.reporter = reporter` is executed.",
+          "expected_mutations": [
+            "self.reporter = reporter",
+            "reporter.linter = self"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Any unexpected state transitions or mutations that violate the required invariants."
+          ],
+          "discriminating_variable": "The state of `self.reporter` and `reporter.linter` after line 436.",
+          "support_count": 1,
+          "contradiction_count": 0
+        },
+        "support_count": 1,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Ensure that the `set_reporter` method correctly sets the reporter and maintains the required state transitions.",
+        "affected_sites": [
+          "pylint/lint/pylinter.py:set_reporter"
+        ],
+        "supporting_evidence": [
+          "The `set_reporter` method is GLOBAL_INFRASTRUCTURE with 14 callers (11 cross-module). Mutating it risks high regression.",
+          "The `set_reporter` method has a history of 2 bug fixes (churn score: 0.30).",
+          "The `set_reporter` method mutates attributes/containers: reporter.linter, self.reporter.",
+          "Causal Support: Predicted branch matches observed divergence transition."
+        ],
+        "contradicting_evidence": [
+          "No runtime traceback observed prior to repair.",
+          "No severe contradictions detected.",
+          "Target 'pylint/lint/pylinter.py:set_reporter' is GLOBAL_INFRASTRUCTURE with 11 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The `set_reporter` method is GLOBAL_INFRASTRUCTURE with 14 callers (11 cross-module). Mutating it risks high regression.",
+          "The `set_reporter` method has a history of 2 bug fixes (churn score: 0.30).",
+          "The `set_reporter` method mutates attributes/containers: reporter.linter, self.reporter."
+        ],
+        "contradicting_facts": [
+          "No runtime traceback observed prior to repair.",
+          "No severe contradictions detected."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 65.0
+      },
+      {
+        "id": "B",
+        "cause": "The `PyLinter` class in `pylint/lint/pylinter.py` is not correctly initializing or managing its state, leading to potential issues in the linting process.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The default branch should be taken during the initialization of the `PyLinter` class.",
+          "expected_mutations": [
+            "Initialization of `PyLinter` attributes and methods."
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Any unexpected state transitions or mutations that violate the required invariants."
+          ],
+          "discriminating_variable": "The state of `PyLinter` attributes after initialization.",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Ensure that the `PyLinter` class correctly initializes and manages its state, particularly in the `set_reporter` method.",
+        "affected_sites": [
+          "pylint/lint/pylinter.py:PyLinter"
+        ],
+        "supporting_evidence": [
+          "The `PyLinter` class is GLOBAL_INFRASTRUCTURE with 48 callers (48 cross-module). Mutating it risks high regression.",
+          "The `PyLinter` class has a history of 2 bug fixes (churn score: 0.30)."
+        ],
+        "contradicting_evidence": [
+          "No runtime traceback observed prior to repair.",
+          "No severe contradictions detected.",
+          "Target 'pylint/lint/pylinter.py:PyLinter' is GLOBAL_INFRASTRUCTURE with 48 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The `PyLinter` class is GLOBAL_INFRASTRUCTURE with 48 callers (48 cross-module). Mutating it risks high regression.",
+          "The `PyLinter` class has a history of 2 bug fixes (churn score: 0.30)."
+        ],
+        "contradicting_facts": [
+          "No runtime traceback observed prior to repair.",
+          "No severe contradictions detected."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 50.0
+      }
+    ],
+    "repair_sites": [
+      "pylint/lint/pylinter.py:PyLinter"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "hypothesis_id": "A",
+      "strategy": "strict_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "PATCH_SYNTAX",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Function/Method syntax error: unexpected character after line continuation character",
+      "patch_text": ""
+    },
+    {
+      "attempt": 2,
+      "hypothesis_id": "A",
+      "strategy": "minimal_target_bound_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "PATCH_SEMANTICS",
+      "error_message": "FAILED tests/checkers/unittest_imports.py::TestImportsChecker::test_wildcard_import_init; FAILED tests/checkers/unittest_imports.py::TestImportsChecker::test_wildcard_import_non_init; FAILED tests/lint/unittest_lint.py::test_identically_named_nested_module - Ke...",
+      "patch_text": "diff --git a/pylint/lint/pylinter.py b/pylint/lint/pylinter.py\nindex bc227d2c4..b4728611e 100644\n--- a/pylint/lint/pylinter.py\n+++ b/pylint/lint/pylinter.py\n@@ -435,6 +435,7 @@ class PyLinter(\n         \"\"\"Set the reporter used to display messages and reports.\"\"\"\n         self.reporter = reporter\n         reporter.linter = self\n+        self._state = 'init'\n \n     def register_reporter(self, reporter_class: type[reporters.BaseReporter]) -> None:\n         \"\"\"Registers a reporter class on the _reporters attribute.\"\"\"\n"
+    },
+    {
+      "attempt": 3,
+      "hypothesis_id": "B",
+      "strategy": "replacement_only_code",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "PATCH_SYNTAX",
+      "error_message": "ConftestImportFailure: TypeError: expected str, bytes or os.PathLike object, not NoneType (from /testbed/tests/conftest.py); E   TypeError: expected str, bytes or os.PathLike object, not NoneType",
+      "patch_text": "diff --git a/pylint/lint/pylinter.py b/pylint/lint/pylinter.py\nindex bc227d2c4..feca2ca9c 100644\n--- a/pylint/lint/pylinter.py\n+++ b/pylint/lint/pylinter.py\n@@ -267,75 +267,81 @@ class PyLinter(\n     }\n \n     def __init__(\n-        self,\n-        options: Options = (),\n-        reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,\n-        option_groups: tuple[tuple[str, str], ...] = (),\n-        # TODO: Deprecate passing the pylintrc parameter\n-        pylintrc: str | None = None,  # pylint: disable=unused-argument\n-    ) -> None:\n-        _ArgumentsManager.__init__(self, prog=\"pylint\")\n-        _MessageStateHandler.__init__(self, self)\n-\n-        # Some stuff has to be done before initialization of other ancestors...\n-        # messages store / checkers / reporter / astroid manager\n-\n-        # Attributes for reporters\n-        self.reporter: reporters.BaseReporter | reporters.MultiReporter\n-        if reporter:\n-            self.set_reporter(reporter)\n-        else:\n-            self.set_reporter(TextReporter())\n-        self._reporters: dict[str, type[reporters.BaseReporter]] = {}\n-        \"\"\"Dictionary of possible but non-initialized reporters.\"\"\"\n-\n-        # Attributes for checkers and plugins\n-        self._checkers: defaultdict[\n-            str, list[checkers.BaseChecker]\n-        ] = collections.defaultdict(list)\n-        \"\"\"Dictionary of registered and initialized checkers.\"\"\"\n-        self._dynamic_plugins: set[str] = set()\n-        \"\"\"Set of loaded plugin names.\"\"\"\n-\n-        # Attributes related to registering messages and their handling\n-        self.msgs_store = MessageDefinitionStore()\n-        self.msg_status = 0\n-        self._by_id_managed_msgs: list[ManagedMessage] = []\n-\n-        # Attributes related to visiting files\n-        self.file_state = FileState(\"\", self.msgs_store, is_base_filestate=True)\n-        self.current_name: str | None = None\n-        self.current_file: str | None = None\n-        self._ignore_file = False\n-\n-        # Attributes related to stats\n-        self.stats = LinterStats()\n+            self,\n+            options: Options = (),\n+            reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,\n+            option_groups: tuple[tuple[str, str], ...] = (),\n+            # TODO: Deprecate passing the pylintrc parameter\n+            pylintrc: str | None = None,  # pylint: disable=unused-argument\n+        ) -> None:\n+            _ArgumentsManager.__init__(self, prog=\"pylint\")\n+            _MessageStateHandler.__init__(self, self)\n+\n+            # Some stuff has to be done before initialization of other ancestors...\n+            # messages store / checkers / reporter / astroid manager\n+\n+            # Attributes for reporters\n+            self.reporter: reporters.BaseReporter | reporters.MultiReporter\n+            if reporter:\n+                self.set_reporter(reporter)\n+            else:\n+                self.set_reporter(TextReporter())\n+            self._reporters: dict[str, type[reporters.BaseReporter]] = {}\n+            \"\"\"Dictionary of possible but non-initialized reporters.\"\"\"\n+\n+            # Attributes for checkers and plugins\n+            self._checkers: defaultdict[\n+                str, list[checkers.BaseChecker]\n+            ] = collections.defaultdict(list)\n+            \"\"\"Dictionary of registered and initialized checkers.\"\"\"\n+            self._dynamic_plugins: set[str] = set()\n+            \"\"\"Set of loaded plugin names.\"\"\"\n+\n+            # Attributes related to registering messages and their handling\n+            self.msgs_store = MessageDefinitionStore()\n+            self.msg_status = 0\n+            self._by_id_managed_msgs: list[ManagedMessage] = []\n+\n+            # Attributes related to visiting files\n+            self.file_state = FileState(\"\", self.msgs_store, is_base_filestate=True)\n+            self.current_name: str | None = None\n+            self.current_file: str | None = None\n+            self._ignore_file = False\n+\n+            # Attributes related to stats\n+            self.stats = LinterStats()\n+\n+            # Attributes related to (command-line) options and their parsing\n+            self.options: Options = options + _make_linter_options(self)\n+            for opt_group in option_groups:\n+                self.option_groups_descs[opt_group[0]] = opt_group[1]\n+            self._option_groups: tuple[tuple[str, str], ...] = option_groups + (\n+                (\"Messages control\", \"Options controlling analysis messages\"),\n+                (\"Reports\", \"Options related to output formatting and reporting\"),\n+            )\n+            self.fail_on_symbols: list[str] = []\n+            \"\"\"List of message symbols on which pylint should fail, set by --fail-on.\"\"\"\n+            self._error_mode = False\n+\n+            reporters.ReportsHandlerMixIn.__init__(self)\n+            checkers.BaseChecker.__init__(self, self)\n+            # provided reports\n+            self.reports = (\n+                (\"RP0001\", \"Messages by category\", report_total_messages_stats),\n+                (\n+                    \"RP0002\",\n+                    \"% errors / warnings by module\",\n+                    report_messages_by_module_stats,\n+                ),\n+                (\"RP0003\", \"Messages\", report_messages_stats),\n+            )\n+            self.register_checker(self)\n \n-        # Attributes related to (command-line) options and their parsing\n-        self.options: Options = options + _make_linter_options(self)\n-        for opt_group in option_groups:\n-            self.option_groups_descs[opt_group[0]] = opt_group[1]\n-        self._option_groups: tuple[tuple[str, str], ...] = option_groups + (\n-            (\"Messages control\", \"Options controlling analysis messages\"),\n-            (\"Reports\", \"Options related to output formatting and reporting\"),\n-        )\n-        self.fail_on_symbols: list[str] = []\n-        \"\"\"List of message symbols on which pylint should fail, set by --fail-on.\"\"\"\n-        self._error_mode = False\n-\n-        reporters.ReportsHandlerMixIn.__init__(self)\n-        checkers.BaseChecker.__init__(self, self)\n-        # provided reports\n-        self.reports = (\n-            (\"RP0001\", \"Messages by category\", report_total_messages_stats),\n-            (\n-                \"RP0002\",\n-                \"% errors / warnings by module\",\n-                report_messages_by_module_stats,\n-            ),\n-            (\"RP0003\", \"Messages\", report_messages_stats),\n-        )\n-        self.register_checker(self)\n+            # Ensure __init__.py is created if it doesn't exist\n+            init_py_path = os.path.join(self.current_file, \"__init__.py\")\n+            if not os.path.exists(init_py_path):\n+                with open(init_py_path, 'w') as f:\n+                    f.write(\"\")\n \n     @property\n     def option_groups(self) -> tuple[tuple[str, str], ...]:\n@@ -435,6 +441,7 @@ class PyLinter(\n         \"\"\"Set the reporter used to display messages and reports.\"\"\"\n         self.reporter = reporter\n         reporter.linter = self\n+        self._state = 'init'\n \n     def register_reporter(self, reporter_class: type[reporters.BaseReporter]) -> None:\n         \"\"\"Registers a reporter class on the _reporters attribute.\"\"\"\n"
+    }
+  ],
+  "repair_unit": {
+    "id": "pylint/lint/pylinter.py::__init__::METHOD::269-338",
+    "file_path": "pylint/lint/pylinter.py",
+    "symbol": "__init__",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 269,
+    "end_line": 338,
+    "start_col": 4,
+    "end_col": 35,
+    "source_text": "    def __init__(\n        self,\n        options: Options = (),\n        reporter: reporters.BaseReporter | reporters.MultiReporter | None = None,\n        option_groups: tuple[tuple[str, str], ...] = (),\n        # TODO: Deprecate passing the pylintrc parameter\n        pylintrc: str | None = None,  # pylint: disable=unused-argument\n    ) -> None:\n        _ArgumentsManager.__init__(self, prog=\"pylint\")\n        _MessageStateHandler.__init__(self, self)\n\n        # Some stuff has to be done before initialization of other ancestors...\n        # messages store / checkers / reporter / astroid manager\n\n        # Attributes for reporters\n        self.reporter: reporters.BaseReporter | reporters.MultiReporter\n        if reporter:\n            self.set_reporter(reporter)\n        else:\n            self.set_reporter(TextReporter())\n        self._reporters: dict[str, type[reporters.BaseReporter]] = {}\n        \"\"\"Dictionary of possible but non-initialized reporters.\"\"\"\n\n        # Attributes for checkers and plugins\n        self._checkers: defaultdict[\n            str, list[checkers.BaseChecker]\n        ] = collections.defaultdict(list)\n        \"\"\"Dictionary of registered and initialized checkers.\"\"\"\n        self._dynamic_plugins: set[str] = set()\n        \"\"\"Set of loaded plugin names.\"\"\"\n\n        # Attributes related to registering messages and their handling\n        self.msgs_store = MessageDefinitionStore()\n        self.msg_status = 0\n        self._by_id_managed_msgs: list[ManagedMessage] = []\n\n        # Attributes related to visiting files\n        self.file_state = FileState(\"\", self.msgs_store, is_base_filestate=True)\n        self.current_name: str | None = None\n        self.current_file: str | None = None\n        self._ignore_file = False\n\n        # Attributes related to stats\n        self.stats = LinterStats()\n\n        # Attributes related to (command-line) options and their parsing\n        self.options: Options = options + _make_linter_options(self)\n        for opt_group in option_groups:\n            self.option_groups_descs[opt_group[0]] = opt_group[1]\n        self._option_groups: tuple[tuple[str, str], ...] = option_groups + (\n            (\"Messages control\", \"Options controlling analysis messages\"),\n            (\"Reports\", \"Options related to output formatting and reporting\"),\n        )\n        self.fail_on_symbols: list[str] = []\n        \"\"\"List of message symbols on which pylint should fail, set by --fail-on.\"\"\"\n        self._error_mode = False\n\n        reporters.ReportsHandlerMixIn.__init__(self)\n        checkers.BaseChecker.__init__(self, self)\n        # provided reports\n        self.reports = (\n            (\"RP0001\", \"Messages by category\", report_total_messages_stats),\n            (\n                \"RP0002\",\n                \"% errors / warnings by module\",\n                report_messages_by_module_stats,\n            ),\n            (\"RP0003\", \"Messages\", report_messages_stats),\n        )\n        self.register_checker(self)\n",
+    "parent_symbol": "PyLinter",
+    "indentation": "    ",
+    "role": "HYPOTHESIS_TARGET",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "pylint/epylint.py",
+      "symbol": "lint",
+      "role": "PRIMARY",
+      "score": 135.0,
+      "reasons": [
+        "Symbol 'lint' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['lint'] (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 2 issue symptoms (-20)",
+        "Blast radius: FEATURE_LOCAL with bounded impact (+25)",
+        "Direct tests available: 10 test(s) (+15)"
+      ],
+      "line_start": 64,
+      "line_end": 122,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 59,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/lint/pylinter.py",
+      "symbol": "set_reporter",
+      "role": "PRIMARY",
+      "score": 105.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'set_reporter' (+80)",
+        "High regression risk: symbol has 11 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (6 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 2 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 8 test(s) (+15)"
+      ],
+      "line_start": 432,
+      "line_end": 437,
+      "unrelated_callers_count": 11,
+      "in_failing_traceback": false,
+      "semantic_radius": 6,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/lint/pylinter.py",
+      "symbol": "PyLinter",
+      "role": "PRIMARY",
+      "score": 45.0,
+      "reasons": [
+        "Symbol 'PyLinter' mentioned in diagnosis rationale (+30)",
+        "High regression risk: symbol has 48 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 2 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 26 test(s) (+15)"
+      ],
+      "line_start": 269,
+      "line_end": 338,
+      "unrelated_callers_count": 48,
+      "in_failing_traceback": false,
+      "semantic_radius": 70,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/lint/pylinter.py",
+      "symbol": "set_current_module",
+      "role": "PRIMARY",
+      "score": -35.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['current', 'module'] (+20)",
+        "High regression risk: symbol has 14 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (30 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 2 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 11 test(s) (+15)"
+      ],
+      "line_start": 791,
+      "line_end": 820,
+      "unrelated_callers_count": 14,
+      "in_failing_traceback": false,
+      "semantic_radius": 30,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/reporters/json_reporter.py",
+      "symbol": "JSONReporter",
+      "role": "PRIMARY",
+      "score": -64.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 6 cross-module callers (-24)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 2 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 5 test(s) (+15)"
+      ],
+      "line_start": 72,
+      "line_end": 117,
+      "unrelated_callers_count": 6,
+      "in_failing_traceback": false,
+      "semantic_radius": 46,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/lint/pylinter.py",
+      "symbol": "check",
+      "role": "PRIMARY",
+      "score": -65.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 25 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 2 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 21 test(s) (+15)"
+      ],
+      "line_start": 621,
+      "line_end": 661,
+      "unrelated_callers_count": 25,
+      "in_failing_traceback": false,
+      "semantic_radius": 41,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {
+    "valid": true,
+    "syntax_ok": true,
+    "ast_ok": true,
+    "target_changed": true,
+    "unrelated_targets_preserved": true,
+    "no_markdown_leakage": true,
+    "line_expansion_ok": true,
+    "lines_added": 75,
+    "lines_deleted": 69,
+    "symbols_affected": [
+      "__init__"
+    ],
+    "errors": []
+  },
+  "telemetry": {
+    "task_id": "pylint-dev__pylint-7114",
+    "total_wall_s": 385.88,
+    "llm_time_s": 0.0,
+    "test_time_s": 69.806,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 0.691,
+    "retrieval_diagnosis_time_s": 130.211,
+    "probing_time_s": null,
+    "generation_time_s": 175.195,
+    "reconstruction_time_s": 8.978,
+    "static_validation_time_s": 0.045,
+    "replanning_time_s": 0.0,
+    "runtime_s": 385.88
+  },
+  "test_summary": {
+    "instance_id": "pylint-dev__pylint-7114",
+    "resolved": false,
+    "patch_applied": false,
+    "fail_to_pass": {
+      "passed": 0,
+      "total": 0
+    },
+    "pass_to_pass": {
+      "passed": 0,
+      "total": 0
+    },
+    "fail_to_pass_success": [],
+    "fail_to_pass_failure": [],
+    "pass_to_pass_success": [],
+    "pass_to_pass_failure": [],
+    "infra_failure": false,
+    "error": "",
+    "run_id": "eval_1793633030"
+  },
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "PyLinter",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

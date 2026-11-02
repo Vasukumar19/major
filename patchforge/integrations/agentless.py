@@ -44,7 +44,15 @@ class AgentlessLocalization:
 class AgentlessAdapter:
     def __init__(self, config: PatchForgeConfig | None = None, third_party: str = "third_party"):
         self.config = config or PatchForgeConfig()
-        self.agentless = str((Path(third_party) / "Agentless").resolve())
+        candidates = [
+            Path(third_party) / "agentless_upstream",
+            Path(third_party) / "Agentless",
+        ]
+        self.agentless = str(candidates[0].resolve())
+        for cand in candidates:
+            if (cand / "agentless" / "fl" / "localize.py").exists():
+                self.agentless = str(cand.resolve())
+                break
         if not Path(self.agentless, "agentless", "fl", "localize.py").exists():
             raise RuntimeError(f"Agentless not found at {self.agentless}")
 

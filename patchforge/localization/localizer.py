@@ -158,15 +158,30 @@ class Localizer:
         Closes the gap when Agentless surfaces the right file but not the
         right symbol (cf. requests-863: models.py found, register_hook missed).
         """
-        if self.retriever is None:
-            return
+        from pathlib import Path
+        import json
         for rank, file in enumerate(agentless.found_files):
             file_score = (len(agentless.found_files) - rank) / max(1, len(agentless.found_files))
-            try:
-                defined = self.retriever.file_symbols(file)
-            except Exception:
-                continue
-            for symbol in defined:
+            defined: set[str] = set()
+            if self.retriever is not None:
+                try:
+                    defined.update(self.retriever.file_symbols(file))
+                except Exception:
+                    pass
+            if not defined and graph_pkl:
+                stem = Path(graph_pkl).name
+                if stem.endswith(".graph.pkl"):
+                    stem = stem[:-len(".graph.pkl")]
+                tags_path = Path(graph_pkl).parent / f"{stem}.tags.json"
+                if tags_path.exists():
+                    try:
+                        for line in tags_path.read_text(encoding="utf-8").splitlines():
+                            d = json.loads(line)
+                            if d.get("rel_fname") == file and d.get("kind") == "def" and d.get("name"):
+                                defined.add(d["name"])
+                    except Exception:
+                        pass
+            for symbol in sorted(defined):
                 if not mentions(issue_text, symbol) and not mentions(test_text, symbol):
                     continue
                 c = get(file, symbol)

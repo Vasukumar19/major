@@ -1,0 +1,503 @@
+{
+  "instance_id": "pytest-dev__pytest-5103",
+  "repo": "pytest-dev/pytest",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "4e8292e9434efb2f",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "0abd7d93da49beb0",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "00c58176c092b44a",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "c6576310d2f24640",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": false,
+  "patch_tier": null,
+  "patch_text": "",
+  "test_executed": false,
+  "failure_class": "UNRESOLVED",
+  "runtime_s": 421.78,
+  "f2p_passed": 0,
+  "f2p_total": 0,
+  "p2p_passed": 0,
+  "p2p_total": 0,
+  "refinement_cycles": 3,
+  "target_file": "src/_pytest/assertion/__init__.py",
+  "target_symbol": "pytest_runtest_setup",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "src/_pytest/assertion/__init__.py:pytest_runtest_setup"
+    ],
+    "selected_target": "src/_pytest/assertion/__init__.py:pytest_runtest_setup",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'src/_pytest/assertion/__init__.py:pytest_runtest_setup'.",
+    "target_unjustified": true,
+    "target_changes": []
+  },
+  "generation_attempted": true,
+  "structurally_valid": false,
+  "submitted_to_harness": false,
+  "test_time_s": 0.0,
+  "generation_time_s": 251.036,
+  "reconstruction_time_s": 0.0,
+  "indexing_time_s": 49.492,
+  "retrieval_diagnosis_time_s": 120.557,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.0,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "00c58176c092b44a",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "psf__requests-863",
+      "psf__requests-2148"
+    ],
+    "exemplars_included_in_prompt": [
+      "psf__requests-863",
+      "psf__requests-2148"
+    ],
+    "prompt_included_episode_ids": [
+      "psf__requests-863",
+      "psf__requests-2148"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pytest-dev__pytest-5103",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The issue might be related to the `pytest_runtest_setup` function in `src/_pytest/assertion/__init__.py` not correctly handling the assertion formatting, leading to unexpected behavior.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Modify the `pytest_runtest_setup` function to ensure proper assertion formatting and handling.",
+    "affected_sites": [
+      "src/_pytest/assertion/__init__.py:pytest_runtest_setup"
+    ],
+    "defect_confidence": 0.75,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 0,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The issue might be related to the `pytest_runtest_setup` function in `src/_pytest/assertion/__init__.py` not correctly handling the assertion formatting, leading to unexpected behavior.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The function should correctly format assertions without causing any unexpected behavior.",
+          "expected_mutations": [
+            "Ensure proper assertion formatting logic is in place"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Any unexpected behavior or regressions"
+          ],
+          "discriminating_variable": "Correct assertion formatting",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Modify the `pytest_runtest_setup` function to ensure proper assertion formatting and handling.",
+        "affected_sites": [
+          "src/_pytest/assertion/__init__.py:pytest_runtest_setup"
+        ],
+        "supporting_evidence": [
+          "Causal path: test_all_any -> test_skipif_conditional -> pytest_runtest_setup -> format",
+          "Direct tests: test_skipif_conditional, test_skipif_using_platform"
+        ],
+        "contradicting_evidence": [
+          "High blast radius: 3 callers (3 cross-module), 235 tests, radius score: 4.9"
+        ],
+        "supporting_facts": [
+          "Causal path: test_all_any -> test_skipif_conditional -> pytest_runtest_setup -> format",
+          "Direct tests: test_skipif_conditional, test_skipif_using_platform"
+        ],
+        "contradicting_facts": [
+          "High blast radius: 3 callers (3 cross-module), 235 tests, radius score: 4.9"
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 75.0
+      },
+      {
+        "id": "B",
+        "cause": "The issue might be related to the `format_explanation` function in `src/_pytest/assertion/util.py` not correctly handling non-ASCII characters, leading to unexpected behavior.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The function should correctly format non-ASCII characters without causing any unexpected behavior.",
+          "expected_mutations": [
+            "Ensure proper handling of non-ASCII characters"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Any unexpected behavior or regressions"
+          ],
+          "discriminating_variable": "Correct handling of non-ASCII characters",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Modify the `format_explanation` function to correctly handle non-ASCII characters.",
+        "affected_sites": [
+          "src/_pytest/assertion/util.py:format_explanation"
+        ],
+        "supporting_evidence": [
+          "Causal path: test_all_any -> test_format_nonascii_explanation -> format_explanation -> ecu",
+          "Direct tests: test_format_nonascii_explanation, test_fmt_simple, test_fmt_where, test_fmt_and"
+        ],
+        "contradicting_evidence": [
+          "High blast radius: 9 callers (9 cross-module)",
+          "Target 'src/_pytest/assertion/util.py:format_explanation' is GLOBAL_INFRASTRUCTURE with 9 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "Causal path: test_all_any -> test_format_nonascii_explanation -> format_explanation -> ecu",
+          "Direct tests: test_format_nonascii_explanation, test_fmt_simple, test_fmt_where, test_fmt_and"
+        ],
+        "contradicting_facts": [
+          "High blast radius: 9 callers (9 cross-module)"
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.7,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 45.0
+      }
+    ],
+    "repair_sites": [
+      "src/_pytest/assertion/__init__.py:pytest_runtest_setup"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "hypothesis_id": "A",
+      "strategy": "strict_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "PATCH_SYNTAX",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Function/Method syntax error: unexpected character after line continuation character",
+      "patch_text": ""
+    },
+    {
+      "attempt": 2,
+      "hypothesis_id": "A",
+      "strategy": "minimal_target_bound_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 3,
+      "hypothesis_id": "A",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    }
+  ],
+  "repair_unit": {
+    "id": "src/_pytest/assertion/__init__.py::pytest_runtest_setup::FUNCTION::104-140",
+    "file_path": "src/_pytest/assertion/__init__.py",
+    "symbol": "pytest_runtest_setup",
+    "unit_type": "FUNCTION",
+    "node_type": "FunctionDef",
+    "start_line": 104,
+    "end_line": 140,
+    "start_col": 0,
+    "end_col": 35,
+    "source_text": "def pytest_runtest_setup(item):\n    \"\"\"Setup the pytest_assertrepr_compare hook\n\n    The newinterpret and rewrite modules will use util._reprcompare if\n    it exists to use custom reporting via the\n    pytest_assertrepr_compare hook.  This sets up this custom\n    comparison for the test.\n    \"\"\"\n\n    def callbinrepr(op, left, right):\n        \"\"\"Call the pytest_assertrepr_compare hook and prepare the result\n\n        This uses the first result from the hook and then ensures the\n        following:\n        * Overly verbose explanations are truncated unless configured otherwise\n          (eg. if running in verbose mode).\n        * Embedded newlines are escaped to help util.format_explanation()\n          later.\n        * If the rewrite mode is used embedded %-characters are replaced\n          to protect later % formatting.\n\n        The result can be formatted by util.format_explanation() for\n        pretty printing.\n        \"\"\"\n        hook_result = item.ihook.pytest_assertrepr_compare(\n            config=item.config, op=op, left=left, right=right\n        )\n        for new_expl in hook_result:\n            if new_expl:\n                new_expl = truncate.truncate_if_required(new_expl, item)\n                new_expl = [line.replace(\"\\n\", \"\\\\n\") for line in new_expl]\n                res = six.text_type(\"\\n~\").join(new_expl)\n                if item.config.getvalue(\"assertmode\") == \"rewrite\":\n                    res = res.replace(\"%\", \"%%\")\n                return res\n\n    util._reprcompare = callbinrepr\n",
+    "parent_symbol": "",
+    "indentation": "",
+    "role": "PRIMARY",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "src/_pytest/assertion/__init__.py",
+      "symbol": "pytest_runtest_setup",
+      "role": "PRIMARY",
+      "score": 180.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'pytest_runtest_setup' (+80)",
+        "Symbol matches issue keywords ['pytest', 'setup'] (+20)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 10 issue symptoms (-20)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 235 test(s) (+15)"
+      ],
+      "line_start": 104,
+      "line_end": 140,
+      "unrelated_callers_count": 3,
+      "in_failing_traceback": false,
+      "semantic_radius": 37,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/hookspec.py",
+      "symbol": "pytest_report_to_serializable",
+      "role": "PRIMARY",
+      "score": 45.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['pytest', 'report'] (+20)",
+        "Located in primary localized file (+15)",
+        "Compact code span (15 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 10 issue symptoms (-20)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 48 test(s) (+15)"
+      ],
+      "line_start": 383,
+      "line_end": 397,
+      "unrelated_callers_count": 3,
+      "in_failing_traceback": false,
+      "semantic_radius": 15,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/hookspec.py",
+      "symbol": "pytest_report_from_serializable",
+      "role": "PRIMARY",
+      "score": 45.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['pytest', 'report'] (+20)",
+        "Located in primary localized file (+15)",
+        "Compact code span (14 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 10 issue symptoms (-20)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 48 test(s) (+15)"
+      ],
+      "line_start": 401,
+      "line_end": 414,
+      "unrelated_callers_count": 3,
+      "in_failing_traceback": false,
+      "semantic_radius": 14,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/hookspec.py",
+      "symbol": "pytest_sessionstart",
+      "role": "PRIMARY",
+      "score": 35.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['pytest'] (+10)",
+        "Located in primary localized file (+15)",
+        "Compact code span (6 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 10 issue symptoms (-20)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 255 test(s) (+15)"
+      ],
+      "line_start": 448,
+      "line_end": 453,
+      "unrelated_callers_count": 3,
+      "in_failing_traceback": false,
+      "semantic_radius": 6,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/hookspec.py",
+      "symbol": "pytest_assertrepr_compare",
+      "role": "PRIMARY",
+      "score": -5.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['pytest'] (+10)",
+        "Located in primary localized file (+15)",
+        "Compact code span (10 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 10 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 236 test(s) (+15)"
+      ],
+      "line_start": 476,
+      "line_end": 485,
+      "unrelated_callers_count": 3,
+      "in_failing_traceback": false,
+      "semantic_radius": 10,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/assertion/util.py",
+      "symbol": "format_explanation",
+      "role": "PRIMARY",
+      "score": -66.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 9 cross-module callers (-36)",
+        "Compact code span (14 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 10 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 1062 test(s) (+15)"
+      ],
+      "line_start": 31,
+      "line_end": 44,
+      "unrelated_callers_count": 9,
+      "in_failing_traceback": false,
+      "semantic_radius": 14,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {},
+  "telemetry": {
+    "task_id": "pytest-dev__pytest-5103",
+    "total_wall_s": 421.78,
+    "llm_time_s": 0.0,
+    "test_time_s": 0.0,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 49.492,
+    "retrieval_diagnosis_time_s": 120.557,
+    "probing_time_s": null,
+    "generation_time_s": 251.036,
+    "reconstruction_time_s": 0.0,
+    "static_validation_time_s": 0.0,
+    "replanning_time_s": 0.0,
+    "runtime_s": 421.78
+  },
+  "test_summary": {},
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "pytest_runtest_setup",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

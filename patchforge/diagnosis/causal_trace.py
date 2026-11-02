@@ -63,6 +63,8 @@ class BehavioralTrace:
     divergence_cause: str = ""
     expected_state: Dict[str, str] = field(default_factory=dict)
     observed_state: Dict[str, str] = field(default_factory=dict)
+    is_static_prediction: bool = True
+    divergence_source: str = "STATIC_AST_PREDICTED"
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -75,17 +77,19 @@ class BehavioralTrace:
             "divergence_cause": self.divergence_cause,
             "expected_state": self.expected_state,
             "observed_state": self.observed_state,
+            "is_static_prediction": self.is_static_prediction,
+            "divergence_source": self.divergence_source,
         }
 
     def format_for_prompt(self) -> str:
         if not self.events:
             return ""
         lines = [
-            f"=== CAUSAL BEHAVIORAL TRACE: `{self.target_symbol}` in `{self.file_path}` ===",
+            f"=== CAUSAL BEHAVIORAL TRACE (Static AST Prediction): `{self.target_symbol}` in `{self.file_path}` ===",
             f"Downstream Assertion Failure Line: {self.assertion_failure_line or 'N/A'}",
         ]
         if self.first_divergence_line:
-            lines.append(f">>> FIRST BEHAVIORAL DIVERGENCE: Line {self.first_divergence_line}")
+            lines.append(f">>> FIRST BEHAVIORAL DIVERGENCE (Static AST Prediction): Line {self.first_divergence_line} (Source: {self.divergence_source})")
             lines.append(f"    Transition: {self.divergence_transition}")
             lines.append(f"    Causal Mechanism: {self.divergence_cause}")
         

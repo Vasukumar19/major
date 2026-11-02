@@ -1,0 +1,512 @@
+{
+  "instance_id": "pylint-dev__pylint-5859",
+  "repo": "pylint-dev/pylint",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "4e8292e9434efb2f",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "0abd7d93da49beb0",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "00c58176c092b44a",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "c6576310d2f24640",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": false,
+  "patch_tier": null,
+  "patch_text": "",
+  "test_executed": false,
+  "failure_class": "UNRESOLVED",
+  "runtime_s": 448.04,
+  "f2p_passed": 0,
+  "f2p_total": 0,
+  "p2p_passed": 0,
+  "p2p_total": 0,
+  "refinement_cycles": 3,
+  "target_file": "pylint/lint/pylinter.py",
+  "target_symbol": "get_ast",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "pylint/lint/pylinter.py:get_ast"
+    ],
+    "selected_target": "pylint/lint/pylinter.py:get_ast",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'pylint/lint/pylinter.py:get_ast'.",
+    "target_unjustified": true,
+    "target_changes": []
+  },
+  "generation_attempted": true,
+  "structurally_valid": false,
+  "submitted_to_harness": false,
+  "test_time_s": 0.0,
+  "generation_time_s": 312.334,
+  "reconstruction_time_s": 0.0,
+  "indexing_time_s": 21.388,
+  "retrieval_diagnosis_time_s": 113.648,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.0,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "00c58176c092b44a",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "psf__requests-863",
+      "pallets__flask-4992"
+    ],
+    "exemplars_included_in_prompt": [
+      "psf__requests-863",
+      "pallets__flask-4992"
+    ],
+    "prompt_included_episode_ids": [
+      "psf__requests-863",
+      "pallets__flask-4992"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pylint-dev__pylint-5859",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The `get_ast` function in `pylint/lint/pylinter.py` is returning `None` due to an unexpected state transition at line 1263.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Modify the logic at line 1263 to ensure the required postconditions are satisfied before returning `None`.",
+    "affected_sites": [
+      "pylint/lint/pylinter.py:get_ast"
+    ],
+    "defect_confidence": 0.8,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 0,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The `get_ast` function in `pylint/lint/pylinter.py` is returning `None` due to an unexpected state transition at line 1263.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "default branch",
+          "expected_mutations": [
+            "state transition"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "return None"
+          ],
+          "discriminating_variable": "state transition",
+          "support_count": 0,
+          "contradiction_count": 1
+        },
+        "support_count": 0,
+        "contradiction_count": 1,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Modify the logic at line 1263 to ensure the required postconditions are satisfied before returning `None`.",
+        "affected_sites": [
+          "pylint/lint/pylinter.py:get_ast"
+        ],
+        "supporting_evidence": [
+          "E1 | TEMPORAL: `get_ast` has a history of 2 bug fixes (churn score: 0.50). (conf=0.85)"
+        ],
+        "contradicting_evidence": [
+          "Causal Contradiction: Forbidden event 'return None' was observed at L1288"
+        ],
+        "supporting_facts": [
+          "E1 | TEMPORAL: `get_ast` has a history of 2 bug fixes (churn score: 0.50). (conf=0.85)"
+        ],
+        "contradicting_facts": [],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.8,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 45.0
+      },
+      {
+        "id": "B",
+        "cause": "The `set_option` function in `pylint/lint/pylinter.py` is causing unexpected behavior due to its global infrastructure and high churn score.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "default branch",
+          "expected_mutations": [
+            "state transition"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "high regression"
+          ],
+          "discriminating_variable": "global infrastructure",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Review and refactor the `set_option` function to ensure it does not introduce regressions.",
+        "affected_sites": [
+          "pylint/lint/pylinter.py:set_option"
+        ],
+        "supporting_evidence": [
+          "E2 | CODE_GRAPH: `set_option` is GLOBAL_INFRASTRUCTURE with 21 callers (18 cross-module). Mutating it risks high regression. (conf=0.95)",
+          "E3 | TEMPORAL: `set_option` has a history of 2 bug fixes (churn score: 0.50). (conf=0.85)",
+          "E4 | STATE_FLOW: `set_option` overwrites state variables: meth. (conf=0.85)"
+        ],
+        "contradicting_evidence": [
+          "Target 'pylint/lint/pylinter.py:set_option' is GLOBAL_INFRASTRUCTURE with 18 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "E2 | CODE_GRAPH: `set_option` is GLOBAL_INFRASTRUCTURE with 21 callers (18 cross-module). Mutating it risks high regression. (conf=0.95)",
+          "E3 | TEMPORAL: `set_option` has a history of 2 bug fixes (churn score: 0.50). (conf=0.85)",
+          "E4 | STATE_FLOW: `set_option` overwrites state variables: meth. (conf=0.85)"
+        ],
+        "contradicting_facts": [],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.7,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 45.0
+      }
+    ],
+    "repair_sites": [
+      "pylint/lint/pylinter.py:get_ast"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "hypothesis_id": "A",
+      "strategy": "strict_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 2,
+      "hypothesis_id": "A",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 3,
+      "hypothesis_id": "A",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    }
+  ],
+  "repair_unit": {
+    "id": "pylint/lint/pylinter.py::get_ast::METHOD::1251-1288",
+    "file_path": "pylint/lint/pylinter.py",
+    "symbol": "get_ast",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 1251,
+    "end_line": 1288,
+    "start_col": 4,
+    "end_col": 19,
+    "source_text": "    def get_ast(\n        self, filepath: str, modname: str, data: Optional[str] = None\n    ) -> nodes.Module:\n        \"\"\"Return an ast(roid) representation of a module or a string.\n\n        :param str filepath: path to checked file.\n        :param str modname: The name of the module to be checked.\n        :param str data: optional contents of the checked file.\n        :returns: the AST\n        :rtype: astroid.nodes.Module\n        :raises AstroidBuildingError: Whenever we encounter an unexpected exception\n        \"\"\"\n        try:\n            if data is None:\n                return MANAGER.ast_from_file(filepath, modname, source=True)\n            return astroid.builder.AstroidBuilder(MANAGER).string_build(\n                data, modname, filepath\n            )\n        except astroid.AstroidSyntaxError as ex:\n            # pylint: disable=no-member\n            self.add_message(\n                \"syntax-error\",\n                line=getattr(ex.error, \"lineno\", 0),\n                col_offset=getattr(ex.error, \"offset\", None),\n                args=str(ex.error),\n            )\n        except astroid.AstroidBuildingError as ex:\n            self.add_message(\"parse-error\", args=ex)\n        except Exception as ex:\n            traceback.print_exc()\n            # We raise BuildingError here as this is essentially an astroid issue\n            # Creating an issue template and adding the 'astroid-error' message is handled\n            # by caller: _check_files\n            raise astroid.AstroidBuildingError(\n                \"Building error when trying to create ast representation of module '{modname}'\",\n                modname=modname,\n            ) from ex\n        return None\n",
+    "parent_symbol": "PyLinter",
+    "indentation": "    ",
+    "role": "PRIMARY",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "pylint/lint/pylinter.py",
+      "symbol": "get_ast",
+      "role": "PRIMARY",
+      "score": 205.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'get_ast' (+80)",
+        "Symbol matches issue keywords ['get', 'ast'] (+20)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 57 test(s) (+15)"
+      ],
+      "line_start": 1251,
+      "line_end": 1288,
+      "unrelated_callers_count": 1,
+      "in_failing_traceback": false,
+      "semantic_radius": 38,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/checkers/variables.py",
+      "symbol": "visit_import",
+      "role": "PRIMARY",
+      "score": 20.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Compact code span (20 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 69 test(s) (+15)"
+      ],
+      "line_start": 1726,
+      "line_end": 1745,
+      "unrelated_callers_count": 3,
+      "in_failing_traceback": false,
+      "semantic_radius": 20,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/checkers/variables.py",
+      "symbol": "leave_functiondef",
+      "role": "PRIMARY",
+      "score": 0.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Direct tests available: 16 test(s) (+15)"
+      ],
+      "line_start": 1271,
+      "line_end": 1301,
+      "unrelated_callers_count": 1,
+      "in_failing_traceback": false,
+      "semantic_radius": 31,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/checkers/variables.py",
+      "symbol": "visit_module",
+      "role": "PRIMARY",
+      "score": -26.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['module'] (+10)",
+        "High regression risk: symbol has 4 cross-module callers (-16)",
+        "Compact code span (12 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 48 test(s) (+15)"
+      ],
+      "line_start": 1143,
+      "line_end": 1154,
+      "unrelated_callers_count": 4,
+      "in_failing_traceback": false,
+      "semantic_radius": 12,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/lint/pylinter.py",
+      "symbol": "set_option",
+      "role": "PRIMARY",
+      "score": -35.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['option'] (+10)",
+        "High regression risk: symbol has 18 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (30 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 432 test(s) (+15)"
+      ],
+      "line_start": 713,
+      "line_end": 742,
+      "unrelated_callers_count": 18,
+      "in_failing_traceback": false,
+      "semantic_radius": 30,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/checkers/variables.py",
+      "symbol": "visit_functiondef",
+      "role": "PRIMARY",
+      "score": -70.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 15 cross-module callers (-40)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 352 test(s) (+15)"
+      ],
+      "line_start": 1229,
+      "line_end": 1269,
+      "unrelated_callers_count": 15,
+      "in_failing_traceback": false,
+      "semantic_radius": 41,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {},
+  "telemetry": {
+    "task_id": "pylint-dev__pylint-5859",
+    "total_wall_s": 448.04,
+    "llm_time_s": 0.0,
+    "test_time_s": 0.0,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 21.388,
+    "retrieval_diagnosis_time_s": 113.648,
+    "probing_time_s": null,
+    "generation_time_s": 312.334,
+    "reconstruction_time_s": 0.0,
+    "static_validation_time_s": 0.0,
+    "replanning_time_s": 0.0,
+    "runtime_s": 448.04
+  },
+  "test_summary": {},
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "get_ast",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "At line 1288 (`return None`), implement required transition: Must intercept this condition and produce the expected state transformation.",
+        "category": "ALGORITHMIC_TRANSITION",
+        "source": "EXECUTION_PATH",
+        "affected_symbols": [
+          "get_ast"
+        ],
+        "expected_state": "",
+        "expected_transition": "Must intercept this condition and produce the expected state transformation.",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [
+          "return",
+          "None"
+        ],
+        "satisfied": false
+      },
+      {
+        "id": "R2",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

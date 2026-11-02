@@ -1,0 +1,470 @@
+{
+  "instance_id": "pylint-dev__pylint-7114",
+  "repo": "pylint-dev/pylint",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "2ad20c8826cd40eb",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "fd93b90085410112",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "256217bb2bc62feb",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "b6687cafe3958613",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": false,
+  "patch_tier": null,
+  "patch_text": "",
+  "test_executed": false,
+  "failure_class": "UNRESOLVED",
+  "runtime_s": 686.16,
+  "f2p_passed": 0,
+  "f2p_total": 0,
+  "p2p_passed": 0,
+  "p2p_total": 0,
+  "refinement_cycles": 3,
+  "target_file": "pylint/config/argument.py",
+  "target_symbol": "__init__",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "pylint/config/argument.py:__init__"
+    ],
+    "selected_target": "pylint/config/argument.py:__init__",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'pylint/config/argument.py:__init__'.",
+    "target_unjustified": true,
+    "target_changes": []
+  },
+  "generation_attempted": true,
+  "structurally_valid": false,
+  "submitted_to_harness": false,
+  "test_time_s": 0.0,
+  "generation_time_s": 158.404,
+  "reconstruction_time_s": 0.0,
+  "indexing_time_s": 14.057,
+  "retrieval_diagnosis_time_s": 224.09,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.0,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "256217bb2bc62feb",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "exemplars_included_in_prompt": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "prompt_included_episode_ids": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pylint-dev__pylint-7114",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "Conditional logic in __init__ method does not handle hide_help=True correctly.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Ensure self.help is set to argparse.SUPPRESS when hide_help is True.",
+    "affected_sites": [
+      "pylint/config/argument.py:__init__"
+    ],
+    "defect_confidence": 0.8,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 0,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "Conditional logic in __init__ method does not handle hide_help=True correctly.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "if hide_help:",
+          "expected_mutations": [
+            "self.help = argparse.SUPPRESS"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [],
+          "discriminating_variable": "hide_help",
+          "support_count": 1,
+          "contradiction_count": 0
+        },
+        "support_count": 1,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Ensure self.help is set to argparse.SUPPRESS when hide_help is True.",
+        "affected_sites": [
+          "pylint/config/argument.py:__init__"
+        ],
+        "supporting_evidence": [
+          "E1 | CODE_GRAPH: __init__ is GLOBAL_INFRASTRUCTURE with 169 callers (150 cross-module). Mutating it risks high regression.",
+          "E2 | TEMPORAL: __init__ has a history of 9 bug fixes (churn score: 1.00).",
+          "E3 | STATE_FLOW: __init__ overwrites state variables: self.help.",
+          "E4 | STATE_FLOW: __init__ mutates attributes/containers: self.flags, self.help, self.hide_help, self.section.",
+          "E9 | CODE_GRAPH: __init__ is GLOBAL_INFRASTRUCTURE with 169 callers (160 cross-module). Mutating it risks high regression.",
+          "E10 | TEMPORAL: __init__ has a history of 2 bug fixes (churn score: 0.40).",
+          "E11 | STATE_FLOW: __init__ mutates attributes/containers: self._atomic, self.node.",
+          "Causal Support: Predicted branch matches observed divergence transition."
+        ],
+        "contradicting_evidence": [
+          "Target 'pylint/config/argument.py:__init__' is GLOBAL_INFRASTRUCTURE with 160 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "E1 | CODE_GRAPH: __init__ is GLOBAL_INFRASTRUCTURE with 169 callers (150 cross-module). Mutating it risks high regression.",
+          "E2 | TEMPORAL: __init__ has a history of 9 bug fixes (churn score: 1.00).",
+          "E3 | STATE_FLOW: __init__ overwrites state variables: self.help.",
+          "E4 | STATE_FLOW: __init__ mutates attributes/containers: self.flags, self.help, self.hide_help, self.section.",
+          "E9 | CODE_GRAPH: __init__ is GLOBAL_INFRASTRUCTURE with 169 callers (160 cross-module). Mutating it risks high regression.",
+          "E10 | TEMPORAL: __init__ has a history of 2 bug fixes (churn score: 0.40).",
+          "E11 | STATE_FLOW: __init__ mutates attributes/containers: self._atomic, self.node."
+        ],
+        "contradicting_facts": [],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.8,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 65.0
+      }
+    ],
+    "repair_sites": [
+      "pylint/config/argument.py:__init__"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "strategy": "strict_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 2,
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 3,
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    }
+  ],
+  "repair_unit": {
+    "id": "pylint/config/argument.py::__init__::METHOD::165-187",
+    "file_path": "pylint/config/argument.py",
+    "symbol": "__init__",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 165,
+    "end_line": 187,
+    "start_col": 4,
+    "end_col": 50,
+    "source_text": "    def __init__(\n        self,\n        *,\n        flags: list[str],\n        arg_help: str,\n        hide_help: bool,\n        section: str | None,\n    ) -> None:\n        self.flags = flags\n        \"\"\"The name of the argument.\"\"\"\n\n        self.hide_help = hide_help\n        \"\"\"Whether to hide this argument in the help message.\"\"\"\n\n        # argparse uses % formatting on help strings, so a % needs to be escaped\n        self.help = arg_help.replace(\"%\", \"%%\")\n        \"\"\"The description of the argument.\"\"\"\n\n        if hide_help:\n            self.help = argparse.SUPPRESS\n\n        self.section = section\n        \"\"\"The section to add this argument to.\"\"\"\n",
+    "parent_symbol": "_Argument",
+    "indentation": "    ",
+    "role": "PRIMARY",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "pylint/config/argument.py",
+      "symbol": "__init__",
+      "role": "PRIMARY",
+      "score": 115.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site '__init__' (+80)",
+        "Symbol matches issue keywords ['init'] (+10)",
+        "High regression risk: symbol has 149 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (23 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 2 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 63 test(s) (+15)"
+      ],
+      "line_start": 165,
+      "line_end": 187,
+      "unrelated_callers_count": 149,
+      "in_failing_traceback": false,
+      "semantic_radius": 23,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/checkers/variables.py",
+      "symbol": "__init__",
+      "role": "PRIMARY",
+      "score": 50.0,
+      "reasons": [
+        "Symbol '__init__' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['init'] (+10)",
+        "High regression risk: symbol has 155 cross-module callers (-40)",
+        "Compact code span (5 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 2 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 63 test(s) (+15)"
+      ],
+      "line_start": 524,
+      "line_end": 528,
+      "unrelated_callers_count": 155,
+      "in_failing_traceback": false,
+      "semantic_radius": 5,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/lint/pylinter.py",
+      "symbol": "_iterate_file_descrs",
+      "role": "PRIMARY",
+      "score": 20.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['file'] (+10)",
+        "Compact code span (12 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 2 issue symptoms (-20)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 55 test(s) (+15)"
+      ],
+      "line_start": 761,
+      "line_end": 772,
+      "unrelated_callers_count": 1,
+      "in_failing_traceback": false,
+      "semantic_radius": 12,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/lint/pylinter.py",
+      "symbol": "get_ast",
+      "role": "PRIMARY",
+      "score": 10.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['ast'] (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 2 issue symptoms (-20)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 55 test(s) (+15)"
+      ],
+      "line_start": 900,
+      "line_end": 937,
+      "unrelated_callers_count": 2,
+      "in_failing_traceback": false,
+      "semantic_radius": 38,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/lint/pylinter.py",
+      "symbol": "generate_reports",
+      "role": "PRIMARY",
+      "score": 0.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 2 issue symptoms (-20)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 25 test(s) (+15)"
+      ],
+      "line_start": 1018,
+      "line_end": 1048,
+      "unrelated_callers_count": 2,
+      "in_failing_traceback": false,
+      "semantic_radius": 31,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/lint/pylinter.py",
+      "symbol": "set_reporter",
+      "role": "PRIMARY",
+      "score": -70.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 11 cross-module callers (-40)",
+        "Compact code span (6 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 2 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 397 test(s) (+15)"
+      ],
+      "line_start": 432,
+      "line_end": 437,
+      "unrelated_callers_count": 11,
+      "in_failing_traceback": false,
+      "semantic_radius": 6,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {},
+  "telemetry": {
+    "task_id": "pylint-dev__pylint-7114",
+    "total_wall_s": 686.16,
+    "llm_time_s": 0.0,
+    "test_time_s": 0.0,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 14.057,
+    "retrieval_diagnosis_time_s": 224.09,
+    "probing_time_s": null,
+    "generation_time_s": 158.404,
+    "reconstruction_time_s": 0.0,
+    "static_validation_time_s": 0.0,
+    "replanning_time_s": 0.0,
+    "runtime_s": 686.16
+  },
+  "test_summary": {},
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "__init__",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "At line 183 (`if hide_help:`), implement required transition: Must intercept this condition and produce the expected state transformation.",
+        "category": "ALGORITHMIC_TRANSITION",
+        "source": "EXECUTION_PATH",
+        "affected_symbols": [
+          "__init__"
+        ],
+        "expected_state": "",
+        "expected_transition": "Must intercept this condition and produce the expected state transformation.",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [
+          "hide_help"
+        ],
+        "satisfied": false
+      },
+      {
+        "id": "R2",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

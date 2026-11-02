@@ -1,0 +1,605 @@
+{
+  "instance_id": "pytest-dev__pytest-5692",
+  "repo": "pytest-dev/pytest",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "4e8292e9434efb2f",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "0abd7d93da49beb0",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "00c58176c092b44a",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "c6576310d2f24640",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": true,
+  "patch_tier": "AST_GROUNDED",
+  "patch_text": "diff --git a/src/_pytest/hookspec.py b/src/_pytest/hookspec.py\nindex 59fc569f4..07ee8baa4 100644\n--- a/src/_pytest/hookspec.py\n+++ b/src/_pytest/hookspec.py\n@@ -333,6 +333,16 @@ def pytest_runtest_logstart(nodeid, location):\n     :param str nodeid: full id of the item\n     :param location: a triple of ``(filename, linenum, testname)``\n     \"\"\"\n+    # Add hostname and timestamp to the testsuite XML element\n+    import socket\n+    from datetime import datetime\n+    hostname = socket.gethostname()\n+    timestamp = datetime.utcnow().isoformat()\n+    # Assuming a global variable or context manager to access the XML generator\n+    # This is a placeholder for the actual implementation\n+    xml_generator = get_xml_generator()\n+    xml_generator.add_testsuite_attribute('hostname', hostname)\n+    xml_generator.add_testsuite_attribute('timestamp', timestamp)\n \n \n def pytest_runtest_logfinish(nodeid, location):\n",
+  "test_executed": true,
+  "failure_class": "UNRESOLVED",
+  "runtime_s": 366.82,
+  "f2p_passed": 0,
+  "f2p_total": 2,
+  "p2p_passed": 68,
+  "p2p_total": 68,
+  "refinement_cycles": 3,
+  "target_file": "src/_pytest/pytester.py",
+  "target_symbol": "getitem",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "src/_pytest/hookspec.py:pytest_runtest_logstart"
+    ],
+    "selected_target": "src/_pytest/hookspec.py:pytest_runtest_logstart",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'src/_pytest/hookspec.py:pytest_runtest_logstart'.",
+    "target_unjustified": true,
+    "target_changes": [
+      {
+        "switched_to_hypothesis": "B",
+        "target": "src/_pytest/pytester.py:getitem",
+        "justification": "Target 'getitem' in 'src/_pytest/pytester.py' contradicts diagnosed affected sites ['src/_pytest/hookspec.py:pytest_runtest_logstart'] without structural justification."
+      }
+    ]
+  },
+  "generation_attempted": true,
+  "structurally_valid": true,
+  "submitted_to_harness": true,
+  "test_time_s": 38.441,
+  "generation_time_s": 176.947,
+  "reconstruction_time_s": 0.03,
+  "indexing_time_s": 37.956,
+  "retrieval_diagnosis_time_s": 112.69,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.003,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "00c58176c092b44a",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "psf__requests-2148",
+      "psf__requests-863"
+    ],
+    "exemplars_included_in_prompt": [
+      "psf__requests-2148",
+      "psf__requests-863"
+    ],
+    "prompt_included_episode_ids": [
+      "psf__requests-2148",
+      "psf__requests-863"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pytest-dev__pytest-5692",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The issue is caused by a missing or incorrect implementation of the `getitem` method in the `pytest` framework. This method is responsible for retrieving items from a source, and its absence or incorrect implementation could lead to unexpected behavior.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Implement the `getitem` method in the `pytest` framework to ensure it retrieves items from a source correctly.",
+    "affected_sites": [
+      "src/_pytest/hookspec.py:pytest_runtest_logstart"
+    ],
+    "defect_confidence": 0.75,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 1,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The issue is caused by a missing or incorrect implementation of the `pytest_runtest_logstart` hook in the `pytest` framework. This hook is responsible for logging the start of a test run, and its absence or incorrect implementation could lead to unexpected behavior.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The `pytest_runtest_logstart` hook is called during the test run.",
+          "expected_mutations": [
+            "Add the `pytest_runtest_logstart` hook implementation."
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "The `pytest_runtest_logstart` hook is not called during the test run."
+          ],
+          "discriminating_variable": "The presence of the `pytest_runtest_logstart` hook implementation.",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Implement the `pytest_runtest_logstart` hook in the `pytest` framework to ensure it logs the start of a test run correctly.",
+        "affected_sites": [
+          "src/_pytest/hookspec.py:pytest_runtest_logstart"
+        ],
+        "supporting_evidence": [
+          "The causal path for `pytest_runtest_logstart` shows it is called during the test run."
+        ],
+        "contradicting_evidence": [
+          "No runtime tracebacks or failing test assertions observed."
+        ],
+        "supporting_facts": [
+          "The causal path for `pytest_runtest_logstart` shows it is called during the test run."
+        ],
+        "contradicting_facts": [
+          "No runtime tracebacks or failing test assertions observed."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 75.0
+      },
+      {
+        "id": "B",
+        "cause": "The issue is caused by a missing or incorrect implementation of the `getitem` method in the `pytest` framework. This method is responsible for retrieving items from a source, and its absence or incorrect implementation could lead to unexpected behavior.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The `getitem` method is called during the test run.",
+          "expected_mutations": [
+            "Add the `getitem` method implementation."
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "The `getitem` method is not called during the test run."
+          ],
+          "discriminating_variable": "The presence of the `getitem` method implementation.",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Implement the `getitem` method in the `pytest` framework to ensure it retrieves items from a source correctly.",
+        "affected_sites": [
+          "src/_pytest/pytester.py:getitem"
+        ],
+        "supporting_evidence": [
+          "The causal path for `getitem` shows it is called during the test run."
+        ],
+        "contradicting_evidence": [
+          "No runtime tracebacks or failing test assertions observed.",
+          "Target 'src/_pytest/pytester.py:getitem' is GLOBAL_INFRASTRUCTURE with 30 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The causal path for `getitem` shows it is called during the test run."
+        ],
+        "contradicting_facts": [
+          "No runtime tracebacks or failing test assertions observed."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.7,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 45.0
+      }
+    ],
+    "repair_sites": [
+      "src/_pytest/hookspec.py:pytest_runtest_logstart"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "hypothesis_id": "A",
+      "strategy": "strict_structured_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "WRONG_HYPOTHESIS",
+      "error_message": "test_record_testsuite_property_type_checking.py:2: TypeError; FAILED testing/test_junitxml.py::TestPython::test_hostname_in_xml - Assertion...; FAILED testing/test_junitxml.py::TestPython::test_timestamp_in_xml - TypeErro...",
+      "patch_text": "diff --git a/src/_pytest/hookspec.py b/src/_pytest/hookspec.py\nindex 59fc569f4..07ee8baa4 100644\n--- a/src/_pytest/hookspec.py\n+++ b/src/_pytest/hookspec.py\n@@ -333,6 +333,16 @@ def pytest_runtest_logstart(nodeid, location):\n     :param str nodeid: full id of the item\n     :param location: a triple of ``(filename, linenum, testname)``\n     \"\"\"\n+    # Add hostname and timestamp to the testsuite XML element\n+    import socket\n+    from datetime import datetime\n+    hostname = socket.gethostname()\n+    timestamp = datetime.utcnow().isoformat()\n+    # Assuming a global variable or context manager to access the XML generator\n+    # This is a placeholder for the actual implementation\n+    xml_generator = get_xml_generator()\n+    xml_generator.add_testsuite_attribute('hostname', hostname)\n+    xml_generator.add_testsuite_attribute('timestamp', timestamp)\n \n \n def pytest_runtest_logfinish(nodeid, location):\n"
+    },
+    {
+      "attempt": 2,
+      "hypothesis_id": "B",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 3,
+      "hypothesis_id": "B",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    }
+  ],
+  "repair_unit": {
+    "id": "src/_pytest/pytester.py::getitem::METHOD::932-951",
+    "file_path": "src/_pytest/pytester.py",
+    "symbol": "getitem",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 932,
+    "end_line": 951,
+    "start_col": 4,
+    "end_col": 9,
+    "source_text": "    def getitem(self, source, funcname=\"test_func\"):\n        \"\"\"Return the test item for a test function.\n\n        This writes the source to a python file and runs pytest's collection on\n        the resulting module, returning the test item for the requested\n        function name.\n\n        :param source: the module source\n\n        :param funcname: the name of the test function for which to return a\n            test item\n\n        \"\"\"\n        items = self.getitems(source)\n        for item in items:\n            if item.name == funcname:\n                return item\n        assert 0, \"{!r} item not found in module:\\n{}\\nitems: {}\".format(\n            funcname, source, items\n        )\n",
+    "parent_symbol": "Testdir",
+    "indentation": "    ",
+    "role": "HYPOTHESIS_TARGET",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "src/_pytest/hookspec.py",
+      "symbol": "pytest_runtest_logstart",
+      "role": "PRIMARY",
+      "score": 215.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'pytest_runtest_logstart' (+80)",
+        "Symbol matches issue keywords ['pytest'] (+10)",
+        "Compact code span (9 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 113 test(s) (+15)"
+      ],
+      "line_start": 327,
+      "line_end": 335,
+      "unrelated_callers_count": 1,
+      "in_failing_traceback": false,
+      "semantic_radius": 9,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/nodes.py",
+      "symbol": "Item",
+      "role": "PRIMARY",
+      "score": 60.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Compact code span (9 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_LOCAL with bounded impact (+25)",
+        "Direct tests available: 69 test(s) (+15)"
+      ],
+      "line_start": 417,
+      "line_end": 425,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 9,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/hookspec.py",
+      "symbol": "pytest_runtest_logreport",
+      "role": "PRIMARY",
+      "score": 55.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['pytest'] (+10)",
+        "Compact code span (3 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 52 test(s) (+15)"
+      ],
+      "line_start": 376,
+      "line_end": 378,
+      "unrelated_callers_count": 1,
+      "in_failing_traceback": false,
+      "semantic_radius": 3,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/hookspec.py",
+      "symbol": "pytest_runtest_call",
+      "role": "PRIMARY",
+      "score": 55.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['pytest', 'call'] (+20)",
+        "Compact code span (2 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Direct tests available: 77 test(s) (+15)"
+      ],
+      "line_start": 353,
+      "line_end": 354,
+      "unrelated_callers_count": 1,
+      "in_failing_traceback": false,
+      "semantic_radius": 2,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/python.py",
+      "symbol": "Metafunc",
+      "role": "PRIMARY",
+      "score": -30.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 19 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 2412 test(s) (+15)"
+      ],
+      "line_start": 889,
+      "line_end": 1039,
+      "unrelated_callers_count": 19,
+      "in_failing_traceback": false,
+      "semantic_radius": 151,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/pytester.py",
+      "symbol": "getitem",
+      "role": "PRIMARY",
+      "score": -35.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 30 cross-module callers (-40)",
+        "Compact code span (20 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 2713 test(s) (+15)"
+      ],
+      "line_start": 932,
+      "line_end": 951,
+      "unrelated_callers_count": 30,
+      "in_failing_traceback": false,
+      "semantic_radius": 20,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {
+    "valid": true,
+    "syntax_ok": true,
+    "ast_ok": true,
+    "target_changed": true,
+    "unrelated_targets_preserved": true,
+    "no_markdown_leakage": true,
+    "line_expansion_ok": true,
+    "lines_added": 10,
+    "lines_deleted": 0,
+    "symbols_affected": [
+      "pytest_runtest_logstart"
+    ],
+    "errors": []
+  },
+  "telemetry": {
+    "task_id": "pytest-dev__pytest-5692",
+    "total_wall_s": 366.82,
+    "llm_time_s": 0.0,
+    "test_time_s": 38.441,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 37.956,
+    "retrieval_diagnosis_time_s": 112.69,
+    "probing_time_s": null,
+    "generation_time_s": 176.947,
+    "reconstruction_time_s": 0.03,
+    "static_validation_time_s": 0.003,
+    "replanning_time_s": 0.0,
+    "runtime_s": 366.82
+  },
+  "test_summary": {
+    "instance_id": "pytest-dev__pytest-5692",
+    "resolved": false,
+    "patch_applied": true,
+    "fail_to_pass": {
+      "passed": 0,
+      "total": 2
+    },
+    "pass_to_pass": {
+      "passed": 68,
+      "total": 68
+    },
+    "fail_to_pass_success": [],
+    "fail_to_pass_failure": [
+      "testing/test_junitxml.py::TestPython::test_hostname_in_xml",
+      "testing/test_junitxml.py::TestPython::test_timestamp_in_xml"
+    ],
+    "pass_to_pass_success": [
+      "testing/test_junitxml.py::test_mangle_test_address",
+      "testing/test_junitxml.py::test_dont_configure_on_slaves",
+      "testing/test_junitxml.py::test_invalid_xml_escape",
+      "testing/test_junitxml.py::test_logxml_path_expansion",
+      "testing/test_junitxml.py::TestPython::test_summing_simple",
+      "testing/test_junitxml.py::TestPython::test_summing_simple_with_errors",
+      "testing/test_junitxml.py::TestPython::test_timing_function",
+      "testing/test_junitxml.py::TestPython::test_junit_duration_report[call]",
+      "testing/test_junitxml.py::TestPython::test_junit_duration_report[total]",
+      "testing/test_junitxml.py::TestPython::test_setup_error",
+      "testing/test_junitxml.py::TestPython::test_teardown_error",
+      "testing/test_junitxml.py::TestPython::test_call_failure_teardown_error",
+      "testing/test_junitxml.py::TestPython::test_skip_contains_name_reason",
+      "testing/test_junitxml.py::TestPython::test_mark_skip_contains_name_reason",
+      "testing/test_junitxml.py::TestPython::test_mark_skipif_contains_name_reason",
+      "testing/test_junitxml.py::TestPython::test_mark_skip_doesnt_capture_output",
+      "testing/test_junitxml.py::TestPython::test_classname_instance",
+      "testing/test_junitxml.py::TestPython::test_classname_nested_dir",
+      "testing/test_junitxml.py::TestPython::test_internal_error",
+      "testing/test_junitxml.py::TestPython::test_failure_function[no]",
+      "testing/test_junitxml.py::TestPython::test_failure_function[system-out]",
+      "testing/test_junitxml.py::TestPython::test_failure_function[system-err]",
+      "testing/test_junitxml.py::TestPython::test_failure_verbose_message",
+      "testing/test_junitxml.py::TestPython::test_failure_escape",
+      "testing/test_junitxml.py::TestPython::test_junit_prefixing",
+      "testing/test_junitxml.py::TestPython::test_xfailure_function",
+      "testing/test_junitxml.py::TestPython::test_xfailure_marker",
+      "testing/test_junitxml.py::TestPython::test_xfail_captures_output_once",
+      "testing/test_junitxml.py::TestPython::test_xfailure_xpass",
+      "testing/test_junitxml.py::TestPython::test_xfailure_xpass_strict",
+      "testing/test_junitxml.py::TestPython::test_collect_error",
+      "testing/test_junitxml.py::TestPython::test_unicode",
+      "testing/test_junitxml.py::TestPython::test_assertion_binchars",
+      "testing/test_junitxml.py::TestPython::test_pass_captures_stdout",
+      "testing/test_junitxml.py::TestPython::test_pass_captures_stderr",
+      "testing/test_junitxml.py::TestPython::test_setup_error_captures_stdout",
+      "testing/test_junitxml.py::TestPython::test_setup_error_captures_stderr",
+      "testing/test_junitxml.py::TestPython::test_avoid_double_stdout",
+      "testing/test_junitxml.py::TestNonPython::test_summing_simple",
+      "testing/test_junitxml.py::test_nullbyte",
+      "testing/test_junitxml.py::test_nullbyte_replace",
+      "testing/test_junitxml.py::test_logxml_changingdir",
+      "testing/test_junitxml.py::test_logxml_makedir",
+      "testing/test_junitxml.py::test_logxml_check_isdir",
+      "testing/test_junitxml.py::test_escaped_parametrized_names_xml",
+      "testing/test_junitxml.py::test_double_colon_split_function_issue469",
+      "testing/test_junitxml.py::test_double_colon_split_method_issue469",
+      "testing/test_junitxml.py::test_unicode_issue368",
+      "testing/test_junitxml.py::test_record_property",
+      "testing/test_junitxml.py::test_record_property_same_name",
+      "testing/test_junitxml.py::test_record_fixtures_without_junitxml[record_property]",
+      "testing/test_junitxml.py::test_record_fixtures_without_junitxml[record_xml_attribute]",
+      "testing/test_junitxml.py::test_record_attribute",
+      "testing/test_junitxml.py::test_record_fixtures_xunit2[record_xml_attribute]",
+      "testing/test_junitxml.py::test_record_fixtures_xunit2[record_property]",
+      "testing/test_junitxml.py::test_root_testsuites_tag",
+      "testing/test_junitxml.py::test_runs_twice",
+      "testing/test_junitxml.py::test_fancy_items_regression",
+      "testing/test_junitxml.py::test_global_properties",
+      "testing/test_junitxml.py::test_url_property",
+      "testing/test_junitxml.py::test_record_testsuite_property",
+      "testing/test_junitxml.py::test_record_testsuite_property_junit_disabled",
+      "testing/test_junitxml.py::test_record_testsuite_property_type_checking[True]",
+      "testing/test_junitxml.py::test_record_testsuite_property_type_checking[False]",
+      "testing/test_junitxml.py::test_set_suite_name[my_suite]",
+      "testing/test_junitxml.py::test_set_suite_name[]",
+      "testing/test_junitxml.py::test_escaped_skipreason_issue3533",
+      "testing/test_junitxml.py::test_logging_passing_tests_disabled_does_not_log_test_output"
+    ],
+    "pass_to_pass_failure": [],
+    "infra_failure": false,
+    "error": "",
+    "run_id": "eval_1791823836"
+  },
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "getitem",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

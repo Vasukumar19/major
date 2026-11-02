@@ -1,0 +1,65 @@
+{
+  "instance_id": "pytest-dev__pytest-7220",
+  "repo": "pytest-dev/pytest",
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": true,
+  "patch_valid": true,
+  "patch_tier": "EXACT",
+  "patch_text": "diff --git a/src/_pytest/monkeypatch.py b/src/_pytest/monkeypatch.py\nindex 9d802a625..4fa65f4b1 100644\n--- a/src/_pytest/monkeypatch.py\n+++ b/src/_pytest/monkeypatch.py\n@@ -278,6 +278,7 @@ class MonkeyPatch:\n         \"\"\"\n         if self._cwd is None:\n             self._cwd = os.getcwd()\n+        self._original_cwd = os.getcwd()\n         if hasattr(path, \"chdir\"):\n             path.chdir()\n         elif isinstance(path, Path):\n@@ -286,6 +287,12 @@ class MonkeyPatch:\n         else:\n             os.chdir(path)\n \n+    def _get_relative_path(self, path):\n+        return os.path.relpath(path, self._original_cwd)\n+\n+    def _get_relative_path(self, path):\n+        return os.path.relpath(path, self._original_cwd)\n+\n     def undo(self):\n         \"\"\" Undo previous changes.  This call consumes the\n         undo stack. Calling it a second time has no effect unless\n",
+  "test_executed": true,
+  "failure_class": "REFINEMENT_EXHAUSTED",
+  "runtime_s": 366.58,
+  "f2p_passed": 0,
+  "f2p_total": 1,
+  "p2p_passed": 11,
+  "p2p_total": 11,
+  "refinement_cycles": 2,
+  "target_file": "src/_pytest/monkeypatch.py",
+  "target_symbol": "chdir",
+  "telemetry": {
+    "task_id": "pytest-dev__pytest-7220",
+    "total_wall_s": 366.58,
+    "llm_time_s": 262.03,
+    "test_time_s": 100.87,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 3743,
+    "total_output_tokens": 1121,
+    "total_tokens": 4864,
+    "event_count": 9
+  },
+  "test_summary": {
+    "instance_id": "pytest-dev__pytest-7220",
+    "resolved": false,
+    "patch_applied": true,
+    "fail_to_pass": {
+      "passed": 0,
+      "total": 1
+    },
+    "pass_to_pass": {
+      "passed": 11,
+      "total": 11
+    },
+    "fail_to_pass_success": [],
+    "fail_to_pass_failure": [
+      "testing/test_nodes.py::test_failure_with_changed_cwd"
+    ],
+    "pass_to_pass_success": [
+      "testing/test_nodes.py::test_ischildnode[--True]",
+      "testing/test_nodes.py::test_ischildnode[-foo-True]",
+      "testing/test_nodes.py::test_ischildnode[-foo/bar-True]",
+      "testing/test_nodes.py::test_ischildnode[-foo/bar::TestBaz-True]",
+      "testing/test_nodes.py::test_ischildnode[foo-food-False]",
+      "testing/test_nodes.py::test_ischildnode[foo/bar::TestBaz-foo/bar-False]",
+      "testing/test_nodes.py::test_ischildnode[foo/bar::TestBaz-foo/bar::TestBop-False]",
+      "testing/test_nodes.py::test_ischildnode[foo/bar-foo/bar::TestBop-True]",
+      "testing/test_nodes.py::test_node_from_parent_disallowed_arguments",
+      "testing/test_nodes.py::test__check_initialpaths_for_relpath",
+      "testing/test_nodes.py::test_std_warn_not_pytestwarning"
+    ],
+    "pass_to_pass_failure": [],
+    "infra_failure": false,
+    "error": "",
+    "run_id": "eval_1789898496"
+  }
+}

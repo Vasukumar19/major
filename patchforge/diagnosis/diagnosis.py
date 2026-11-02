@@ -47,6 +47,12 @@ class DiagnosisHypothesis:
     affected_sites: List[str] = field(default_factory=list)
     supporting_evidence: List[str] = field(default_factory=list)
     contradicting_evidence: List[str] = field(default_factory=list)
+    supporting_facts: List[str] = field(default_factory=list)
+    contradicting_facts: List[str] = field(default_factory=list)
+    expected_behavior: str = ""
+    discriminating_tests: List[str] = field(default_factory=list)
+    specificity_explanation: str = ""
+    distinguishing_evidence: str = ""
     affected_tests: List[str] = field(default_factory=list)
     unexplained_symptoms: List[str] = field(default_factory=list)
     divergent_predicate: str = ""
@@ -74,6 +80,12 @@ class DiagnosisHypothesis:
             "affected_sites": self.affected_sites,
             "supporting_evidence": self.supporting_evidence,
             "contradicting_evidence": self.contradicting_evidence,
+            "supporting_facts": self.supporting_facts,
+            "contradicting_facts": self.contradicting_facts,
+            "expected_behavior": self.expected_behavior,
+            "discriminating_tests": self.discriminating_tests,
+            "specificity_explanation": self.specificity_explanation,
+            "distinguishing_evidence": self.distinguishing_evidence,
             "affected_tests": self.affected_tests,
             "unexplained_symptoms": self.unexplained_symptoms,
             "semantic_radius": self.semantic_radius,
@@ -96,8 +108,46 @@ class CompetingDiagnosisResult:
     classification: str = "confirmed_code_defect"
 
     def __post_init__(self):
-        if self.hypotheses and (self.selected_hypothesis is None or self.selected_hypothesis_idx < len(self.hypotheses)):
+        if not self.hypotheses:
+            self.selected_hypothesis_idx = 0
+            self.selected_hypothesis = None
+            self.defect_confidence = 0.0
+            self.repair_sites = []
+            return
+
+        if self.selected_hypothesis is not None:
+            found_idx = False
+            for idx, h in enumerate(self.hypotheses):
+                if h.id == self.selected_hypothesis.id:
+                    self.selected_hypothesis_idx = idx
+                    found_idx = True
+                    break
+            if not found_idx:
+                self.selected_hypothesis_idx = max(0, min(self.selected_hypothesis_idx, len(self.hypotheses) - 1))
+                self.selected_hypothesis = self.hypotheses[self.selected_hypothesis_idx]
+        else:
+            self.selected_hypothesis_idx = max(0, min(self.selected_hypothesis_idx, len(self.hypotheses) - 1))
             self.selected_hypothesis = self.hypotheses[self.selected_hypothesis_idx]
+
+        if self.selected_hypothesis:
+            self.defect_confidence = getattr(self.selected_hypothesis, "confidence", self.defect_confidence)
+            if not self.repair_sites:
+                self.repair_sites = list(getattr(self.selected_hypothesis, "affected_sites", []) or [])
+
+    def set_active_hypothesis(self, idx: int) -> Optional[DiagnosisHypothesis]:
+        """Atomically synchronizes active hypothesis index, object, defect confidence, and repair sites."""
+        if not self.hypotheses:
+            self.selected_hypothesis_idx = 0
+            self.selected_hypothesis = None
+            self.defect_confidence = 0.0
+            self.repair_sites = []
+            return None
+        valid_idx = max(0, min(idx, len(self.hypotheses) - 1))
+        self.selected_hypothesis_idx = valid_idx
+        self.selected_hypothesis = self.hypotheses[valid_idx]
+        self.defect_confidence = getattr(self.selected_hypothesis, "confidence", 0.8)
+        self.repair_sites = list(getattr(self.selected_hypothesis, "affected_sites", []) or [])
+        return self.selected_hypothesis
 
     # --- Backward compatibility with DiagnosisResult ---
     @property
@@ -114,7 +164,9 @@ class CompetingDiagnosisResult:
 
     @property
     def affected_sites(self) -> List[str]:
-        return self.repair_sites or (self.selected_hypothesis.affected_sites if self.selected_hypothesis else [])
+        if self.selected_hypothesis and self.selected_hypothesis.affected_sites:
+            return list(self.selected_hypothesis.affected_sites)
+        return list(self.repair_sites)
 
     @property
     def expected_behavior(self) -> str:
@@ -150,7 +202,7 @@ class CompetingDiagnosisEngine:
         problem_statement: str,
         behavior_map: IssueBehaviorMap,
         candidate_profiles: List[CandidateProfile],
-        failure_evidence: Optional[StructuredFailureEvidence] = None,
+        failure_evidence: Optional[Any] = None,
         state_flows: Optional[Dict[str, DeepStateFlowInfo]] = None,
         class_context: Optional[str] = None,
         execution_path_summary: str = "",
@@ -167,8 +219,13 @@ class CompetingDiagnosisEngine:
             sections.append(f"{execution_path_summary}\n")
 
         # 3. Failure Evidence
-        if failure_evidence and failure_evidence.failing_test:
-            sections.append(f"### DETERMINISTIC EXECUTION FAILURE EVIDENCE:\n{failure_evidence.format_summary()}\n")
+        if failure_evidence:
+            if hasattr(failure_evidence, "format_summary"):
+                summary = failure_evidence.format_summary()
+                if summary:
+                    sections.append(f"### DETERMINISTIC EXECUTION FAILURE EVIDENCE:\n{summary}\n")
+            elif hasattr(failure_evidence, "format_for_prompt"):
+                sections.append(failure_evidence.format_for_prompt() + "\n")
 
         # 3. Candidate Behavioral Profiles & Blast Radius
         cand_sec = ["### CANDIDATE REPAIR SITES & CAUSAL PATHS:"]
@@ -311,6 +368,10 @@ Output your diagnosis strictly as JSON within a ```json ... ``` code fence:
                             discriminating_variable=str(pred_raw.get("discriminating_variable", "")),
                         )
 
+                    raw_supp = rh.get("supporting_facts") or rh.get("supporting_evidence") or []
+                    raw_contra = rh.get("contradicting_facts") or rh.get("contradicting_evidence") or []
+                    raw_disc_tests = rh.get("discriminating_tests") or rh.get("affected_tests") or []
+
                     hypotheses.append(
                         DiagnosisHypothesis(
                             id=str(rh.get("id", chr(65 + idx))),
@@ -323,6 +384,12 @@ Output your diagnosis strictly as JSON within a ```json ... ``` code fence:
                             affected_sites=[str(s) for s in rh.get("affected_sites", [])],
                             supporting_evidence=[str(e) for e in rh.get("supporting_evidence", [])],
                             contradicting_evidence=[str(e) for e in rh.get("contradicting_evidence", [])],
+                            supporting_facts=[str(f) for f in raw_supp],
+                            contradicting_facts=[str(f) for f in raw_contra],
+                            expected_behavior=str(rh.get("expected_behavior", "")),
+                            discriminating_tests=[str(t) for t in raw_disc_tests],
+                            specificity_explanation=str(rh.get("specificity_explanation", "")),
+                            distinguishing_evidence=str(rh.get("distinguishing_evidence", "")),
                             unexplained_symptoms=[str(u) for u in rh.get("unexplained_symptoms", [])],
                             confidence=float(rh.get("confidence", 0.8)),
                         )
@@ -346,6 +413,9 @@ Output your diagnosis strictly as JSON within a ```json ... ``` code fence:
                     confidence=0.8,
                 )
             )
+
+        # 2b. Deduplicate degenerate hypotheses sharing identical target and premise
+        hypotheses = cls._detect_and_deduplicate_hypotheses(hypotheses)
 
         # 3. Deterministic Hypothesis Elimination & Ranking (Section 14)
         cls._eliminate_and_rank_hypotheses(
@@ -380,6 +450,34 @@ Output your diagnosis strictly as JSON within a ```json ... ``` code fence:
         )
 
     @classmethod
+    def _detect_and_deduplicate_hypotheses(
+        cls,
+        hypotheses: List[DiagnosisHypothesis],
+    ) -> List[DiagnosisHypothesis]:
+        """Detects degenerate or duplicate competing hypotheses sharing same target and premise."""
+        if len(hypotheses) < 2:
+            return hypotheses
+
+        seen: List[DiagnosisHypothesis] = []
+        for h in hypotheses:
+            is_dup = False
+            h_sites = set(s.lower().strip() for s in h.affected_sites)
+            h_words = set(re.findall(r"\w+", h.cause.lower()))
+            for prior in seen:
+                prior_sites = set(s.lower().strip() for s in prior.affected_sites)
+                prior_words = set(re.findall(r"\w+", prior.cause.lower()))
+                site_overlap = bool(h_sites & prior_sites) if (h_sites and prior_sites) else False
+                common_words = h_words & prior_words
+                word_sim = len(common_words) / max(1, min(len(h_words), len(prior_words)))
+                if site_overlap and word_sim > 0.75:
+                    is_dup = True
+                    h.eliminated = True
+                    h.elimination_reason = f"Duplicate of Hypothesis {prior.id}: shares identical target {h.affected_sites} and overlapping premise ({word_sim:.0%})."
+                    break
+            seen.append(h)
+        return hypotheses
+
+    @classmethod
     def _eliminate_and_rank_hypotheses(
         cls,
         hypotheses: List[DiagnosisHypothesis],
@@ -395,6 +493,11 @@ Output your diagnosis strictly as JSON within a ```json ... ``` code fence:
 
         for h in hypotheses:
             score = h.confidence * 100.0
+
+            # If evidence is absent, preserve uncertainty instead of fabricating confidence
+            if not tb_stack and not failure_evidence:
+                score = min(score, 75.0)
+                h.confidence = min(h.confidence, 0.75)
 
             # Rule 1: Traceback reachability elimination (Section 14)
             # If hypothesis targets a site that is NOT in traceback when traceback is explicitly present
@@ -434,6 +537,14 @@ Output your diagnosis strictly as JSON within a ```json ... ``` code fence:
                         h.supporting_evidence.append(
                             f"Target '{site}' is FEATURE_LOCAL with bounded blast radius (+20)"
                         )
+
+            # Rule 4: Specificity and discriminating tests bonus
+            if h.specificity_explanation and h.distinguishing_evidence:
+                score += 15.0
+                h.supporting_evidence.append("Hypothesis articulates specific causal explanation distinguishing it from alternatives (+15)")
+            if h.discriminating_tests:
+                score += 10.0
+                h.supporting_evidence.append(f"Identified {len(h.discriminating_tests)} discriminating test(s) to isolate defect (+10)")
 
             # Rule 5: Causal Prediction Verification against BehavioralTrace
             if h.prediction and causal_trace:

@@ -26,6 +26,8 @@ class TestReport:
 
 
 class Tester:
+    __test__ = False
+
     def __init__(self, *args, **kwargs):
         if len(args) == 2 and hasattr(args[1], "evaluate"):
             self.config = args[0]
@@ -66,6 +68,7 @@ class Tester:
 
     def run(self, instance_id: str, patch_text: str = "", run_id: str = "", timeout: int = 300, patch: str = "") -> EvalResult:
         import os
+        import shutil
         import tempfile
         import time
         if not patch_text and patch:
@@ -73,8 +76,11 @@ class Tester:
         if not run_id or run_id == "eval":
             run_id = f"eval_{int(time.time())}"
         temp_dir = tempfile.mkdtemp(prefix="patchforge_eval_")
-        preds_path = os.path.join(temp_dir, "predictions.json")
-        preds = self.swebench.write_predictions(
-            instance_id, patch_text, self.model_name, preds_path
-        )
-        return self.swebench.evaluate(preds, instance_id, run_id=run_id, timeout=timeout)
+        try:
+            preds_path = os.path.join(temp_dir, "predictions.json")
+            preds = self.swebench.write_predictions(
+                instance_id, patch_text, self.model_name, preds_path
+            )
+            return self.swebench.evaluate(preds, instance_id, run_id=run_id, timeout=timeout)
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)

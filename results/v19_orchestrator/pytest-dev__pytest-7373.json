@@ -1,0 +1,629 @@
+{
+  "instance_id": "pytest-dev__pytest-7373",
+  "repo": "pytest-dev/pytest",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "48e0408bb74599c3",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "e2008182d3ff683a",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "d60390742cfb49db",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "c6576310d2f24640",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": true,
+  "patch_tier": "AST_GROUNDED",
+  "patch_text": "diff --git a/src/_pytest/cacheprovider.py b/src/_pytest/cacheprovider.py\nindex 967272ca6..2f3d89e8b 100755\n--- a/src/_pytest/cacheprovider.py\n+++ b/src/_pytest/cacheprovider.py\n@@ -471,17 +471,6 @@ def pytest_configure(config: Config) -> None:\n \n @pytest.fixture\n def cache(request: FixtureRequest) -> Cache:\n-    \"\"\"\n-    Return a cache object that can persist state between testing sessions.\n-\n-    cache.get(key, default)\n-    cache.set(key, value)\n-\n-    Keys must be a ``/`` separated value, where the first part is usually the\n-    name of your plugin or application to avoid clashes with other cache users.\n-\n-    Values can be any object handled by the json stdlib module.\n-    \"\"\"\n     assert request.config.cache is not None\n     return request.config.cache\n \n",
+  "test_executed": true,
+  "failure_class": "UNRESOLVED",
+  "runtime_s": 389.16,
+  "f2p_passed": 0,
+  "f2p_total": 1,
+  "p2p_passed": 81,
+  "p2p_total": 81,
+  "refinement_cycles": 3,
+  "target_file": "src/_pytest/config/__init__.py",
+  "target_symbol": "PytestPluginManager",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "src/_pytest/cacheprovider.py:cache"
+    ],
+    "selected_target": "src/_pytest/cacheprovider.py:cache",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'src/_pytest/cacheprovider.py:cache'.",
+    "target_unjustified": true,
+    "target_changes": [
+      {
+        "switched_to_hypothesis": "B",
+        "target": "src/_pytest/config/__init__.py:PytestPluginManager",
+        "justification": "Target matches hypothesized affected site 'src/_pytest/config/__init__.py:PytestPluginManager'."
+      }
+    ]
+  },
+  "generation_attempted": true,
+  "structurally_valid": true,
+  "submitted_to_harness": true,
+  "test_time_s": 40.418,
+  "generation_time_s": 232.11,
+  "reconstruction_time_s": 1.059,
+  "indexing_time_s": 2.234,
+  "retrieval_diagnosis_time_s": 112.766,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.007,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "d60390742cfb49db",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "psf__requests-2148",
+      "psf__requests-863"
+    ],
+    "exemplars_included_in_prompt": [
+      "psf__requests-2148",
+      "psf__requests-863"
+    ],
+    "prompt_included_episode_ids": [
+      "psf__requests-2148",
+      "psf__requests-863"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pytest-dev__pytest-7373",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The `PytestPluginManager` symbol in `src/_pytest/config/__init__.py` has a bug that affects its behavior, leading to unexpected results.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Identify and fix the bug in the `PytestPluginManager` symbol.",
+    "affected_sites": [
+      "src/_pytest/config/__init__.py:PytestPluginManager"
+    ],
+    "defect_confidence": 0.7,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 1,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The caching mechanism in the `cache` symbol in `src/_pytest/cacheprovider.py` is unnecessary and can be removed to simplify the code and potentially improve performance.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The code should no longer use the caching mechanism.",
+          "expected_mutations": [
+            "Remove caching logic",
+            "Inline `cached_eval` into `MarkEvaluator._istrue`"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Caching-related errors or performance regressions"
+          ],
+          "discriminating_variable": "Performance impact on large test suites",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Remove the caching mechanism in the `cache` symbol and inline the `cached_eval` into `MarkEvaluator._istrue`.",
+        "affected_sites": [
+          "src/_pytest/cacheprovider.py:cache"
+        ],
+        "supporting_evidence": [
+          "The problem hint suggests removing caching and inlining `cached_eval`.",
+          "The `cache` symbol is part of the GLOBAL_INFRASTRUCTURE with a history of bug fixes.",
+          "Target 'src/_pytest/cacheprovider.py:cache' is FEATURE_LOCAL with bounded blast radius (+20)"
+        ],
+        "contradicting_evidence": [
+          "No severe contradictions detected.",
+          "No runtime traceback observed prior to repair."
+        ],
+        "supporting_facts": [
+          "The problem hint suggests removing caching and inlining `cached_eval`.",
+          "The `cache` symbol is part of the GLOBAL_INFRASTRUCTURE with a history of bug fixes."
+        ],
+        "contradicting_facts": [
+          "No severe contradictions detected.",
+          "No runtime traceback observed prior to repair."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 95.0
+      },
+      {
+        "id": "B",
+        "cause": "The `PytestPluginManager` symbol in `src/_pytest/config/__init__.py` has a bug that affects its behavior, leading to unexpected results.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The bug in `PytestPluginManager` is fixed.",
+          "expected_mutations": [
+            "Fix the bug in `PytestPluginManager`"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Regression in `PytestPluginManager` behavior"
+          ],
+          "discriminating_variable": "Behavior of `PytestPluginManager`",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Identify and fix the bug in the `PytestPluginManager` symbol.",
+        "affected_sites": [
+          "src/_pytest/config/__init__.py:PytestPluginManager"
+        ],
+        "supporting_evidence": [
+          "The `PytestPluginManager` symbol is part of the GLOBAL_INFRASTRUCTURE with a history of bug fixes."
+        ],
+        "contradicting_evidence": [
+          "No runtime traceback observed prior to repair.",
+          "Target 'src/_pytest/config/__init__.py:PytestPluginManager' is GLOBAL_INFRASTRUCTURE with 13 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The `PytestPluginManager` symbol is part of the GLOBAL_INFRASTRUCTURE with a history of bug fixes."
+        ],
+        "contradicting_facts": [
+          "No runtime traceback observed prior to repair."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.7,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 45.0
+      }
+    ],
+    "repair_sites": [
+      "src/_pytest/config/__init__.py:PytestPluginManager"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "hypothesis_id": "A",
+      "strategy": "strict_structured_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "PATCH_SEMANTICS",
+      "error_message": "test_keyword_extra.py:2: AssertionError; FAILED test_keyword_extra.py::test_one - assert 0; FAILED testing/test_mark.py::TestFunctional::test_reevaluate_dynamic_expr - A...",
+      "patch_text": "diff --git a/src/_pytest/cacheprovider.py b/src/_pytest/cacheprovider.py\nindex 967272ca6..2f3d89e8b 100755\n--- a/src/_pytest/cacheprovider.py\n+++ b/src/_pytest/cacheprovider.py\n@@ -471,17 +471,6 @@ def pytest_configure(config: Config) -> None:\n \n @pytest.fixture\n def cache(request: FixtureRequest) -> Cache:\n-    \"\"\"\n-    Return a cache object that can persist state between testing sessions.\n-\n-    cache.get(key, default)\n-    cache.set(key, value)\n-\n-    Keys must be a ``/`` separated value, where the first part is usually the\n-    name of your plugin or application to avoid clashes with other cache users.\n-\n-    Values can be any object handled by the json stdlib module.\n-    \"\"\"\n     assert request.config.cache is not None\n     return request.config.cache\n \n"
+    },
+    {
+      "attempt": 2,
+      "hypothesis_id": "B",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 3,
+      "hypothesis_id": "B",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    }
+  ],
+  "repair_unit": {
+    "id": "src/_pytest/config/__init__.py::__init__::METHOD::311-344",
+    "file_path": "src/_pytest/config/__init__.py",
+    "symbol": "__init__",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 311,
+    "end_line": 344,
+    "start_col": 4,
+    "end_col": 32,
+    "source_text": "    def __init__(self) -> None:\n        import _pytest.assertion\n\n        super().__init__(\"pytest\")\n        # The objects are module objects, only used generically.\n        self._conftest_plugins = set()  # type: Set[object]\n\n        # state related to local conftest plugins\n        # Maps a py.path.local to a list of module objects.\n        self._dirpath2confmods = {}  # type: Dict[Any, List[object]]\n        # Maps a py.path.local to a module object.\n        self._conftestpath2mod = {}  # type: Dict[Any, object]\n        self._confcutdir = None  # type: Optional[py.path.local]\n        self._noconftest = False\n        self._duplicatepaths = set()  # type: Set[py.path.local]\n\n        self.add_hookspecs(_pytest.hookspec)\n        self.register(self)\n        if os.environ.get(\"PYTEST_DEBUG\"):\n            err = sys.stderr  # type: IO[str]\n            encoding = getattr(err, \"encoding\", \"utf8\")\n            try:\n                err = open(\n                    os.dup(err.fileno()), mode=err.mode, buffering=1, encoding=encoding,\n                )\n            except Exception:\n                pass\n            self.trace.root.setwriter(err.write)\n            self.enable_tracing()\n\n        # Config._consider_importhook will set a real object if required.\n        self.rewrite_hook = _pytest.assertion.DummyRewriteHook()\n        # Used to know when we are importing conftests after the pytest_configure stage\n        self._configured = False\n",
+    "parent_symbol": "PytestPluginManager",
+    "indentation": "    ",
+    "role": "HYPOTHESIS_TARGET",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "src/_pytest/cacheprovider.py",
+      "symbol": "cache",
+      "role": "PRIMARY",
+      "score": 195.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'cache' (+80)",
+        "Symbol matches issue keywords ['cache'] (+10)",
+        "Compact code span (14 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 2 issue symptoms (-20)",
+        "Blast radius: FEATURE_LOCAL with bounded impact (+25)",
+        "Direct tests available: 7 test(s) (+15)"
+      ],
+      "line_start": 473,
+      "line_end": 486,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 14,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/config/__init__.py",
+      "symbol": "pytest_configure",
+      "role": "PRIMARY",
+      "score": -21.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['pytest'] (+10)",
+        "High regression risk: symbol has 4 cross-module callers (-16)",
+        "Located in primary localized file (+15)",
+        "Compact code span (14 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 4 test(s) (+15)"
+      ],
+      "line_start": 421,
+      "line_end": 434,
+      "unrelated_callers_count": 4,
+      "in_failing_traceback": false,
+      "semantic_radius": 14,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/config/__init__.py",
+      "symbol": "_getconftestmodules",
+      "role": "PRIMARY",
+      "score": -43.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 7 cross-module callers (-28)",
+        "Located in primary localized file (+15)",
+        "Compact code span (22 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 6 test(s) (+15)"
+      ],
+      "line_start": 479,
+      "line_end": 500,
+      "unrelated_callers_count": 7,
+      "in_failing_traceback": false,
+      "semantic_radius": 22,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/config/__init__.py",
+      "symbol": "_importconftest",
+      "role": "PRIMARY",
+      "score": -45.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 5 cross-module callers (-20)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 4 test(s) (+15)"
+      ],
+      "line_start": 511,
+      "line_end": 543,
+      "unrelated_callers_count": 5,
+      "in_failing_traceback": false,
+      "semantic_radius": 33,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/config/__init__.py",
+      "symbol": "getoption",
+      "role": "PRIMARY",
+      "score": -55.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 42 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (23 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 9 test(s) (+15)"
+      ],
+      "line_start": 1261,
+      "line_end": 1283,
+      "unrelated_callers_count": 42,
+      "in_failing_traceback": false,
+      "semantic_radius": 23,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/config/__init__.py",
+      "symbol": "PytestPluginManager",
+      "role": "PRIMARY",
+      "score": -65.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 13 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 11 test(s) (+15)"
+      ],
+      "line_start": 301,
+      "line_end": 451,
+      "unrelated_callers_count": 13,
+      "in_failing_traceback": false,
+      "semantic_radius": 151,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {
+    "valid": true,
+    "syntax_ok": true,
+    "ast_ok": true,
+    "target_changed": true,
+    "unrelated_targets_preserved": true,
+    "no_markdown_leakage": true,
+    "line_expansion_ok": true,
+    "lines_added": 0,
+    "lines_deleted": 11,
+    "symbols_affected": [
+      "cache"
+    ],
+    "errors": []
+  },
+  "telemetry": {
+    "task_id": "pytest-dev__pytest-7373",
+    "total_wall_s": 389.16,
+    "llm_time_s": 0.0,
+    "test_time_s": 40.418,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 2.234,
+    "retrieval_diagnosis_time_s": 112.766,
+    "probing_time_s": null,
+    "generation_time_s": 232.11,
+    "reconstruction_time_s": 1.059,
+    "static_validation_time_s": 0.007,
+    "replanning_time_s": 0.0,
+    "runtime_s": 389.16
+  },
+  "test_summary": {
+    "instance_id": "pytest-dev__pytest-7373",
+    "resolved": false,
+    "patch_applied": true,
+    "fail_to_pass": {
+      "passed": 0,
+      "total": 1
+    },
+    "pass_to_pass": {
+      "passed": 81,
+      "total": 81
+    },
+    "fail_to_pass_success": [],
+    "fail_to_pass_failure": [
+      "testing/test_mark.py::TestFunctional::test_reevaluate_dynamic_expr"
+    ],
+    "pass_to_pass_success": [
+      "testing/test_mark.py::TestMark::test_pytest_exists_in_namespace_all[py.test-mark]",
+      "testing/test_mark.py::TestMark::test_pytest_exists_in_namespace_all[py.test-param]",
+      "testing/test_mark.py::TestMark::test_pytest_exists_in_namespace_all[pytest-mark]",
+      "testing/test_mark.py::TestMark::test_pytest_exists_in_namespace_all[pytest-param]",
+      "testing/test_mark.py::TestMark::test_pytest_mark_notcallable",
+      "testing/test_mark.py::TestMark::test_mark_with_param",
+      "testing/test_mark.py::TestMark::test_pytest_mark_name_starts_with_underscore",
+      "testing/test_mark.py::TestMarkDecorator::test__eq__[lhs0-rhs0-True]",
+      "testing/test_mark.py::TestMarkDecorator::test__eq__[lhs1-rhs1-False]",
+      "testing/test_mark.py::TestMarkDecorator::test__eq__[lhs2-bar-False]",
+      "testing/test_mark.py::TestMarkDecorator::test__eq__[foo-rhs3-False]",
+      "testing/test_mark.py::TestMarkDecorator::test_aliases",
+      "testing/test_mark.py::test_addmarker_order",
+      "testing/test_mark.py::test_pytest_param_id_requires_string",
+      "testing/test_mark.py::test_pytest_param_id_allows_none_or_string[None]",
+      "testing/test_mark.py::test_pytest_param_id_allows_none_or_string[hello",
+      "testing/test_mark.py::test_marked_class_run_twice",
+      "testing/test_mark.py::test_ini_markers",
+      "testing/test_mark.py::test_markers_option",
+      "testing/test_mark.py::test_ini_markers_whitespace",
+      "testing/test_mark.py::test_marker_without_description",
+      "testing/test_mark.py::test_markers_option_with_plugin_in_current_dir",
+      "testing/test_mark.py::test_mark_on_pseudo_function",
+      "testing/test_mark.py::test_strict_prohibits_unregistered_markers[--strict-markers]",
+      "testing/test_mark.py::test_strict_prohibits_unregistered_markers[--strict]",
+      "testing/test_mark.py::test_mark_option[xyz-expected_passed0]",
+      "testing/test_mark.py::test_mark_option[(((",
+      "testing/test_mark.py::test_mark_option[not",
+      "testing/test_mark.py::test_mark_option[xyz",
+      "testing/test_mark.py::test_mark_option[xyz2-expected_passed4]",
+      "testing/test_mark.py::test_mark_option_custom[interface-expected_passed0]",
+      "testing/test_mark.py::test_mark_option_custom[not",
+      "testing/test_mark.py::test_keyword_option_custom[interface-expected_passed0]",
+      "testing/test_mark.py::test_keyword_option_custom[not",
+      "testing/test_mark.py::test_keyword_option_custom[pass-expected_passed2]",
+      "testing/test_mark.py::test_keyword_option_custom[1",
+      "testing/test_mark.py::test_keyword_option_considers_mark",
+      "testing/test_mark.py::test_keyword_option_parametrize[None-expected_passed0]",
+      "testing/test_mark.py::test_keyword_option_parametrize[[1.3]-expected_passed1]",
+      "testing/test_mark.py::test_keyword_option_parametrize[2-3-expected_passed2]",
+      "testing/test_mark.py::test_parametrize_with_module",
+      "testing/test_mark.py::test_keyword_option_wrong_arguments[foo",
+      "testing/test_mark.py::test_keyword_option_wrong_arguments[(foo-at",
+      "testing/test_mark.py::test_keyword_option_wrong_arguments[or",
+      "testing/test_mark.py::test_keyword_option_wrong_arguments[not",
+      "testing/test_mark.py::test_parametrized_collected_from_command_line",
+      "testing/test_mark.py::test_parametrized_collect_with_wrong_args",
+      "testing/test_mark.py::test_parametrized_with_kwargs",
+      "testing/test_mark.py::test_parametrize_iterator",
+      "testing/test_mark.py::TestFunctional::test_merging_markers_deep",
+      "testing/test_mark.py::TestFunctional::test_mark_decorator_subclass_does_not_propagate_to_base",
+      "testing/test_mark.py::TestFunctional::test_mark_should_not_pass_to_siebling_class",
+      "testing/test_mark.py::TestFunctional::test_mark_decorator_baseclasses_merged",
+      "testing/test_mark.py::TestFunctional::test_mark_closest",
+      "testing/test_mark.py::TestFunctional::test_mark_with_wrong_marker",
+      "testing/test_mark.py::TestFunctional::test_mark_dynamically_in_funcarg",
+      "testing/test_mark.py::TestFunctional::test_no_marker_match_on_unmarked_names",
+      "testing/test_mark.py::TestFunctional::test_keywords_at_node_level",
+      "testing/test_mark.py::TestFunctional::test_keyword_added_for_session",
+      "testing/test_mark.py::TestFunctional::test_mark_from_parameters",
+      "testing/test_mark.py::TestKeywordSelection::test_select_simple",
+      "testing/test_mark.py::TestKeywordSelection::test_select_extra_keywords[xxx]",
+      "testing/test_mark.py::TestKeywordSelection::test_select_extra_keywords[xxx",
+      "testing/test_mark.py::TestKeywordSelection::test_select_extra_keywords[TestClass]",
+      "testing/test_mark.py::TestKeywordSelection::test_select_extra_keywords[TestClass",
+      "testing/test_mark.py::TestKeywordSelection::test_select_starton",
+      "testing/test_mark.py::TestKeywordSelection::test_keyword_extra",
+      "testing/test_mark.py::TestKeywordSelection::test_no_magic_values[__]",
+      "testing/test_mark.py::TestKeywordSelection::test_no_magic_values[+]",
+      "testing/test_mark.py::TestKeywordSelection::test_no_magic_values[..]",
+      "testing/test_mark.py::TestKeywordSelection::test_no_match_directories_outside_the_suite",
+      "testing/test_mark.py::test_parameterset_for_parametrize_marks[None]",
+      "testing/test_mark.py::test_parameterset_for_parametrize_marks[]",
+      "testing/test_mark.py::test_parameterset_for_parametrize_marks[skip]",
+      "testing/test_mark.py::test_parameterset_for_parametrize_marks[xfail]",
+      "testing/test_mark.py::test_parameterset_for_fail_at_collect",
+      "testing/test_mark.py::test_parameterset_for_parametrize_bad_markname",
+      "testing/test_mark.py::test_mark_expressions_no_smear",
+      "testing/test_mark.py::test_markers_from_parametrize",
+      "testing/test_mark.py::test_marker_expr_eval_failure_handling[NOT",
+      "testing/test_mark.py::test_marker_expr_eval_failure_handling[bogus/]"
+    ],
+    "pass_to_pass_failure": [],
+    "infra_failure": false,
+    "error": "",
+    "run_id": "eval_1793631623"
+  },
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "PytestPluginManager",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

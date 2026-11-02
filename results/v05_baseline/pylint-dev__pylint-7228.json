@@ -1,0 +1,23 @@
+{
+  "instance_id": "pylint-dev__pylint-7228",
+  "repo": "pylint-dev",
+  "status": "ERROR",
+  "error": "'charmap' codec can't encode character '\\u4e00' in position 229: character maps to <undefined>",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": false,
+  "patch_tier": null,
+  "patch_text": "",
+  "test_executed": false,
+  "failure_class": "INFRA_FAILURE",
+  "runtime_s": 55.08,
+  "f2p_passed": 0,
+  "f2p_total": 0,
+  "p2p_passed": 0,
+  "p2p_total": 0,
+  "refinement_cycles": 0,
+  "target_file": "",
+  "target_symbol": "",
+  "telemetry": {},
+  "test_summary": {}
+}

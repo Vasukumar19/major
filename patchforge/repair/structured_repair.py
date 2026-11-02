@@ -56,12 +56,41 @@ class StructuredRepairPromptBuilder:
         contract_spec: str = "",
         requirement_matrix_spec: str = "",
         error_feedback: str = "",
+        residual_guidance: str = "",
+        prior_patch_code: str = "",
     ) -> str:
         """Constructs a compact, structured Tier 1 repair prompt."""
         feedback_sec = ""
         if error_feedback:
             feedback_sec = f"""### PREVIOUS REPAIR ATTEMPT FEEDBACK (CRITICAL - YOU MUST FIX THIS):
 {error_feedback}
+
+"""
+            if any(k in error_feedback.lower() for k in ["no-op", "no changes produced", "identical"]):
+                feedback_sec += f"""### CONTRASTIVE REPAIR INVARIANT (NO-OP REJECTION):
+The previous candidate was rejected because it produced zero changes against the original code.
+Original Code:
+```python
+{unit.source_text}
+```
+You MUST modify this code to resolve the defect. Emitting identical code is strictly prohibited.
+
+"""
+
+        residual_sec = ""
+        if residual_guidance:
+            residual_sec = f"""### RESIDUAL BEHAVIORAL REPAIR GUIDANCE:
+{residual_guidance}
+
+"""
+
+        prior_patch_sec = ""
+        if prior_patch_code:
+            prior_patch_sec = f"""### PRIOR PARTIALLY WORKING REPLACEMENT:
+```python
+{prior_patch_code}
+```
+INSTRUCTION: The code above successfully passed verified assertions. Make ONLY the minimal surgical adjustment necessary to resolve the residual failure while preserving the passing behavior.
 
 """
 
@@ -113,7 +142,7 @@ Repair Strategy: {diagnosis.repair_strategy}
 
         canonical_action = UNIT_CANONICAL_ACTIONS.get(unit.unit_type, RepairAction.REPLACE_STATEMENT).value
 
-        prompt = f"""{feedback_sec}{issue_sec}
+        prompt = f"""{feedback_sec}{residual_sec}{prior_patch_sec}{issue_sec}
 {contract_sec}{req_sec}{diag_sec}
 {graph_sec}
 ### REPAIR TARGET:
@@ -132,14 +161,15 @@ Target Lines: {unit.start_line} to {unit.end_line}
 ```
 
 ### MANDATORY IMPLEMENTATION RULES:
-1. If CONTRACT SPECIFICATION specifies required parameter(s), you MUST update the definition signature to include them with default values (e.g. `def {unit.symbol}(..., <param>=<default>):`).
-2. If REJECTED/FORBIDDEN PARAMETERS are specified, do NOT introduce them under any circumstances.
-3. Adhere strictly to the BEHAVIORAL DIAGNOSIS repair strategy and invariants.
+1. Make the smallest behaviorally justified change that resolves the diagnosed defect.
+2. Respect the supplied AST repair unit boundaries: modify only the code necessary within this target.
+3. Preserve existing public APIs and behavioral contracts unless the issue explicitly specifies otherwise.
 4. Maintain exact indentation matching the target code unit.
-5. In streaming response generators or iter_content, any low-level socket, protocol, or stream errors (such as socket.error / OSError / IncompleteRead) must be caught and raised as corresponding Requests exceptions (e.g. `requests.exceptions.ConnectionError`, `ChunkedEncodingError`, or `ContentDecodingError`). Ensure all exception types used (like `socket`) are imported or available.
-6. When preparing HTTP method strings (e.g. in `prepare_method` or `request`), support byte strings by converting them to native string before normalization (e.g. `if isinstance(method, bytes): method = method.decode('utf-8')` or `to_native_string(method)`), ensuring methods like `b'GET'` normalize cleanly to `'GET'`.
-7. In redirect loops (e.g. resolve_redirects), ensure the loop state updates the base request reference (e.g. `req = prepared_request`) before invoking send/yielding, so successive redirect hops and callers receive the mutated request rather than the stale original request. Purge body and Content-Length/Type when switching POST to GET.
-8. When displaying or printing fixture scopes (e.g. with `--fixtures`), show the scope tag (e.g. `[<scope>]` or `(scope: <scope>)`) for non-standard or user-visible scopes, but filter out or format the default function scope as specified by the issue requirements.
+5. If CONTRACT SPECIFICATION specifies required parameter(s), update the definition signature to include them with default values (e.g. `def {unit.symbol}(..., <param>=<default>):`).
+6. If REJECTED/FORBIDDEN PARAMETERS are specified, do NOT introduce them under any circumstances.
+7. Adhere strictly to the BEHAVIORAL DIAGNOSIS repair strategy and invariants.
+8. Avoid speculative imports or unrelated alterations to surrounding logic.
+9. Do not emit a no-op replacement (your replacement MUST modify the target code to apply the fix).
 
 ---
 ### REQUIRED OUTPUT FORMAT:
@@ -159,12 +189,31 @@ Note: Ensure inner quotes in the replacement string are escaped as \\\" or use s
         return prompt
 
     @staticmethod
-    def build_minimal_prompt(unit: RepairUnit, error_feedback: str = "") -> str:
-        """Constructs a Tier 2 minimal target-bound prompt."""
+    def build_minimal_prompt(
+        unit: RepairUnit,
+        error_feedback: str = "",
+        problem_statement: str = "",
+        diagnosis_summary: str = "",
+        prior_patch_code: str = "",
+    ) -> str:
+        """Constructs a Tier 2 minimal target-bound prompt while preserving necessary context."""
         feedback_sec = f"\n[PREVIOUS ATTEMPT ERROR]: {error_feedback}\n" if error_feedback else ""
+        if error_feedback and any(k in error_feedback.lower() for k in ["no-op", "no changes produced", "identical"]):
+            feedback_sec += (
+                "\n[CONTRASTIVE REPAIR INVARIANT (NO-OP REJECTION)]:\n"
+                "Your previous candidate was rejected because it produced zero changes against the original code.\n"
+                "You MUST modify the target code to resolve the defect. Returning identical code is prohibited.\n"
+            )
+
+        problem_sec = f"\n[PROBLEM TO RESOLVE]:\n{problem_statement[:800]}\n" if problem_statement else ""
+        diag_sec = f"\n[DIAGNOSED ROOT CAUSE]:\n{diagnosis_summary[:400]}\n" if diagnosis_summary else ""
+        prior_sec = (
+            f"\n[PRIOR PARTIAL REPLACEMENT]:\n```python\n{prior_patch_code}\n```\n"
+            if prior_patch_code else ""
+        )
         canonical_action = UNIT_CANONICAL_ACTIONS.get(unit.unit_type, RepairAction.REPLACE_STATEMENT).value
 
-        return f"""{feedback_sec}
+        return f"""{feedback_sec}{problem_sec}{diag_sec}{prior_sec}
 You are repairing a specific verified code target.
 Target ID: {unit.id}
 Target Symbol: {unit.symbol} ({unit.unit_type.value})
@@ -186,11 +235,30 @@ Do NOT output commentary, diff markers, or explanations.
 """
 
     @staticmethod
-    def build_replacement_only_prompt(unit: RepairUnit, error_feedback: str = "") -> str:
-        """Constructs a Tier 3 replacement-only prompt."""
+    def build_replacement_only_prompt(
+        unit: RepairUnit,
+        error_feedback: str = "",
+        problem_statement: str = "",
+        diagnosis_summary: str = "",
+        prior_patch_code: str = "",
+    ) -> str:
+        """Constructs a Tier 3 replacement-only prompt while preserving necessary context."""
         feedback_sec = f"\n[PREVIOUS ATTEMPT ERROR]: {error_feedback}\n" if error_feedback else ""
+        if error_feedback and any(k in error_feedback.lower() for k in ["no-op", "no changes produced", "identical"]):
+            feedback_sec += (
+                "\n[CONTRASTIVE REPAIR INVARIANT (NO-OP REJECTION)]:\n"
+                "Your previous candidate was rejected because it produced zero changes against the original code.\n"
+                "You MUST modify the target code to resolve the defect. Returning identical code is prohibited.\n"
+            )
 
-        return f"""{feedback_sec}
+        problem_sec = f"\n[PROBLEM TO RESOLVE]:\n{problem_statement[:800]}\n" if problem_statement else ""
+        diag_sec = f"\n[DIAGNOSED ROOT CAUSE]:\n{diagnosis_summary[:400]}\n" if diagnosis_summary else ""
+        prior_sec = (
+            f"\n[PRIOR PARTIAL REPLACEMENT]:\n```python\n{prior_patch_code}\n```\n"
+            if prior_patch_code else ""
+        )
+
+        return f"""{feedback_sec}{problem_sec}{diag_sec}{prior_sec}
 Return ONLY the modified replacement Python code for the target code unit below.
 Target ID: {unit.id}
 Type: {unit.unit_type.value}
@@ -498,8 +566,110 @@ class StructuredRepairParser:
         return res
 
     @staticmethod
+    def _sanitize_json_escapes(s: str) -> str:
+        """Scans JSON text and safely escapes invalid backslash escape sequences and literal newlines in strings."""
+        out = []
+        i = 0
+        n = len(s)
+        in_string = False
+        valid_escapes = {'"', '\\', '/', 'b', 'f', 'n', 'r', 't'}
+
+        while i < n:
+            c = s[i]
+            if not in_string:
+                if c == '"':
+                    in_string = True
+                out.append(c)
+                i += 1
+            else:
+                # Inside a JSON string literal
+                if c == '"':
+                    in_string = False
+                    out.append(c)
+                    i += 1
+                elif c == '\\':
+                    if i + 1 < n:
+                        nxt = s[i + 1]
+                        if nxt in valid_escapes:
+                            out.append('\\' + nxt)
+                            i += 2
+                        elif nxt == 'u' and i + 5 < n and all(ch in '0123456789abcdefABCDEF' for ch in s[i+2:i+6]):
+                            out.append(s[i:i+6])
+                            i += 6
+                        else:
+                            # Invalid escape sequence like \d, \s, \w, or line continuation \ before \n
+                            out.append('\\\\')
+                            i += 1
+                    else:
+                        out.append('\\\\')
+                        i += 1
+                elif c == '\n':
+                    out.append('\\n')
+                    i += 1
+                elif c == '\r':
+                    out.append('\\r')
+                    i += 1
+                elif c == '\t':
+                    out.append('\\t')
+                    i += 1
+                else:
+                    out.append(c)
+                    i += 1
+        return "".join(out)
+
+    @staticmethod
+    def _repair_replacement_content(rep_content: str) -> str:
+        """Repairs unescaped inner quotes and invalid escapes inside replacement snippet."""
+        out = []
+        i = 0
+        n = len(rep_content)
+        valid_escapes = {'"', '\\', '/', 'b', 'f', 'n', 'r', 't'}
+
+        while i < n:
+            c = rep_content[i]
+            if c == '"':
+                num_slashes = 0
+                j = i - 1
+                while j >= 0 and rep_content[j] == '\\':
+                    num_slashes += 1
+                    j -= 1
+                if num_slashes % 2 == 0:
+                    out.append('\\"')
+                else:
+                    out.append('"')
+                i += 1
+            elif c == '\\':
+                if i + 1 < n:
+                    nxt = rep_content[i + 1]
+                    if nxt in valid_escapes:
+                        out.append('\\' + nxt)
+                        i += 2
+                    elif nxt == 'u' and i + 5 < n and all(ch in '0123456789abcdefABCDEF' for ch in rep_content[i+2:i+6]):
+                        out.append(rep_content[i:i+6])
+                        i += 6
+                    else:
+                        out.append('\\\\')
+                        i += 1
+                else:
+                    out.append('\\\\')
+                    i += 1
+            elif c == '\n':
+                out.append('\\n')
+                i += 1
+            elif c == '\r':
+                out.append('\\r')
+                i += 1
+            elif c == '\t':
+                out.append('\\t')
+                i += 1
+            else:
+                out.append(c)
+                i += 1
+        return "".join(out)
+
+    @staticmethod
     def _repair_and_extract_json(text: str) -> Optional[Dict[str, Any]]:
-        """Repairs JSON with unescaped docstrings or quotes in the replacement field."""
+        """Repairs JSON with unescaped docstrings, unescaped regexes, or quotes in the replacement field."""
         start_b = text.find("{")
         end_b = text.rfind("}")
         if start_b == -1 or end_b <= start_b:
@@ -507,48 +677,46 @@ class StructuredRepairParser:
 
         candidate = text[start_b : end_b + 1]
 
+        # 1. Direct parse
+        try:
+            return json.loads(candidate)
+        except Exception:
+            pass
+
+        # 2. Trailing comma cleanup
+        candidate_no_commas = re.sub(r",\s*([\]}])", r"\1", candidate)
+        try:
+            return json.loads(candidate_no_commas)
+        except Exception:
+            pass
+
+        # 3. Whole-JSON escape scanner (sanitizes unescaped \d, \s, \w, line continuations, and literal newlines in strings)
+        try:
+            sanitized = StructuredRepairParser._sanitize_json_escapes(candidate_no_commas)
+            return json.loads(sanitized)
+        except Exception:
+            pass
+
+        # 4. Replacement boundary regex with inner quote and escape repair
         pattern = re.compile(
             r'("replacement"\s*:\s*")(.*?)("\s*,\s*"(?:reasoning|invariant|confidence|sub_edits)"|"\s*\})',
             re.DOTALL,
         )
-        match = pattern.search(candidate)
+        match = pattern.search(candidate_no_commas)
         if match:
-            prefix = candidate[: match.start(2)]
+            prefix = candidate_no_commas[: match.start(2)]
             rep_content = match.group(2)
-            suffix = candidate[match.end(2) :]
+            suffix = candidate_no_commas[match.end(2) :]
 
-            escaped_rep = []
-            i = 0
-            while i < len(rep_content):
-                c = rep_content[i]
-                if c == '"':
-                    num_slashes = 0
-                    j = i - 1
-                    while j >= 0 and rep_content[j] == "\\":
-                        num_slashes += 1
-                        j -= 1
-                    if num_slashes % 2 == 0:
-                        escaped_rep.append('\\"')
-                    else:
-                        escaped_rep.append('"')
-                elif c == "\n":
-                    escaped_rep.append("\\n")
-                elif c == "\r":
-                    escaped_rep.append("\\r")
-                elif c == "\t":
-                    escaped_rep.append("\\t")
-                else:
-                    escaped_rep.append(c)
-                i += 1
-
-            repaired_candidate = prefix + "".join(escaped_rep) + suffix
+            repaired_rep = StructuredRepairParser._repair_replacement_content(rep_content)
+            repaired_candidate = prefix + repaired_rep + suffix
             repaired_candidate = re.sub(r",\s*([\]}])", r"\1", repaired_candidate)
             try:
                 return json.loads(repaired_candidate)
             except Exception:
                 pass
 
-        # Regex key-value extraction fallback
+        # 5. Regex key-value extraction fallback
         result = {}
         action_m = re.search(r'"repair_action"\s*:\s*"([^"]+)"', text)
         if action_m:
@@ -569,14 +737,13 @@ class StructuredRepairParser:
         )
         if rep_m:
             raw_rep = rep_m.group(1)
+            repaired_rep = StructuredRepairParser._repair_replacement_content(raw_rep)
             try:
-                cleaned = raw_rep.encode("utf-8").decode("unicode_escape", errors="replace")
+                result["replacement"] = json.loads(f'"{repaired_rep}"')
             except Exception:
-                cleaned = raw_rep.replace('\\"', '"').replace("\\n", "\n")
-            result["replacement"] = cleaned
-            return result
+                result["replacement"] = raw_rep
 
-        return None
+        return result if result else None
 
     @staticmethod
     def _clean_code(code: str) -> str:

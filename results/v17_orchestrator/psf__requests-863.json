@@ -1,0 +1,487 @@
+{
+  "instance_id": "psf__requests-863",
+  "repo": "psf/requests",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "2ad20c8826cd40eb",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "fd93b90085410112",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "256217bb2bc62feb",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "b6687cafe3958613",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": false,
+  "patch_tier": null,
+  "patch_text": "",
+  "test_executed": false,
+  "failure_class": "UNRESOLVED",
+  "runtime_s": 1016.36,
+  "f2p_passed": 0,
+  "f2p_total": 0,
+  "p2p_passed": 0,
+  "p2p_total": 0,
+  "refinement_cycles": 3,
+  "target_file": "requests/models.py",
+  "target_symbol": "send",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "requests/models.py:send"
+    ],
+    "selected_target": "requests/models.py:send",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'requests/models.py:send'.",
+    "target_unjustified": true,
+    "target_changes": []
+  },
+  "generation_attempted": true,
+  "structurally_valid": false,
+  "submitted_to_harness": false,
+  "test_time_s": 0.0,
+  "generation_time_s": 880.1220000000001,
+  "reconstruction_time_s": 0.0,
+  "indexing_time_s": 1.922,
+  "retrieval_diagnosis_time_s": 133.803,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.0,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "256217bb2bc62feb",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "psf__requests-2148",
+      "psf__requests-2674"
+    ],
+    "exemplars_included_in_prompt": [
+      "psf__requests-2148",
+      "psf__requests-2674"
+    ],
+    "prompt_included_episode_ids": [
+      "psf__requests-2148",
+      "psf__requests-2674"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "psf__requests-863",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The `send` method in `requests/models.py` is overwriting state variables and mutating attributes, leading to potential inconsistencies in the request handling process.",
+    "invariant": "Preserve backward compatibility by ensuring that the `send` method does not alter state variables or attributes in a way that breaks existing callers.",
+    "repair_strategy": "Refactor the `send` method to avoid overwriting state variables and mutating attributes. Introduce local variables to store intermediate results and ensure that the method does not modify the state of the object in unexpected ways.",
+    "affected_sites": [
+      "requests/models.py:send"
+    ],
+    "defect_confidence": 0.75,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 0,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The `send` method in `requests/models.py` is overwriting state variables and mutating attributes, leading to potential inconsistencies in the request handling process.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The `send` method should not alter the state of the object in unexpected ways.",
+          "expected_mutations": [
+            "Avoid overwriting state variables and mutating attributes"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "State variables or attributes being altered in unexpected ways"
+          ],
+          "discriminating_variable": "State variable or attribute modifications",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility by ensuring that the `send` method does not alter state variables or attributes in a way that breaks existing callers.",
+        "repair_strategy": "Refactor the `send` method to avoid overwriting state variables and mutating attributes. Introduce local variables to store intermediate results and ensure that the method does not modify the state of the object in unexpected ways.",
+        "affected_sites": [
+          "requests/models.py:send"
+        ],
+        "supporting_evidence": [
+          "E11 | STATE_FLOW: `send` overwrites state variables: body, cert_loc, conn, conn.ca_certs, conn.cert_file, conn.cert_reqs, content_type, r, self.auth.",
+          "E12 | STATE_FLOW: `send` mutates attributes/containers: conn.ca_certs, conn.cert_file, conn.cert_reqs, conn.key_file, self.auth, self.headers['Connection'], self.headers['Content-Type'], self.headers['Cookie'], self.proxy_auth, self.response, self.sent."
+        ],
+        "contradicting_evidence": [],
+        "supporting_facts": [
+          "E11 | STATE_FLOW: `send` overwrites state variables: body, cert_loc, conn, conn.ca_certs, conn.cert_file, conn.cert_reqs, content_type, r, self.auth.",
+          "E12 | STATE_FLOW: `send` mutates attributes/containers: conn.ca_certs, conn.cert_file, conn.cert_reqs, conn.key_file, self.auth, self.headers['Connection'], self.headers['Content-Type'], self.headers['Cookie'], self.proxy_auth, self.response, self.sent."
+        ],
+        "contradicting_facts": [],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 75.0
+      },
+      {
+        "id": "B",
+        "cause": "The `request` method in `requests/sessions.py` is overwriting state variables and mutating attributes, leading to potential inconsistencies in the request handling process.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The `request` method should not alter the state of the object in unexpected ways.",
+          "expected_mutations": [
+            "Avoid overwriting state variables and mutating attributes"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "State variables or attributes being altered in unexpected ways"
+          ],
+          "discriminating_variable": "State variable or attribute modifications",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility by ensuring that the `request` method does not alter state variables or attributes in a way that breaks existing callers.",
+        "repair_strategy": "Refactor the `request` method to avoid overwriting state variables and mutating attributes. Introduce local variables to store intermediate results and ensure that the method does not modify the state of the object in unexpected ways.",
+        "affected_sites": [
+          "requests/sessions.py:request"
+        ],
+        "supporting_evidence": [
+          "E7 | STATE_FLOW: `request` overwrites state variables: args, dead_cookies.",
+          "E8 | STATE_FLOW: `request` mutates attributes/containers: args['cookies'], args[attr], headers[k], r.session."
+        ],
+        "contradicting_evidence": [
+          "Target 'requests/sessions.py:request' is GLOBAL_INFRASTRUCTURE with 1 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "E7 | STATE_FLOW: `request` overwrites state variables: args, dead_cookies.",
+          "E8 | STATE_FLOW: `request` mutates attributes/containers: args['cookies'], args[attr], headers[k], r.session."
+        ],
+        "contradicting_facts": [],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.7,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 45.0
+      }
+    ],
+    "repair_sites": [
+      "requests/models.py:send"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "strategy": "strict_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 2,
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 3,
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    }
+  ],
+  "repair_unit": {
+    "id": "requests/models.py::send::METHOD::479-662",
+    "file_path": "requests/models.py",
+    "symbol": "send",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 479,
+    "end_line": 662,
+    "start_col": 4,
+    "end_col": 28,
+    "source_text": "    def send(self, anyway=False, prefetch=None):\n        \"\"\"Sends the request. Returns True if successful, False if not.\n        If there was an HTTPError during transmission,\n        self.response.status_code will contain the HTTPError code.\n\n        Once a request is successfully sent, `sent` will equal True.\n\n        :param anyway: If True, request will be sent, even if it has\n        already been sent.\n\n        :param prefetch: If not None, will override the request's own setting\n        for prefetch.\n        \"\"\"\n\n        # Build the URL\n        url = self.full_url\n\n        # Pre-request hook.\n        r = dispatch_hook('pre_request', self.hooks, self)\n        self.__dict__.update(r.__dict__)\n\n        # Logging\n        if self.config.get('verbose'):\n            self.config.get('verbose').write('%s   %s   %s\\n' % (\n                datetime.now().isoformat(), self.method, url\n            ))\n\n        # Use .netrc auth if none was provided.\n        if not self.auth and self.config.get('trust_env'):\n            self.auth = get_netrc_auth(url)\n\n        if self.auth:\n            if isinstance(self.auth, tuple) and len(self.auth) == 2:\n                # special-case basic HTTP auth\n                self.auth = HTTPBasicAuth(*self.auth)\n\n            # Allow auth to make its changes.\n            r = self.auth(self)\n\n            # Update self to reflect the auth changes.\n            self.__dict__.update(r.__dict__)\n\n        # Nottin' on you.\n        body = None\n        content_type = None\n\n        # Multi-part file uploads.\n        if self.files:\n            (body, content_type) = self._encode_files(self.files)\n        else:\n            if self.data:\n\n                body = self._encode_params(self.data)\n                if isinstance(self.data, str) or isinstance(self.data, builtin_str) or hasattr(self.data, 'read'):\n                    content_type = None\n                else:\n                    content_type = 'application/x-www-form-urlencoded'\n\n        # Add content-type if it wasn't explicitly provided.\n        if (content_type) and (not 'content-type' in self.headers):\n            self.headers['Content-Type'] = content_type\n\n        _p = urlparse(url)\n        no_proxy = filter(lambda x: x.strip(), self.proxies.get('no', '').split(','))\n        proxy = self.proxies.get(_p.scheme)\n\n        if proxy and not any(map(_p.hostname.endswith, no_proxy)):\n            conn = poolmanager.proxy_from_url(proxy)\n            _proxy = urlparse(proxy)\n            if '@' in _proxy.netloc:\n                auth, url = _proxy.netloc.split('@', 1)\n                self.proxy_auth = HTTPProxyAuth(*auth.split(':', 1))\n                r = self.proxy_auth(self)\n                self.__dict__.update(r.__dict__)\n        else:\n            # Check to see if keep_alive is allowed.\n            try:\n                if self.config.get('keep_alive'):\n                    conn = self._poolmanager.connection_from_url(url)\n                else:\n                    conn = connectionpool.connection_from_url(url)\n                    self.headers['Connection'] = 'close'\n            except LocationParseError as e:\n                raise InvalidURL(e)\n\n        if url.startswith('https') and self.verify:\n\n            cert_loc = None\n\n            # Allow self-specified cert location.\n            if self.verify is not True:\n                cert_loc = self.verify\n\n            # Look for configuration.\n            if not cert_loc and self.config.get('trust_env'):\n                cert_loc = os.environ.get('REQUESTS_CA_BUNDLE')\n\n            # Curl compatibility.\n            if not cert_loc and self.config.get('trust_env'):\n                cert_loc = os.environ.get('CURL_CA_BUNDLE')\n\n            if not cert_loc:\n                cert_loc = DEFAULT_CA_BUNDLE_PATH\n\n            if not cert_loc:\n                raise Exception(\"Could not find a suitable SSL CA certificate bundle.\")\n\n            conn.cert_reqs = 'CERT_REQUIRED'\n            conn.ca_certs = cert_loc\n        else:\n            conn.cert_reqs = 'CERT_NONE'\n            conn.ca_certs = None\n\n        if self.cert:\n            if len(self.cert) == 2:\n                conn.cert_file = self.cert[0]\n                conn.key_file = self.cert[1]\n            else:\n                conn.cert_file = self.cert\n\n        if not self.sent or anyway:\n\n            # Skip if 'cookie' header is explicitly set.\n            if 'cookie' not in self.headers:\n                cookie_header = get_cookie_header(self.cookies, self)\n                if cookie_header is not None:\n                    self.headers['Cookie'] = cookie_header\n\n            # Pre-send hook.\n            r = dispatch_hook('pre_send', self.hooks, self)\n            self.__dict__.update(r.__dict__)\n\n            # catch urllib3 exceptions and throw Requests exceptions\n            try:\n                # Send the request.\n                r = conn.urlopen(\n                    method=self.method,\n                    url=self.path_url,\n                    body=body,\n                    headers=self.headers,\n                    redirect=False,\n                    assert_same_host=False,\n                    preload_content=False,\n                    decode_content=False,\n                    retries=self.config.get('max_retries', 0),\n                    timeout=self.timeout,\n                )\n                self.sent = True\n\n            except socket.error as sockerr:\n                raise ConnectionError(sockerr)\n\n            except MaxRetryError as e:\n                raise ConnectionError(e)\n\n            except (_SSLError, _HTTPError) as e:\n                if isinstance(e, _SSLError):\n                    raise SSLError(e)\n                elif isinstance(e, TimeoutError):\n                    raise Timeout(e)\n                else:\n                    raise Timeout('Request timed out.')\n\n            # build_response can throw TooManyRedirects\n            self._build_response(r)\n\n            # Response manipulation hook.\n            self.response = dispatch_hook('response', self.hooks, self.response)\n\n            # Post-request hook.\n            r = dispatch_hook('post_request', self.hooks, self)\n            self.__dict__.update(r.__dict__)\n\n            # If prefetch is True, mark content as consumed.\n            if prefetch is None:\n                prefetch = self.prefetch\n            if prefetch:\n                # Save the response.\n                self.response.content\n\n            if self.config.get('danger_mode'):\n                self.response.raise_for_status()\n\n            return self.sent\n",
+    "parent_symbol": "Request",
+    "indentation": "    ",
+    "role": "PRIMARY",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "requests/models.py",
+      "symbol": "send",
+      "role": "PRIMARY",
+      "score": 220.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'send' (+80)",
+        "Symbol matches issue keywords ['send'] (+10)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 178 test(s) (+15)"
+      ],
+      "line_start": 479,
+      "line_end": 662,
+      "unrelated_callers_count": 2,
+      "in_failing_traceback": false,
+      "semantic_radius": 184,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/models.py",
+      "symbol": "Request",
+      "role": "PRIMARY",
+      "score": 140.0,
+      "reasons": [
+        "Symbol 'Request' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['request'] (+10)",
+        "Located in primary localized file (+15)",
+        "Compact code span (4 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 267 test(s) (+15)"
+      ],
+      "line_start": 463,
+      "line_end": 466,
+      "unrelated_callers_count": 3,
+      "in_failing_traceback": false,
+      "semantic_radius": 4,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/sessions.py",
+      "symbol": "request",
+      "role": "PRIMARY",
+      "score": 115.0,
+      "reasons": [
+        "Symbol 'request' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['request'] (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 356 test(s) (+15)"
+      ],
+      "line_start": 121,
+      "line_end": 244,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 124,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/api.py",
+      "symbol": "request",
+      "role": "PRIMARY",
+      "score": 115.0,
+      "reasons": [
+        "Symbol 'request' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['request'] (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 356 test(s) (+15)"
+      ],
+      "line_start": 19,
+      "line_end": 54,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 36,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/models.py",
+      "symbol": "_encode_files",
+      "role": "PRIMARY",
+      "score": 50.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 89 test(s) (+15)"
+      ],
+      "line_start": 345,
+      "line_end": 382,
+      "unrelated_callers_count": 1,
+      "in_failing_traceback": false,
+      "semantic_radius": 38,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/auth.py",
+      "symbol": "HTTPDigestAuth",
+      "role": "PRIMARY",
+      "score": 45.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Compact code span (6 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 178 test(s) (+15)"
+      ],
+      "line_start": 148,
+      "line_end": 153,
+      "unrelated_callers_count": 2,
+      "in_failing_traceback": false,
+      "semantic_radius": 6,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {},
+  "telemetry": {
+    "task_id": "psf__requests-863",
+    "total_wall_s": 1016.36,
+    "llm_time_s": 0.0,
+    "test_time_s": 0.0,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 1.922,
+    "retrieval_diagnosis_time_s": 133.803,
+    "probing_time_s": null,
+    "generation_time_s": 880.122,
+    "reconstruction_time_s": 0.0,
+    "static_validation_time_s": 0.0,
+    "replanning_time_s": 0.0,
+    "runtime_s": 1016.36
+  },
+  "test_summary": {},
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "send",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

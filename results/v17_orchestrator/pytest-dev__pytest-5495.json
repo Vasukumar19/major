@@ -1,0 +1,639 @@
+{
+  "instance_id": "pytest-dev__pytest-5495",
+  "repo": "pytest-dev/pytest",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "2ad20c8826cd40eb",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "fd93b90085410112",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "256217bb2bc62feb",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "b6687cafe3958613",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": true,
+  "patch_tier": "AST_GROUNDED",
+  "patch_text": "diff --git a/src/_pytest/pytester.py b/src/_pytest/pytester.py\nindex 2068761fa..3dac94fdf 100644\n--- a/src/_pytest/pytester.py\n+++ b/src/_pytest/pytester.py\n@@ -53,6 +53,14 @@ def pytest_addoption(parser):\n         \"pytester_example_dir\", help=\"directory to take the pytester example files from\"\n     )\n \n+    # Fix: Ensure the new option is correctly added and does not interfere with existing functionality\n+    parser.addoption(\n+        \"--newoption\",\n+        default=None,\n+        dest=\"newoption\",\n+        help=\"new option added for demonstration purposes\",\n+    )\n+\n \n def pytest_configure(config):\n     if config.getvalue(\"lsof\"):\n",
+  "test_executed": true,
+  "failure_class": "WRONG_HYPOTHESIS",
+  "runtime_s": 397.44,
+  "f2p_passed": 0,
+  "f2p_total": 2,
+  "p2p_passed": 86,
+  "p2p_total": 86,
+  "refinement_cycles": 3,
+  "target_file": "src/_pytest/pytester.py",
+  "target_symbol": "207",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "src/_pytest/pytester.py:207"
+    ],
+    "selected_target": "src/_pytest/pytester.py:207",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'src/_pytest/pytester.py:207'.",
+    "target_unjustified": true,
+    "target_changes": [
+      {
+        "switched_to_hypothesis": "B",
+        "target": "src/_pytest/pytester.py:207",
+        "justification": "Target matches hypothesized affected site 'src/_pytest/pytester.py:207'."
+      }
+    ]
+  },
+  "generation_attempted": true,
+  "structurally_valid": true,
+  "submitted_to_harness": true,
+  "test_time_s": 96.845,
+  "generation_time_s": 135.246,
+  "reconstruction_time_s": 20.181,
+  "indexing_time_s": 47.75,
+  "retrieval_diagnosis_time_s": 96.671,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.066,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "256217bb2bc62feb",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "psf__requests-863",
+      "psf__requests-2148"
+    ],
+    "exemplars_included_in_prompt": [
+      "psf__requests-863",
+      "psf__requests-2148"
+    ],
+    "prompt_included_episode_ids": [
+      "psf__requests-863",
+      "psf__requests-2148"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pytest-dev__pytest-5495",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The `assert_contains` function is not handling the state variables correctly, leading to unexpected behavior.",
+    "invariant": "Ensure binary vs text stream compatibility matching parameter specification.",
+    "repair_strategy": "Review and correct the state variable handling in the `assert_contains` function.",
+    "affected_sites": [
+      "src/_pytest/pytester.py:207"
+    ],
+    "defect_confidence": 0.75,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 1,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The `__tracebackhide__` attribute is not being set correctly, leading to unexpected behavior in the `assert_contains` function.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "default",
+          "expected_mutations": [
+            "__tracebackhide__ = True"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "state transition does not satisfy required postconditions"
+          ],
+          "discriminating_variable": "__tracebackhide__",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Ensure that the `__tracebackhide__` attribute is correctly set to `True` at line 207 in `src/_pytest/pytester.py`.",
+        "affected_sites": [
+          "src/_pytest/pytester.py:207"
+        ],
+        "supporting_evidence": [
+          "Observed logic takes default branch/mutation; must produce required invariant before downstream exit.",
+          "State transition does not satisfy required postconditions at line 207 (`__tracebackhide__ = True`)."
+        ],
+        "contradicting_evidence": [],
+        "supporting_facts": [
+          "Observed logic takes default branch/mutation; must produce required invariant before downstream exit.",
+          "State transition does not satisfy required postconditions at line 207 (`__tracebackhide__ = True`)."
+        ],
+        "contradicting_facts": [],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 75.0
+      },
+      {
+        "id": "B",
+        "cause": "The `assert_contains` function is not handling the state variables correctly, leading to unexpected behavior.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "default",
+          "expected_mutations": [
+            "i = 0",
+            "entries = list(entries)",
+            "backlocals = sys._getframe(1).f_locals"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "state transition does not satisfy required postconditions"
+          ],
+          "discriminating_variable": "i, entries, backlocals",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Ensure binary vs text stream compatibility matching parameter specification.",
+        "repair_strategy": "Review and correct the state variable handling in the `assert_contains` function.",
+        "affected_sites": [
+          "src/_pytest/pytester.py:207"
+        ],
+        "supporting_evidence": [
+          "State transition does not satisfy required postconditions at line 207 (`__tracebackhide__ = True`)."
+        ],
+        "contradicting_evidence": [],
+        "supporting_facts": [
+          "State transition does not satisfy required postconditions at line 207 (`__tracebackhide__ = True`)."
+        ],
+        "contradicting_facts": [],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": true,
+        "elimination_reason": "Duplicate of Hypothesis A: shares identical target ['src/_pytest/pytester.py:207'] and overlapping premise (77%).",
+        "counterfactual_score": 75.0
+      }
+    ],
+    "repair_sites": [
+      "src/_pytest/pytester.py:207"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "strategy": "strict_structured_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "PATCH_SYNTAX",
+      "error_message": "AttributeError: 'method' object has no attribute '__tracebackhide__'",
+      "patch_text": "diff --git a/src/_pytest/pytester.py b/src/_pytest/pytester.py\nindex 2068761fa..2e13644e8 100644\n--- a/src/_pytest/pytester.py\n+++ b/src/_pytest/pytester.py\n@@ -53,6 +53,9 @@ def pytest_addoption(parser):\n         \"pytester_example_dir\", help=\"directory to take the pytester example files from\"\n     )\n \n+    # Ensure __tracebackhide__ is set correctly\n+    parser.addoption.__tracebackhide__ = True\n+\n \n def pytest_configure(config):\n     if config.getvalue(\"lsof\"):\n"
+    },
+    {
+      "attempt": 2,
+      "strategy": "minimal_target_bound_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "WRONG_HYPOTHESIS",
+      "error_message": "FAILED testing/test_assertion.py::TestAssert_reprcompare_attrsclass::test_attrs_with_attribute_comparison_off; FAILED testing/test_assertion.py::TestImportHookInstallation::test_installed_plugin_rewrite[plain]; FAILED testing/test_assertion.py::TestImportHookInstallation::test_installed_plugin_rewrite[rewrite]",
+      "patch_text": "diff --git a/src/_pytest/pytester.py b/src/_pytest/pytester.py\nindex 2068761fa..aba2cd36e 100644\n--- a/src/_pytest/pytester.py\n+++ b/src/_pytest/pytester.py\n@@ -53,6 +53,13 @@ def pytest_addoption(parser):\n         \"pytester_example_dir\", help=\"directory to take the pytester example files from\"\n     )\n \n+    parser.addoption(\n+        \"--newoption\",\n+        default=None,\n+        dest=\"newoption\",\n+        help=\"new option added for demonstration purposes\",\n+    )\n+\n \n def pytest_configure(config):\n     if config.getvalue(\"lsof\"):\n"
+    },
+    {
+      "attempt": 3,
+      "strategy": "replacement_only_code",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "WRONG_HYPOTHESIS",
+      "error_message": "FAILED testing/test_assertion.py::TestAssert_reprcompare_attrsclass::test_attrs_with_attribute_comparison_off; FAILED testing/test_assertion.py::TestImportHookInstallation::test_installed_plugin_rewrite[plain]; FAILED testing/test_assertion.py::TestImportHookInstallation::test_installed_plugin_rewrite[rewrite]",
+      "patch_text": "diff --git a/src/_pytest/pytester.py b/src/_pytest/pytester.py\nindex 2068761fa..3dac94fdf 100644\n--- a/src/_pytest/pytester.py\n+++ b/src/_pytest/pytester.py\n@@ -53,6 +53,14 @@ def pytest_addoption(parser):\n         \"pytester_example_dir\", help=\"directory to take the pytester example files from\"\n     )\n \n+    # Fix: Ensure the new option is correctly added and does not interfere with existing functionality\n+    parser.addoption(\n+        \"--newoption\",\n+        default=None,\n+        dest=\"newoption\",\n+        help=\"new option added for demonstration purposes\",\n+    )\n+\n \n def pytest_configure(config):\n     if config.getvalue(\"lsof\"):\n"
+    }
+  ],
+  "repair_unit": {
+    "id": "src/_pytest/pytester.py::pytest_addoption::FUNCTION::32-61",
+    "file_path": "src/_pytest/pytester.py",
+    "symbol": "pytest_addoption",
+    "unit_type": "FUNCTION",
+    "node_type": "FunctionDef",
+    "start_line": 32,
+    "end_line": 61,
+    "start_col": 0,
+    "end_col": 5,
+    "source_text": "def pytest_addoption(parser):\n    parser.addoption(\n        \"--lsof\",\n        action=\"store_true\",\n        dest=\"lsof\",\n        default=False,\n        help=\"run FD checks if lsof is available\",\n    )\n\n    parser.addoption(\n        \"--runpytest\",\n        default=\"inprocess\",\n        dest=\"runpytest\",\n        choices=(\"inprocess\", \"subprocess\"),\n        help=(\n            \"run pytest sub runs in tests using an 'inprocess' \"\n            \"or 'subprocess' (python -m main) method\"\n        ),\n    )\n\n    parser.addini(\n        \"pytester_example_dir\", help=\"directory to take the pytester example files from\"\n    )\n\n    parser.addoption(\n        \"--newoption\",\n        default=None,\n        dest=\"newoption\",\n        help=\"new option added for demonstration purposes\",\n    )\n",
+    "parent_symbol": "",
+    "indentation": "",
+    "role": "HYPOTHESIS_TARGET",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "src/_pytest/pytester.py",
+      "symbol": "207",
+      "role": "DIAGNOSIS_DERIVED",
+      "score": 205.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site '207' (+80)",
+        "Located in primary localized file (+15)",
+        "Compact code span (23 lines) preferred (+10)"
+      ],
+      "line_start": 32,
+      "line_end": 54,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 23,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/pytester.py",
+      "symbol": "assert_contains",
+      "role": "PRIMARY",
+      "score": 99.0,
+      "reasons": [
+        "Symbol 'assert_contains' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['assert', 'contains'] (+20)",
+        "High regression risk: symbol has 4 cross-module callers (-16)",
+        "Located in primary localized file (+15)",
+        "Compact code span (20 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 4 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 276 test(s) (+15)"
+      ],
+      "line_start": 206,
+      "line_end": 225,
+      "unrelated_callers_count": 4,
+      "in_failing_traceback": false,
+      "semantic_radius": 20,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/pytester.py",
+      "symbol": "assert_contains_lines",
+      "role": "PRIMARY",
+      "score": 45.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['assert', 'contains'] (+20)",
+        "Located in primary localized file (+15)",
+        "Compact code span (12 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 4 issue symptoms (-20)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 226 test(s) (+15)"
+      ],
+      "line_start": 1216,
+      "line_end": 1227,
+      "unrelated_callers_count": 2,
+      "in_failing_traceback": false,
+      "semantic_radius": 12,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/pytester.py",
+      "symbol": "genitems",
+      "role": "PRIMARY",
+      "score": 25.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Located in primary localized file (+15)",
+        "Compact code span (12 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 4 issue symptoms (-20)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 358 test(s) (+15)"
+      ],
+      "line_start": 713,
+      "line_end": 724,
+      "unrelated_callers_count": 2,
+      "in_failing_traceback": false,
+      "semantic_radius": 12,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/hookspec.py",
+      "symbol": "pytest_assertrepr_compare",
+      "role": "PRIMARY",
+      "score": -30.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Compact code span (10 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 4 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 222 test(s) (+15)"
+      ],
+      "line_start": 476,
+      "line_end": 485,
+      "unrelated_callers_count": 3,
+      "in_failing_traceback": false,
+      "semantic_radius": 10,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/pytester.py",
+      "symbol": "getitems",
+      "role": "PRIMARY",
+      "score": -55.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 10 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (9 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 4 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 1011 test(s) (+15)"
+      ],
+      "line_start": 953,
+      "line_end": 961,
+      "unrelated_callers_count": 10,
+      "in_failing_traceback": false,
+      "semantic_radius": 9,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/pytester.py",
+      "symbol": "inline_genitems",
+      "role": "PRIMARY",
+      "score": -55.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 28 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (11 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 4 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 2559 test(s) (+15)"
+      ],
+      "line_start": 760,
+      "line_end": 770,
+      "unrelated_callers_count": 28,
+      "in_failing_traceback": false,
+      "semantic_radius": 11,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {
+    "valid": true,
+    "syntax_ok": true,
+    "ast_ok": true,
+    "target_changed": true,
+    "unrelated_targets_preserved": true,
+    "no_markdown_leakage": true,
+    "line_expansion_ok": true,
+    "lines_added": 1,
+    "lines_deleted": 0,
+    "symbols_affected": [
+      "pytest_addoption"
+    ],
+    "errors": []
+  },
+  "telemetry": {
+    "task_id": "pytest-dev__pytest-5495",
+    "total_wall_s": 397.44,
+    "llm_time_s": 0.0,
+    "test_time_s": 96.845,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 47.75,
+    "retrieval_diagnosis_time_s": 96.671,
+    "probing_time_s": null,
+    "generation_time_s": 135.246,
+    "reconstruction_time_s": 20.181,
+    "static_validation_time_s": 0.066,
+    "replanning_time_s": 0.0,
+    "runtime_s": 397.44
+  },
+  "test_summary": {
+    "instance_id": "pytest-dev__pytest-5495",
+    "resolved": false,
+    "patch_applied": true,
+    "fail_to_pass": {
+      "passed": 0,
+      "total": 2
+    },
+    "pass_to_pass": {
+      "passed": 86,
+      "total": 86
+    },
+    "fail_to_pass_success": [],
+    "fail_to_pass_failure": [
+      "testing/test_assertion.py::TestAssert_reprcompare::test_bytes_diff_normal",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_bytes_diff_verbose"
+    ],
+    "pass_to_pass_success": [
+      "testing/test_assertion.py::TestImportHookInstallation::test_register_assert_rewrite_checks_types",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_different_types",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_summary",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_text_diff",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_text_skipping",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_text_skipping_verbose",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_multiline_text_diff",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_list",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_iterable_full_diff[left0-right0-\\n",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_iterable_full_diff[left1-right1-\\n",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_iterable_full_diff[left2-right2-\\n",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_list_different_lengths",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_dict",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_dict_omitting",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_dict_omitting_with_verbosity_1",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_dict_omitting_with_verbosity_2",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_dict_different_items",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_sequence_different_items",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_set",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_frozenzet",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_Sequence",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_list_tuples",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_repr_verbose",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_list_bad_repr",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_one_repr_empty",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_repr_no_exc",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_unicode",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_nonascii_text",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_format_nonascii_explanation",
+      "testing/test_assertion.py::TestAssert_reprcompare::test_mojibake",
+      "testing/test_assertion.py::TestAssert_reprcompare_attrsclass::test_comparing_two_different_attrs_classes",
+      "testing/test_assertion.py::TestFormatExplanation::test_fmt_simple",
+      "testing/test_assertion.py::TestFormatExplanation::test_fmt_where",
+      "testing/test_assertion.py::TestFormatExplanation::test_fmt_and",
+      "testing/test_assertion.py::TestFormatExplanation::test_fmt_where_nested",
+      "testing/test_assertion.py::TestFormatExplanation::test_fmt_newline",
+      "testing/test_assertion.py::TestFormatExplanation::test_fmt_newline_escaped",
+      "testing/test_assertion.py::TestFormatExplanation::test_fmt_newline_before_where",
+      "testing/test_assertion.py::TestFormatExplanation::test_fmt_multi_newline_before_where",
+      "testing/test_assertion.py::TestTruncateExplanation::test_doesnt_truncate_when_input_is_empty_list",
+      "testing/test_assertion.py::TestTruncateExplanation::test_doesnt_truncate_at_when_input_is_5_lines_and_LT_max_chars",
+      "testing/test_assertion.py::TestTruncateExplanation::test_truncates_at_8_lines_when_given_list_of_empty_strings",
+      "testing/test_assertion.py::TestTruncateExplanation::test_truncates_at_8_lines_when_first_8_lines_are_LT_max_chars",
+      "testing/test_assertion.py::TestTruncateExplanation::test_truncates_at_8_lines_when_first_8_lines_are_EQ_max_chars",
+      "testing/test_assertion.py::TestTruncateExplanation::test_truncates_at_4_lines_when_first_4_lines_are_GT_max_chars",
+      "testing/test_assertion.py::TestTruncateExplanation::test_truncates_at_1_line_when_first_line_is_GT_max_chars",
+      "testing/test_assertion.py::test_reprcompare_notin",
+      "testing/test_assertion.py::test_reprcompare_whitespaces",
+      "testing/test_assertion.py::test_exit_from_assertrepr_compare",
+      "testing/test_assertion.py::TestImportHookInstallation::test_conftest_assertion_rewrite[plain-True]",
+      "testing/test_assertion.py::TestImportHookInstallation::test_conftest_assertion_rewrite[plain-False]",
+      "testing/test_assertion.py::TestImportHookInstallation::test_conftest_assertion_rewrite[rewrite-True]",
+      "testing/test_assertion.py::TestImportHookInstallation::test_conftest_assertion_rewrite[rewrite-False]",
+      "testing/test_assertion.py::TestImportHookInstallation::test_rewrite_assertions_pytester_plugin",
+      "testing/test_assertion.py::TestImportHookInstallation::test_pytest_plugins_rewrite[plain]",
+      "testing/test_assertion.py::TestImportHookInstallation::test_pytest_plugins_rewrite[rewrite]",
+      "testing/test_assertion.py::TestImportHookInstallation::test_pytest_plugins_rewrite_module_names[str]",
+      "testing/test_assertion.py::TestImportHookInstallation::test_pytest_plugins_rewrite_module_names[list]",
+      "testing/test_assertion.py::TestImportHookInstallation::test_pytest_plugins_rewrite_module_names_correctly",
+      "testing/test_assertion.py::TestImportHookInstallation::test_rewrite_ast",
+      "testing/test_assertion.py::TestBinReprIntegration::test_pytest_assertrepr_compare_called",
+      "testing/test_assertion.py::TestAssert_reprcompare_dataclass::test_dataclasses",
+      "testing/test_assertion.py::TestAssert_reprcompare_dataclass::test_dataclasses_verbose",
+      "testing/test_assertion.py::TestAssert_reprcompare_dataclass::test_dataclasses_with_attribute_comparison_off",
+      "testing/test_assertion.py::TestAssert_reprcompare_dataclass::test_comparing_two_different_data_classes",
+      "testing/test_assertion.py::TestFormatExplanation::test_special_chars_full",
+      "testing/test_assertion.py::TestTruncateExplanation::test_full_output_truncated",
+      "testing/test_assertion.py::test_python25_compile_issue257",
+      "testing/test_assertion.py::test_rewritten",
+      "testing/test_assertion.py::test_pytest_assertrepr_compare_integration",
+      "testing/test_assertion.py::test_sequence_comparison_uses_repr",
+      "testing/test_assertion.py::test_assertrepr_loaded_per_dir",
+      "testing/test_assertion.py::test_assertion_options",
+      "testing/test_assertion.py::test_triple_quoted_string_issue113",
+      "testing/test_assertion.py::test_traceback_failure",
+      "testing/test_assertion.py::test_exception_handling_no_traceback",
+      "testing/test_assertion.py::test_warn_missing",
+      "testing/test_assertion.py::test_recursion_source_decode",
+      "testing/test_assertion.py::test_AssertionError_message",
+      "testing/test_assertion.py::test_diff_newline_at_end",
+      "testing/test_assertion.py::test_assert_tuple_warning",
+      "testing/test_assertion.py::test_assert_indirect_tuple_no_warning",
+      "testing/test_assertion.py::test_assert_with_unicode",
+      "testing/test_assertion.py::test_raise_unprintable_assertion_error",
+      "testing/test_assertion.py::test_raise_assertion_error_raisin_repr",
+      "testing/test_assertion.py::test_issue_1944"
+    ],
+    "pass_to_pass_failure": [],
+    "infra_failure": false,
+    "error": "",
+    "run_id": "eval_1791753348"
+  },
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "207",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed.",
+      "Ensure binary vs text stream compatibility matching parameter specification."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

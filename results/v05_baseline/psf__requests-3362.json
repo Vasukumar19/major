@@ -1,0 +1,32 @@
+{
+  "instance_id": "psf__requests-3362",
+  "repo": "psf/requests",
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": false,
+  "patch_tier": null,
+  "patch_text": "",
+  "test_executed": false,
+  "failure_class": "PATCH_SYNTAX",
+  "runtime_s": 30.5,
+  "f2p_passed": 0,
+  "f2p_total": 0,
+  "p2p_passed": 0,
+  "p2p_total": 0,
+  "refinement_cycles": 0,
+  "target_file": "requests/models.py",
+  "target_symbol": "iter_content",
+  "telemetry": {
+    "task_id": "psf__requests-3362",
+    "total_wall_s": 30.5,
+    "llm_time_s": 29.98,
+    "test_time_s": 0.0,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 1930,
+    "total_output_tokens": 950,
+    "total_tokens": 2880,
+    "event_count": 5
+  },
+  "test_summary": {}
+}

@@ -1,0 +1,557 @@
+{
+  "instance_id": "psf__requests-3362",
+  "repo": "psf/requests",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "2ad20c8826cd40eb",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "fd93b90085410112",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "256217bb2bc62feb",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "b6687cafe3958613",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": false,
+  "patch_tier": null,
+  "patch_text": "",
+  "test_executed": false,
+  "failure_class": "UNRESOLVED",
+  "runtime_s": 253.24,
+  "f2p_passed": 0,
+  "f2p_total": 0,
+  "p2p_passed": 0,
+  "p2p_total": 0,
+  "refinement_cycles": 3,
+  "target_file": "requests/models.py",
+  "target_symbol": "686",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "requests/models.py:686"
+    ],
+    "selected_target": "requests/models.py:686",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'requests/models.py:686'.",
+    "target_unjustified": true,
+    "target_changes": []
+  },
+  "generation_attempted": true,
+  "structurally_valid": false,
+  "submitted_to_harness": false,
+  "test_time_s": 0.0,
+  "generation_time_s": 118.30100000000002,
+  "reconstruction_time_s": 0.0,
+  "indexing_time_s": 7.286,
+  "retrieval_diagnosis_time_s": 127.276,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.0,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "256217bb2bc62feb",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "psf__requests-2674",
+      "psf__requests-2148"
+    ],
+    "exemplars_included_in_prompt": [
+      "psf__requests-2674",
+      "psf__requests-2148"
+    ],
+    "prompt_included_episode_ids": [
+      "psf__requests-2674",
+      "psf__requests-2148"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "psf__requests-3362",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The `iter_content` method in `requests/models.py` has a logic issue where it does not handle the case when `self._content_consumed` is `True` and `self._content` is a boolean.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Modify the logic at line 686 to handle the case when `self._content_consumed` is `True` and `self._content` is a boolean.",
+    "affected_sites": [
+      "requests/models.py:686"
+    ],
+    "defect_confidence": 0.75,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 0,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The `iter_content` method in `requests/models.py` has a logic issue where it does not handle the case when `self._content_consumed` is `True` and `self._content` is a boolean.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "Handle the case when `self._content_consumed` is `True` and `self._content` is a boolean.",
+          "expected_mutations": [
+            "Modify the logic at line 686"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "State transition does not satisfy required postconditions"
+          ],
+          "discriminating_variable": "self._content_consumed and isinstance(self._content, bool)",
+          "support_count": 1,
+          "contradiction_count": 0
+        },
+        "support_count": 1,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Modify the logic at line 686 to handle the case when `self._content_consumed` is `True` and `self._content` is a boolean.",
+        "affected_sites": [
+          "requests/models.py:686"
+        ],
+        "supporting_evidence": [
+          "E1 | TEMPORAL: `iter_content` has a history of 1 bug fixes (churn score: 0.35). (conf=0.85)",
+          "E2 | STATE_FLOW: `iter_content` overwrites state variables: chunks. (conf=0.85)",
+          "E3 | STATE_FLOW: `iter_content` mutates attributes/containers: self._content_consumed. (conf=0.85)",
+          "Causal Support: Predicted branch matches observed divergence transition."
+        ],
+        "contradicting_evidence": [],
+        "supporting_facts": [
+          "E1 | TEMPORAL: `iter_content` has a history of 1 bug fixes (churn score: 0.35). (conf=0.85)",
+          "E2 | STATE_FLOW: `iter_content` overwrites state variables: chunks. (conf=0.85)",
+          "E3 | STATE_FLOW: `iter_content` mutates attributes/containers: self._content_consumed. (conf=0.85)"
+        ],
+        "contradicting_facts": [],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 90.0
+      },
+      {
+        "id": "B",
+        "cause": "The `text` method in `requests/models.py` has a logic issue where it does not handle the case when `content` or `encoding` is not properly set.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "Handle cases where `content` or `encoding` is not properly set.",
+          "expected_mutations": [
+            "Modify the logic in the `text` method"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "State transition does not satisfy required postconditions"
+          ],
+          "discriminating_variable": "content or encoding",
+          "support_count": 1,
+          "contradiction_count": 0
+        },
+        "support_count": 1,
+        "contradiction_count": 0,
+        "invariant": "Ensure binary vs text stream compatibility matching parameter specification.",
+        "repair_strategy": "Modify the logic in the `text` method to handle cases where `content` or `encoding` is not properly set.",
+        "affected_sites": [
+          "requests/models.py:758"
+        ],
+        "supporting_evidence": [
+          "E4 | CODE_GRAPH: `text` is FEATURE_LOCAL with bounded callers (0). Safe for targeted repair. (conf=0.90)",
+          "E5 | TEMPORAL: `text` has a history of 1 bug fixes (churn score: 0.35). (conf=0.85)",
+          "E6 | STATE_FLOW: `text` overwrites state variables: content, encoding. (conf=0.85)",
+          "Causal Support: Predicted branch matches observed divergence transition."
+        ],
+        "contradicting_evidence": [],
+        "supporting_facts": [
+          "E4 | CODE_GRAPH: `text` is FEATURE_LOCAL with bounded callers (0). Safe for targeted repair. (conf=0.90)",
+          "E5 | TEMPORAL: `text` has a history of 1 bug fixes (churn score: 0.35). (conf=0.85)",
+          "E6 | STATE_FLOW: `text` overwrites state variables: content, encoding. (conf=0.85)"
+        ],
+        "contradicting_facts": [],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.7,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 85.0
+      }
+    ],
+    "repair_sites": [
+      "requests/models.py:686"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "strategy": "strict_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 2,
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 3,
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    }
+  ],
+  "repair_unit": {
+    "id": "requests/models.py::path_url::METHOD::54-72",
+    "file_path": "requests/models.py",
+    "symbol": "path_url",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 54,
+    "end_line": 72,
+    "start_col": 4,
+    "end_col": 27,
+    "source_text": "    def path_url(self):\n        \"\"\"Build the path URL to use.\"\"\"\n\n        url = []\n\n        p = urlsplit(self.url)\n\n        path = p.path\n        if not path:\n            path = '/'\n\n        url.append(path)\n\n        query = p.query\n        if query:\n            url.append('?')\n            url.append(query)\n\n        return ''.join(url)\n",
+    "parent_symbol": "RequestEncodingMixin",
+    "indentation": "    ",
+    "role": "DIAGNOSIS_DERIVED",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "requests/models.py",
+      "symbol": "686",
+      "role": "DIAGNOSIS_DERIVED",
+      "score": 205.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site '686' (+80)",
+        "Located in primary localized file (+15)",
+        "Compact code span (19 lines) preferred (+10)"
+      ],
+      "line_start": 54,
+      "line_end": 72,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 19,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/models.py",
+      "symbol": "iter_content",
+      "role": "PRIMARY",
+      "score": 180.0,
+      "reasons": [
+        "Symbol 'iter_content' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['iter', 'content'] (+20)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 531 test(s) (+15)"
+      ],
+      "line_start": 653,
+      "line_end": 700,
+      "unrelated_callers_count": 3,
+      "in_failing_traceback": false,
+      "semantic_radius": 48,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/models.py",
+      "symbol": "text",
+      "role": "PRIMARY",
+      "score": 75.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['text'] (+10)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_LOCAL with bounded impact (+25)",
+        "Direct tests available: 14 test(s) (+15)"
+      ],
+      "line_start": 758,
+      "line_end": 793,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 36,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/utils.py",
+      "symbol": "get_encodings_from_content",
+      "role": "PRIMARY",
+      "score": 55.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['content'] (+10)",
+        "Compact code span (18 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 156 test(s) (+15)"
+      ],
+      "line_start": 319,
+      "line_end": 336,
+      "unrelated_callers_count": 3,
+      "in_failing_traceback": false,
+      "semantic_radius": 18,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/utils.py",
+      "symbol": "get_encoding_from_headers",
+      "role": "PRIMARY",
+      "score": 55.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['encoding'] (+10)",
+        "Compact code span (18 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 52 test(s) (+15)"
+      ],
+      "line_start": 339,
+      "line_end": 356,
+      "unrelated_callers_count": 1,
+      "in_failing_traceback": false,
+      "semantic_radius": 18,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/models.py",
+      "symbol": "Response",
+      "role": "PRIMARY",
+      "score": -4.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['response'] (+10)",
+        "High regression risk: symbol has 6 cross-module callers (-24)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 885 test(s) (+15)"
+      ],
+      "line_start": 653,
+      "line_end": 700,
+      "unrelated_callers_count": 6,
+      "in_failing_traceback": false,
+      "semantic_radius": 48,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/models.py",
+      "symbol": "prepare",
+      "role": "PRIMARY",
+      "score": -20.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 24 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (16 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 4248 test(s) (+15)"
+      ],
+      "line_start": 238,
+      "line_end": 253,
+      "unrelated_callers_count": 24,
+      "in_failing_traceback": false,
+      "semantic_radius": 16,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {},
+  "telemetry": {
+    "task_id": "psf__requests-3362",
+    "total_wall_s": 253.24,
+    "llm_time_s": 0.0,
+    "test_time_s": 0.0,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 7.286,
+    "retrieval_diagnosis_time_s": 127.276,
+    "probing_time_s": null,
+    "generation_time_s": 118.301,
+    "reconstruction_time_s": 0.0,
+    "static_validation_time_s": 0.0,
+    "replanning_time_s": 0.0,
+    "runtime_s": 253.24
+  },
+  "test_summary": {},
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "686",
+    "category": "MIXED",
+    "confidence": 0.75,
+    "is_signature_contract": true,
+    "parameters": [
+      {
+        "name": "decode_unicode",
+        "type_annotation": "bool",
+        "default_value": "True",
+        "is_kwarg_only": false,
+        "origin": "HINTS_TEXT"
+      }
+    ],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed.",
+      "Ensure binary vs text stream compatibility matching parameter specification."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Accept `decode_unicode` parameter with default `True` without breaking existing callers.",
+        "category": "API_SIGNATURE",
+        "source": "CONTRACT",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [
+          "decode_unicode"
+        ],
+        "satisfied": false
+      },
+      {
+        "id": "R2",
+        "description": "At line 700 (`return chunks`), implement required transition: Must intercept this condition and produce the expected state transformation.",
+        "category": "ALGORITHMIC_TRANSITION",
+        "source": "EXECUTION_PATH",
+        "affected_symbols": [
+          "iter_content"
+        ],
+        "expected_state": "",
+        "expected_transition": "Must intercept this condition and produce the expected state transformation.",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [
+          "return",
+          "chunks"
+        ],
+        "satisfied": false
+      },
+      {
+        "id": "R3",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

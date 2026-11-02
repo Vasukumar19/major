@@ -1,0 +1,581 @@
+{
+  "instance_id": "pylint-dev__pylint-7228",
+  "repo": "pylint-dev/pylint",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "48e0408bb74599c3",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "e2008182d3ff683a",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "d60390742cfb49db",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "c6576310d2f24640",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": true,
+  "patch_tier": "AST_GROUNDED",
+  "patch_text": "diff --git a/pylint/checkers/logging.py b/pylint/checkers/logging.py\nindex 53ac24f60..842b022ca 100644\n--- a/pylint/checkers/logging.py\n+++ b/pylint/checkers/logging.py\n@@ -183,7 +183,9 @@ class LoggingChecker(checkers.BaseChecker):\n                 if module == logging_name:\n                     self._logging_names.add(as_name or module)\n         except KeyError:\n-            pass\n+            self.add_message('invalid-logging-import', node=node)\n+        except Exception as e:\n+            self.error(f'Error processing import from {node.modname}: {e}')\n \n     def visit_import(self, node: nodes.Import) -> None:\n         \"\"\"Checks to see if this module uses Python's built-in logging.\"\"\"\n",
+  "test_executed": true,
+  "failure_class": "UNRESOLVED",
+  "runtime_s": 293.48,
+  "f2p_passed": 0,
+  "f2p_total": 2,
+  "p2p_passed": 10,
+  "p2p_total": 10,
+  "refinement_cycles": 3,
+  "target_file": "pylint/checkers/logging.py",
+  "target_symbol": "visit_importfrom",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "pylint/checkers/logging.py:visit_importfrom"
+    ],
+    "selected_target": "pylint/checkers/logging.py:visit_importfrom",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'pylint/checkers/logging.py:visit_importfrom'.",
+    "target_unjustified": true,
+    "target_changes": [
+      {
+        "switched_to_hypothesis": "B",
+        "target": "pylint/checkers/logging.py:visit_importfrom",
+        "justification": "Target matches hypothesized affected site 'pylint/checkers/logging.py:visit_importfrom'."
+      },
+      {
+        "switched_to_hypothesis": "A",
+        "target": "pylint/checkers/logging.py:visit_importfrom",
+        "justification": "Target matches hypothesized affected site 'pylint/checkers/logging.py:visit_importfrom'."
+      }
+    ]
+  },
+  "generation_attempted": true,
+  "structurally_valid": true,
+  "submitted_to_harness": true,
+  "test_time_s": 63.599999999999994,
+  "generation_time_s": 109.62,
+  "reconstruction_time_s": 0.8009999999999999,
+  "indexing_time_s": 1.21,
+  "retrieval_diagnosis_time_s": 116.673,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.009000000000000001,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "d60390742cfb49db",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "psf__requests-2148",
+      "psf__requests-863"
+    ],
+    "exemplars_included_in_prompt": [
+      "psf__requests-2148",
+      "psf__requests-863"
+    ],
+    "prompt_included_episode_ids": [
+      "psf__requests-2148",
+      "psf__requests-863"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pylint-dev__pylint-7228",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The issue might be related to the regex pattern used in the code, which is not documented and might not support certain characters like '\\p'.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Replace the regex pattern with a documented and supported pattern, and add error handling to raise a friendly error message if the regex pattern is invalid.",
+    "affected_sites": [
+      "pylint/checkers/logging.py:visit_importfrom"
+    ],
+    "defect_confidence": 0.8,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 0,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The issue might be related to the regex pattern used in the code, which is not documented and might not support certain characters like '\\p'.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The code should raise a friendly error message if the regex pattern is invalid.",
+          "expected_mutations": [
+            "Replace the regex pattern with a documented and supported pattern"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "The code should not raise a traceback if the regex pattern is invalid"
+          ],
+          "discriminating_variable": "The regex pattern used in the code",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Replace the regex pattern with a documented and supported pattern, and add error handling to raise a friendly error message if the regex pattern is invalid.",
+        "affected_sites": [
+          "pylint/checkers/logging.py:visit_importfrom"
+        ],
+        "supporting_evidence": [
+          "The regex pattern used in the code is not documented and might not support certain characters like '\\p'.",
+          "The problem hint suggests that the regex pattern could be improved and that a friendly output indicating that the regex pattern is invalid without the traceback could be given."
+        ],
+        "contradicting_evidence": [
+          "No runtime tracebacks or failing test assertions observed.",
+          "Target 'pylint/checkers/logging.py:visit_importfrom' is GLOBAL_INFRASTRUCTURE with 11 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The regex pattern used in the code is not documented and might not support certain characters like '\\p'.",
+          "The problem hint suggests that the regex pattern could be improved and that a friendly output indicating that the regex pattern is invalid without the traceback could be given."
+        ],
+        "contradicting_facts": [
+          "No runtime tracebacks or failing test assertions observed."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.8,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 50.0
+      },
+      {
+        "id": "B",
+        "cause": "The issue might be related to the `visit_importfrom` method in the `pylint/checkers/logging.py` file, which is not handling certain import statements correctly.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The code should raise a friendly error message if the import statement is invalid.",
+          "expected_mutations": [
+            "Modify the `visit_importfrom` method to correctly handle the import statements"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "The code should not raise a traceback if the import statement is invalid"
+          ],
+          "discriminating_variable": "The import statement used in the code",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Modify the `visit_importfrom` method to correctly handle the import statements and add error handling to raise a friendly error message if the import statement is invalid.",
+        "affected_sites": [
+          "pylint/checkers/logging.py:visit_importfrom"
+        ],
+        "supporting_evidence": [
+          "The causal path for `visit_importfrom` shows that it is called during the import statement handling process.",
+          "The problem hint suggests that the regex pattern could be improved and that a friendly output indicating that the regex pattern is invalid without the traceback could be given."
+        ],
+        "contradicting_evidence": [
+          "No runtime tracebacks or failing test assertions observed.",
+          "Target 'pylint/checkers/logging.py:visit_importfrom' is GLOBAL_INFRASTRUCTURE with 11 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The causal path for `visit_importfrom` shows that it is called during the import statement handling process.",
+          "The problem hint suggests that the regex pattern could be improved and that a friendly output indicating that the regex pattern is invalid without the traceback could be given."
+        ],
+        "contradicting_facts": [
+          "No runtime tracebacks or failing test assertions observed."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 45.0
+      }
+    ],
+    "repair_sites": [
+      "pylint/checkers/logging.py:visit_importfrom"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "hypothesis_id": "A",
+      "strategy": "strict_structured_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "PATCH_SEMANTICS",
+      "error_message": "except ValueError:; FAILED tests/config/test_config.py::test_regex_error - re.error: bad escape \\...; FAILED tests/config/test_config.py::test_csv_regex_error - re.error: missing ...",
+      "patch_text": "diff --git a/pylint/checkers/logging.py b/pylint/checkers/logging.py\nindex 53ac24f60..204df9e12 100644\n--- a/pylint/checkers/logging.py\n+++ b/pylint/checkers/logging.py\n@@ -183,7 +183,7 @@ class LoggingChecker(checkers.BaseChecker):\n                 if module == logging_name:\n                     self._logging_names.add(as_name or module)\n         except KeyError:\n-            pass\n+            self.add_message('invalid-logging-import', node=node)\n \n     def visit_import(self, node: nodes.Import) -> None:\n         \"\"\"Checks to see if this module uses Python's built-in logging.\"\"\"\n"
+    },
+    {
+      "attempt": 2,
+      "hypothesis_id": "B",
+      "strategy": "refined_structured_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "PATCH_SEMANTICS",
+      "error_message": "except ValueError:; FAILED tests/config/test_config.py::test_regex_error - re.error: bad escape \\...; FAILED tests/config/test_config.py::test_csv_regex_error - re.error: missing ...",
+      "patch_text": "diff --git a/pylint/checkers/logging.py b/pylint/checkers/logging.py\nindex 53ac24f60..842b022ca 100644\n--- a/pylint/checkers/logging.py\n+++ b/pylint/checkers/logging.py\n@@ -183,7 +183,9 @@ class LoggingChecker(checkers.BaseChecker):\n                 if module == logging_name:\n                     self._logging_names.add(as_name or module)\n         except KeyError:\n-            pass\n+            self.add_message('invalid-logging-import', node=node)\n+        except Exception as e:\n+            self.error(f'Error processing import from {node.modname}: {e}')\n \n     def visit_import(self, node: nodes.Import) -> None:\n         \"\"\"Checks to see if this module uses Python's built-in logging.\"\"\"\n"
+    },
+    {
+      "attempt": 3,
+      "hypothesis_id": "A",
+      "strategy": "replacement_only_code",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    }
+  ],
+  "repair_unit": {
+    "id": "pylint/checkers/logging.py::visit_importfrom::METHOD::178-188",
+    "file_path": "pylint/checkers/logging.py",
+    "symbol": "visit_importfrom",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 178,
+    "end_line": 188,
+    "start_col": 4,
+    "end_col": 75,
+    "source_text": "    def visit_importfrom(self, node: nodes.ImportFrom) -> None:\n        \"\"\"Checks to see if a module uses a non-Python logging module.\"\"\"\n        try:\n            logging_name = self._from_imports[node.modname]\n            for module, as_name in node.names:\n                if module == logging_name:\n                    self._logging_names.add(as_name or module)\n        except KeyError:\n            self.add_message('invalid-logging-import', node=node)\n        except Exception as e:\n            self.error(f'Error processing import from {node.modname}: {e}')\n",
+    "parent_symbol": "LoggingChecker",
+    "indentation": "    ",
+    "role": "HYPOTHESIS_TARGET",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "pylint/checkers/logging.py",
+      "symbol": "visit_importfrom",
+      "role": "PRIMARY",
+      "score": 100.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'visit_importfrom' (+80)",
+        "High regression risk: symbol has 11 cross-module callers (-40)",
+        "Compact code span (9 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 11 test(s) (+15)"
+      ],
+      "line_start": 178,
+      "line_end": 186,
+      "unrelated_callers_count": 11,
+      "in_failing_traceback": false,
+      "semantic_radius": 9,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/checkers/format.py",
+      "symbol": "line",
+      "role": "PRIMARY",
+      "score": 45.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['line'] (+10)",
+        "Compact code span (2 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: FEATURE_LOCAL with bounded impact (+25)",
+        "Direct tests available: 6 test(s) (+15)"
+      ],
+      "line_start": 145,
+      "line_end": 146,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 2,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/epylint.py",
+      "symbol": "py_run",
+      "role": "PRIMARY",
+      "score": -30.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['run'] (+10)",
+        "High regression risk: symbol has 5 cross-module callers (-20)",
+        "Compact code span (7 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 5 test(s) (+15)"
+      ],
+      "line_start": 126,
+      "line_end": 132,
+      "unrelated_callers_count": 5,
+      "in_failing_traceback": false,
+      "semantic_radius": 7,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/testutils/_run.py",
+      "symbol": "_add_rcfile_default_pylintrc",
+      "role": "PRIMARY",
+      "score": -46.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['pylintrc'] (+10)",
+        "High regression risk: symbol has 9 cross-module callers (-36)",
+        "Compact code span (5 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 5 test(s) (+15)"
+      ],
+      "line_start": 21,
+      "line_end": 25,
+      "unrelated_callers_count": 9,
+      "in_failing_traceback": false,
+      "semantic_radius": 5,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/lint/pylinter.py",
+      "symbol": "PyLinter",
+      "role": "PRIMARY",
+      "score": -55.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 48 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 26 test(s) (+15)"
+      ],
+      "line_start": 269,
+      "line_end": 338,
+      "unrelated_callers_count": 48,
+      "in_failing_traceback": false,
+      "semantic_radius": 70,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/lint/run.py",
+      "symbol": "Run",
+      "role": "PRIMARY",
+      "score": -60.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['run'] (+10)",
+        "High regression risk: symbol has 72 cross-module callers (-40)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 69 test(s) (+15)"
+      ],
+      "line_start": 113,
+      "line_end": 232,
+      "unrelated_callers_count": 72,
+      "in_failing_traceback": false,
+      "semantic_radius": 120,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {
+    "valid": true,
+    "syntax_ok": true,
+    "ast_ok": true,
+    "target_changed": true,
+    "unrelated_targets_preserved": true,
+    "no_markdown_leakage": true,
+    "line_expansion_ok": true,
+    "lines_added": 2,
+    "lines_deleted": 0,
+    "symbols_affected": [
+      "visit_importfrom"
+    ],
+    "errors": []
+  },
+  "telemetry": {
+    "task_id": "pylint-dev__pylint-7228",
+    "total_wall_s": 293.48,
+    "llm_time_s": 0.0,
+    "test_time_s": 63.6,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 1.21,
+    "retrieval_diagnosis_time_s": 116.673,
+    "probing_time_s": null,
+    "generation_time_s": 109.62,
+    "reconstruction_time_s": 0.801,
+    "static_validation_time_s": 0.009,
+    "replanning_time_s": 0.0,
+    "runtime_s": 293.48
+  },
+  "test_summary": {
+    "instance_id": "pylint-dev__pylint-7228",
+    "resolved": false,
+    "patch_applied": true,
+    "fail_to_pass": {
+      "passed": 0,
+      "total": 2
+    },
+    "pass_to_pass": {
+      "passed": 10,
+      "total": 10
+    },
+    "fail_to_pass_success": [],
+    "fail_to_pass_failure": [
+      "tests/config/test_config.py::test_regex_error",
+      "tests/config/test_config.py::test_csv_regex_error"
+    ],
+    "pass_to_pass_success": [
+      "tests/config/test_config.py::test_can_read_toml_env_variable",
+      "tests/config/test_config.py::test_unknown_message_id",
+      "tests/config/test_config.py::test_unknown_option_name",
+      "tests/config/test_config.py::test_unknown_short_option_name",
+      "tests/config/test_config.py::test_unknown_confidence",
+      "tests/config/test_config.py::test_empty_confidence",
+      "tests/config/test_config.py::test_unknown_yes_no",
+      "tests/config/test_config.py::test_unknown_py_version",
+      "tests/config/test_config.py::test_short_verbose",
+      "tests/config/test_config.py::test_argument_separator"
+    ],
+    "pass_to_pass_failure": [],
+    "infra_failure": false,
+    "error": "",
+    "run_id": "eval_1793633298"
+  },
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "visit_importfrom",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [
+      "passing"
+    ],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed."
+    ],
+    "expected_exceptions": [
+      "source.error"
+    ],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Raise or wrap into `source.error` upon encountering error condition.",
+        "category": "EXCEPTION_HANDLING",
+        "source": "CONTRACT",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [
+          "error"
+        ],
+        "satisfied": true
+      },
+      {
+        "id": "R2",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

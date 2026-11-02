@@ -25,6 +25,7 @@ import re
 import subprocess
 import time
 from dataclasses import dataclass, field
+import hashlib
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -39,6 +40,12 @@ from patchforge.diagnosis import (
     IssueBehaviorExtractor,
     IssueBehaviorMap,
 )
+from patchforge.diagnosis.evidence import (
+    EvidenceItem,
+    EvidenceKind,
+    EvidencePackage,
+)
+from patchforge.repair.residual import ResidualFailureRecord
 from patchforge.diagnosis.causal_trace import BehavioralTrace, FirstDivergenceLocator
 from patchforge.diagnosis.contract import APIContract, ContractExtractor
 from patchforge.diagnosis.contract_gate import (
@@ -50,7 +57,7 @@ from patchforge.diagnosis.unified_evidence import UnifiedEvidenceEngine
 from patchforge.experiment.runner import ExperimentRunner
 from patchforge.issue.problem import Problem
 from patchforge.memory.episode import RepairEpisode, save_repair_episode
-from patchforge.memory.store import CrossTaskRepairMemory
+from patchforge.memory.store import CrossTaskRepairMemory, MemoryMode
 from patchforge.models.provider import ModelProvider, OllamaProvider
 from patchforge.repair.patch import Patch
 from patchforge.repair.planner import RepairUnitPlanner
@@ -103,25 +110,50 @@ class V1OrchestratorResult:
     target: Optional[RepairTarget] = None
     diagnosis: Optional[CompetingDiagnosisResult] = None
     patch: Optional[Patch] = None
+    engine_name: str = "v1"
+    generation_attempted: bool = True
+    patch_generated: bool = False
+    structurally_valid: bool = False
+    statically_valid: bool = False
+    submitted_to_harness: bool = False
     patch_applied: bool = False
     test_executed: bool = False
     resolved: bool = False
     failure_class: str = FailureClass.UNRESOLVED.value
     runtime_s: float = 0.0
+    test_time_s: float = 0.0
+    generation_time_s: float = 0.0
+    reconstruction_time_s: float = 0.0
+    indexing_time_s: Optional[float] = None
+    retrieval_diagnosis_time_s: Optional[float] = None
+    probing_time_s: Optional[float] = None
+    static_validation_time_s: float = 0.0
+    replanning_time_s: float = 0.0
+    f2p_passed: int = 0
+    f2p_total: int = 0
+    p2p_passed: int = 0
+    p2p_total: int = 0
     telemetry: Dict[str, Any] = field(default_factory=dict)
     test_summary: Dict[str, Any] = field(default_factory=dict)
     refinement_cycles: int = 0
     refinement_history: List[Dict[str, Any]] = field(default_factory=list)
     repair_unit: Optional[RepairUnit] = None
     ranked_sites: List[RankedRepairSite] = field(default_factory=list)
+    target_provenance: Dict[str, Any] = field(default_factory=dict)
     validation_result: Optional[StaticValidationResult] = None
     experiment_executed: bool = False
     experiment_summary: str = ""
+    memory_mode: str = "FROZEN"
+    memory_provenance: Dict[str, Any] = field(default_factory=dict)
     memory_exemplars_used: int = 0
     contract: Optional[APIContract] = None
     requirement_matrix: Optional[BehavioralRequirementMatrix] = None
     execution_path: Optional[ExecutionPathModel] = None
     causal_trace: Optional[BehavioralTrace] = None
+    evidence_package: Optional[EvidencePackage] = None
+    residual_records: List[ResidualFailureRecord] = field(default_factory=list)
+    target_unjustified: bool = False
+    repeated_attempt_detected: bool = False
 
 
 class V1RepairOrchestrator:
@@ -133,11 +165,134 @@ class V1RepairOrchestrator:
         model_name: str = "qwen2.5-coder:14b",
         workspace: str = ".",
         episodes_dir: str = "results/episodes",
+        enable_dynamic_probing: bool = False,
+        memory_mode: str = "FROZEN",
     ):
         self.provider = provider or OllamaProvider(model=model_name)
         self.model_name = model_name
         self.workspace = workspace
-        self.memory = CrossTaskRepairMemory(episodes_dir=episodes_dir)
+        self.enable_dynamic_probing = enable_dynamic_probing
+        self.memory_mode = memory_mode
+        mode_enum = MemoryMode(memory_mode) if isinstance(memory_mode, str) else memory_mode
+        self.memory = CrossTaskRepairMemory(episodes_dir=episodes_dir, mode=mode_enum)
+    def _rebuild_repair_context(
+        self,
+        problem: Problem,
+        repo_dir: str,
+        repo_map: RepoMap,
+        graph: Any,
+        test_index: Any,
+        diagnosis: CompetingDiagnosisResult,
+        active_hyp_idx: int,
+        context_retriever: RepairContextRetriever,
+        api_contract: Optional[APIContract],
+        req_matrix: Optional[BehavioralRequirementMatrix],
+        candidate_profiles_dict: Dict[str, Any],
+        candidate_file: str,
+        target_provenance: Dict[str, Any],
+    ) -> Tuple[Any, RepairTarget, str, Path, str, Any, RepairUnit]:
+        """Rebuilds target, source, repair unit, and AST context upon hypothesis switch."""
+        diagnosis.set_active_hypothesis(active_hyp_idx)
+        current_h = diagnosis.selected_hypothesis or diagnosis.hypotheses[active_hyp_idx]
+        repo_p = Path(repo_dir)
+
+        # Extract candidates for the newly active hypothesis
+        h_candidates: List[EditSite] = []
+        for aff in current_h.affected_sites:
+            if ":" in aff:
+                aff_file, aff_sym = aff.split(":", 1)
+                aff_file = aff_file.strip("` \t\r\n")
+                aff_sym = aff_sym.strip("` \t\r\n()[]")
+                aff_full = repo_p / aff_file
+                if aff_full.exists():
+                    aff_source, a_start, a_end, _ = repo_map.extract_surgical_unit(aff_file, aff_sym, "")
+                    if aff_source:
+                        h_candidates.append(
+                            EditSite(
+                                file_path=aff_file,
+                                symbol=aff_sym,
+                                line_start=a_start,
+                                line_end=a_end,
+                                source_span=(a_start, a_end),
+                                verified_source=aff_source,
+                                verification_status=True,
+                                site_role="HYPOTHESIS_TARGET",
+                                rank=1,
+                            )
+                        )
+
+        ranker = RepairSiteRanker(graph)
+        ranked = ranker.rank_sites(
+            candidates=h_candidates,
+            problem=problem,
+            diagnosis=diagnosis,
+            test_traceback=None,
+            primary_file=candidate_file,
+            candidate_profiles=candidate_profiles_dict,
+        ) if h_candidates else []
+
+        selected_site = ranked[0] if ranked else (h_candidates[0] if h_candidates else None)
+        if not selected_site:
+            top_sym = diagnosis.repair_sites[0].split(":")[-1] if diagnosis.repair_sites else "unknown"
+            top_file = diagnosis.repair_sites[0].split(":")[0] if diagnosis.repair_sites else candidate_file
+            s_src, a_start, a_end, _ = repo_map.extract_surgical_unit(top_file, top_sym, "")
+            selected_site = EditSite(
+                file_path=top_file,
+                symbol=top_sym,
+                line_start=a_start or 1,
+                line_end=a_end or 1,
+                source_span=(a_start or 1, a_end or 1),
+                verified_source=s_src,
+                verification_status=bool(s_src),
+                site_role="HYPOTHESIS_TARGET",
+                rank=1,
+            )
+
+        is_coherent, justification = RepairSiteRanker.reconcile_target(selected_site, diagnosis, graph)
+        target = RepairTarget(
+            repository=problem.repo,
+            file_path=selected_site.file_path,
+            symbol=selected_site.symbol,
+            line_start=selected_site.line_start,
+            line_end=selected_site.line_end,
+            source_span=(selected_site.line_start, selected_site.line_end),
+            verified_source=getattr(selected_site, "verified_source", "") or repo_map.extract_surgical_unit(selected_site.file_path, selected_site.symbol, "")[0],
+            verification_status=True,
+            behavior_context="",
+        )
+
+        target_file_rel = selected_site.file_path
+        target_file_abs = repo_p / target_file_rel
+        try:
+            original_code = target_file_abs.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            original_code = target.verified_source
+
+        repair_context = context_retriever.retrieve(
+            problem_statement=problem.problem_statement,
+            target_file=target.file_path,
+            target_symbol=target.symbol,
+        )
+
+        unit = RepairUnitPlanner.plan_repair_unit(
+            file_path=target_file_rel,
+            source_code=original_code,
+            target_symbol=selected_site.symbol,
+            target_lines=(selected_site.line_start, selected_site.line_end),
+            diagnosis=diagnosis,
+            role=selected_site.role if hasattr(selected_site, "role") else "PRIMARY",
+        )
+
+        if api_contract:
+            api_contract.target_symbol = target.symbol
+
+        target_provenance["target_changes"].append({
+            "switched_to_hypothesis": current_h.id,
+            "target": f"{target.file_path}:{target.symbol}",
+            "justification": justification,
+        })
+
+        return selected_site, target, original_code, target_file_abs, target_file_rel, repair_context, unit
 
     def repair(
         self,
@@ -168,6 +323,8 @@ class V1RepairOrchestrator:
         graph, test_index = indexer.index()
 
         temporal_graph = TemporalRepositoryGraph(repo_dir, code_graph=graph).build(max_commits=50)
+        result.indexing_time_s = round(time.time() - t_index0, 3)
+        t_diag0 = time.time()
         telemetry_logger.log_event(
             "INDEXING",
             "GRAPHS_LOADED",
@@ -195,8 +352,9 @@ class V1RepairOrchestrator:
             temporal_graph=temporal_graph,
         )
         retrieved_cands = retriever.retrieve(
-            query=issue_text,
-            traceback_text=getattr(problem, "hints_text", "") or "",
+            query=problem.problem_statement or "",
+            hints_text=getattr(problem, "hints_text", "") or "",
+            traceback_text=None,
             top_k=8,
         )
 
@@ -289,14 +447,18 @@ class V1RepairOrchestrator:
                     class_ctx_str = bounded.format_for_prompt()
                     break
 
-        # Cross-Task Memory Context
-        memory_context = self.memory.format_memory_context(
+        # Cross-Task Memory Context (Respecting memory mode & isolating current instance)
+        memory_context, memory_prov = self.memory.retrieve_with_provenance(
             repo=problem.repo,
-            query_text=problem.problem_statement,
+            query_text=problem.problem_statement or "",
             target_symbol=stage1_candidates[0].symbol if stage1_candidates else "",
+            current_instance_id=problem.instance_id,
+            top_k=2,
         )
+        result.memory_mode = self.memory.mode.value
+        result.memory_provenance = memory_prov
         if memory_context:
-            result.memory_exemplars_used = 1
+            result.memory_exemplars_used = len(memory_prov.get("prompt_included_episode_ids", []))
 
         # Execution Path Modeling & Algorithmic Divergence Detection
         primary_site = stage1_candidates[0] if stage1_candidates else None
@@ -345,16 +507,84 @@ class V1RepairOrchestrator:
             )
             result.requirement_matrix = req_matrix
 
-        # Step 5: Competing Behavioral Diagnosis
+        # Step 5: Competing Behavioral Diagnosis & Evidence Packaging
+        ev_package = EvidencePackage(
+            instance_id=problem.instance_id,
+            problem_statement=problem.problem_statement or "",
+            expected_behavior=behavior_map.expected_behavior if behavior_map else "",
+        )
+        ev_package.candidate_symbols = [f"{c.file_path}:{c.symbol}" for c in stage1_candidates]
+        for c in stage1_candidates:
+            ev_package.add_item(
+                kind=EvidenceKind.STATIC_CODE_EVIDENCE,
+                category="AST_SURGICAL_UNIT",
+                content=f"Symbol `{c.symbol}` in `{c.file_path}` lines {c.line_start}-{c.line_end}",
+                provenance=f"{c.file_path}:{c.line_start}",
+                target_symbol=c.symbol,
+            )
+        for p in candidate_profiles:
+            if getattr(p, "causal_paths", None):
+                ev_package.add_item(
+                    kind=EvidenceKind.STATIC_CODE_EVIDENCE,
+                    category="CAUSAL_PATH",
+                    content=f"{p.symbol} causal path: {p.causal_paths[0].path_str}",
+                    provenance=p.file_path,
+                    target_symbol=p.symbol,
+                )
+            if getattr(p, "direct_tests", None):
+                ev_package.associated_tests.extend([str(t) for t in p.direct_tests[:3]])
+        if api_contract:
+            ev_package.contract_invariants = [
+                f"{api_contract.target_symbol}: {inv}"
+                for inv in (api_contract.behavioral_invariants or [])
+            ]
+        if test_index and hasattr(test_index, "get_tests_for_symbol"):
+            for c in stage1_candidates:
+                tests = test_index.get_tests_for_symbol(c.symbol) or []
+                if tests:
+                    ev_package.associated_tests.extend([str(t) for t in tests[:3]])
+
+        # Observed facts vs unknown information
+        hint_text = getattr(problem, "hints_text", "") or ""
+        hint_lines_list: List[str] = []
+        if hint_text:
+            for line in hint_text.splitlines():
+                if line.strip():
+                    hint_lines_list.append(line.strip())
+        if hint_lines_list:
+            for h_line in hint_lines_list[:4]:
+                ev_package.add_item(
+                    kind=EvidenceKind.STATIC_CODE_EVIDENCE,
+                    category="PROBLEM_HINT",
+                    content=h_line,
+                    provenance="hints_text",
+                )
+
+        ev_package.add_item(
+            kind=EvidenceKind.UNKNOWN_OR_UNAVAILABLE,
+            category="DYNAMIC_RUNTIME_TRACE",
+            content="No runtime traceback observed prior to repair; avoid fabricating execution trace.",
+        )
+
+        if not (self.enable_dynamic_probing and allow_dynamic_probes):
+            ev_package.add_item(
+                kind=EvidenceKind.UNKNOWN_OR_UNAVAILABLE,
+                category="DYNAMIC_EXECUTION_PROBE",
+                content="Dynamic probing disabled by configuration; no probe state recorded.",
+            )
+
+        result.evidence_package = ev_package
+
         diag_prompt = CompetingDiagnosisEngine.build_diagnostic_prompt(
             problem_statement=problem.problem_statement,
             behavior_map=behavior_map,
             candidate_profiles=candidate_profiles,
-            failure_evidence=None,
+            failure_evidence=ev_package,
             state_flows=state_flows,
             class_context=class_ctx_str or None,
             execution_path_summary=exec_path.format_for_prompt() if exec_path else "",
         )
+        diag_prompt = diag_prompt + "\n" + ev_package.format_for_prompt() + "\n"
         # Inject Unified Evidence Substrate
         unified_ev_summary = unified_evidence.format_summary_for_prompt()
         if unified_ev_summary:
@@ -401,27 +631,9 @@ class V1RepairOrchestrator:
         # V1.1 Hypothesis Contract Gate: Filter & eliminate conflicting hypotheses
         diagnosis = HypothesisContractGate.evaluate_and_filter(diagnosis, api_contract, req_matrix)
         result.diagnosis = diagnosis
+        result.retrieval_diagnosis_time_s = round(time.time() - t_diag0, 3)
 
-        # Step 6: Dynamic Sandboxed Probing & Executable Counterfactuals (Optional)
-        if allow_dynamic_probes and tester and len(diagnosis.hypotheses) >= 2:
-            probe_runner = ExperimentRunner(repo_dir=repo_dir, tester=tester)
-            target_probe_line = stage1_candidates[0].line_start
-            if primary_site and causal_trace and causal_trace.first_divergence_line:
-                target_probe_line = causal_trace.first_divergence_line
-            elif exec_path and exec_path.divergence_node:
-                target_probe_line = exec_path.divergence_node.line_number
-            exp_res = probe_runner.run_experiment(
-                instance_id=problem.instance_id,
-                diagnosis=diagnosis,
-                target_file=stage1_candidates[0].file_path,
-                target_symbol=stage1_candidates[0].symbol,
-                target_line=target_probe_line,
-            )
-            result.experiment_executed = True
-            result.experiment_summary = exp_res.summary
-            telemetry_logger.log_event("EXPERIMENT", "PROBE_EXECUTED", details=exp_res.to_dict())
-
-        # Step 7: Candidate Ranking & Selection
+        # Step 6: Candidate Ranking & Selection with Explicit Reconciliation
         all_candidates = list(stage1_candidates)
         for aff in diagnosis.affected_sites:
             if ":" in aff:
@@ -446,23 +658,86 @@ class V1RepairOrchestrator:
                             )
                         )
 
-        cand_profiles_dict = {p.symbol: p for p in candidate_profiles}
+        cand_profiles_dict: Dict[str, Any] = {}
         for p in candidate_profiles:
-            cand_profiles_dict[p.symbol.split(".")[-1]] = p
+            if hasattr(p, "file_path") and p.file_path:
+                norm_file = p.file_path.replace("\\", "/")
+                cand_profiles_dict[f"{norm_file}:{p.symbol}"] = p
+                cand_profiles_dict[f"{norm_file.split('/')[-1]}:{p.symbol}"] = p
+            if p.symbol not in cand_profiles_dict:
+                cand_profiles_dict[p.symbol] = p
+            short_sym = p.symbol.split(".")[-1]
+            if short_sym not in cand_profiles_dict:
+                cand_profiles_dict[short_sym] = p
 
         ranker = RepairSiteRanker(graph)
         ranked_sites = ranker.rank_sites(
             candidates=all_candidates,
             problem=problem,
             diagnosis=diagnosis,
-            test_traceback=None,
+            test_traceback=ev_package.runtime_tracebacks if ev_package.runtime_tracebacks else None,
             primary_file=candidate_file,
             behavior_map=behavior_map,
             candidate_profiles=cand_profiles_dict,
         )
         result.ranked_sites = ranked_sites
 
+        if not ranked_sites and not stage1_candidates:
+            result.resolved = False
+            result.failure_class = FailureClass.UNRESOLVED.value
+            result.runtime_s = round(time.time() - t0, 2)
+            return result
+
+        # Reconcile target with diagnosis
         selected_site = ranked_sites[0] if ranked_sites else stage1_candidates[0]
+        is_coherent, justification = RepairSiteRanker.reconcile_target(selected_site, diagnosis, graph)
+        if not is_coherent:
+            for cand in ranked_sites[1:]:
+                c_coh, c_just = RepairSiteRanker.reconcile_target(cand, diagnosis, graph)
+                if c_coh:
+                    selected_site = cand
+                    is_coherent = True
+                    justification = c_just
+                    break
+
+        # Priority B: Prevent target drift. If ranker still diverged, bind directly to hypothesized site
+        if not is_coherent and diagnosis.affected_sites:
+            for aff in diagnosis.affected_sites:
+                if ":" in aff:
+                    aff_file, aff_sym = aff.split(":", 1)
+                    aff_file = aff_file.strip("` \t\r\n")
+                    aff_sym = aff_sym.strip("` \t\r\n()[]")
+                    aff_full = repo_p / aff_file
+                    if aff_full.exists():
+                        aff_source, a_start, a_end, _ = repo_map.extract_surgical_unit(aff_file, aff_sym, "")
+                        if aff_source:
+                            selected_site = EditSite(
+                                file_path=aff_file,
+                                symbol=aff_sym,
+                                line_start=a_start or 1,
+                                line_end=a_end or 1,
+                                source_span=(a_start or 1, a_end or 1),
+                                verified_source=aff_source,
+                                verification_status=True,
+                                site_role="DIAGNOSIS_FORCED",
+                                rank=1,
+                            )
+                            is_coherent, justification = RepairSiteRanker.reconcile_target(selected_site, diagnosis, graph)
+                            break
+
+        if not is_coherent or not getattr(selected_site, "verification_status", False):
+            result.target_unjustified = True
+
+        target_provenance = {
+            "original_diagnosis_sites": getattr(diagnosis, "affected_sites", []),
+            "selected_target": f"{selected_site.file_path}:{selected_site.symbol}",
+            "matches_hypothesized_site": is_coherent and "Target matches" in justification,
+            "justification": justification,
+            "target_unjustified": result.target_unjustified,
+            "target_changes": [],
+        }
+        result.target_provenance = target_provenance
+
         target = RepairTarget(
             repository=problem.repo,
             file_path=selected_site.file_path,
@@ -479,6 +754,31 @@ class V1RepairOrchestrator:
             api_contract.target_symbol = target.symbol
         target_file_rel = selected_site.file_path
         target_file_abs = repo_p / target_file_rel
+
+        # Step 7: Dynamic Sandboxed Probing & Executable Counterfactuals (Gated via configuration)
+        if self.enable_dynamic_probing and allow_dynamic_probes and tester and len(diagnosis.hypotheses) >= 2:
+            t_probe0 = time.time()
+            probe_runner = ExperimentRunner(repo_dir=repo_dir, tester=tester)
+            target_probe_line = target.line_start
+            if primary_site and causal_trace and causal_trace.first_divergence_line:
+                target_probe_line = causal_trace.first_divergence_line
+            elif exec_path and exec_path.divergence_node:
+                target_probe_line = exec_path.divergence_node.line_number
+            exp_res = probe_runner.run_experiment(
+                instance_id=problem.instance_id,
+                diagnosis=diagnosis,
+                target_file=target.file_path,
+                target_symbol=target.symbol,
+                target_line=target_probe_line,
+            )
+            result.probing_time_s = round(time.time() - t_probe0, 3)
+            result.experiment_executed = True
+            result.experiment_summary = exp_res.summary
+            telemetry_logger.log_event("EXPERIMENT", "PROBE_EXECUTED", details=exp_res.to_dict())
+        else:
+            result.probing_time_s = None
+            result.experiment_executed = False
+            result.experiment_summary = "Dynamic probing disabled by default (V1.6 reliability configuration)."
 
         try:
             original_code = target_file_abs.read_text(encoding="utf-8", errors="replace")
@@ -511,7 +811,16 @@ class V1RepairOrchestrator:
         patch_applied = False
         applied_patch: Optional[Patch] = None
         attempt = 0
-        active_hyp_idx = 0
+        active_hyp_idx = getattr(diagnosis, "selected_hypothesis_idx", 0)
+        if not (0 <= active_hyp_idx < len(diagnosis.hypotheses)):
+            active_hyp_idx = 0
+        diagnosis.set_active_hypothesis(active_hyp_idx)
+        patch_hashes: set[str] = set()
+        attempt_signatures: set[str] = set()
+        last_working_replacement: Optional[str] = None
+        last_residual_record: Optional[ResidualFailureRecord] = None
+        last_failure_class: Optional[str] = None
+        last_f2p_passed: int = 0
 
         while attempt < max_repair_attempts:
             attempt += 1
@@ -533,6 +842,11 @@ class V1RepairOrchestrator:
                 )
                 strategy_name = "strict_structured_json"
             elif (attempt == 2 or (attempt == 3 and current_action == ReplanAction.REFINE_SEMANTICS)) and current_action != ReplanAction.FALLBACK_SYNTAX:
+                res_guidance = (
+                    last_residual_record.format_corrective_guidance()
+                    if (last_residual_record and last_residual_record.is_partial_progress)
+                    else None
+                )
                 prompt_to_use = StructuredRepairPromptBuilder.build_repair_prompt(
                     unit=unit,
                     problem=problem,
@@ -544,41 +858,395 @@ class V1RepairOrchestrator:
                     contract_spec=api_contract.format_for_prompt() if api_contract else "",
                     requirement_matrix_spec=req_matrix.format_for_prompt() if req_matrix else "",
                     error_feedback=last_error,
+                    residual_guidance=res_guidance,
+                    prior_patch_code=last_working_replacement if last_working_replacement else None,
                 )
                 strategy_name = "refined_structured_json"
             elif attempt == 2 or (attempt == 3 and current_action == ReplanAction.FALLBACK_SYNTAX):
-                prompt_to_use = StructuredRepairPromptBuilder.build_minimal_prompt(unit, error_feedback=last_error)
+                prompt_to_use = StructuredRepairPromptBuilder.build_minimal_prompt(
+                    unit=unit,
+                    error_feedback=last_error,
+                    problem_statement=problem.problem_statement[:1000] if problem else "",
+                    diagnosis_summary=f"{diagnosis.cause} -> {diagnosis.repair_strategy}" if diagnosis else "",
+                    prior_patch_code=last_working_replacement or "",
+                )
                 strategy_name = "minimal_target_bound_json"
             else:
-                prompt_to_use = StructuredRepairPromptBuilder.build_replacement_only_prompt(unit, error_feedback=last_error)
+                prompt_to_use = StructuredRepairPromptBuilder.build_replacement_only_prompt(
+                    unit=unit,
+                    error_feedback=last_error,
+                    problem_statement=problem.problem_statement[:1000] if problem else "",
+                    diagnosis_summary=f"{diagnosis.cause} -> {diagnosis.repair_strategy}" if diagnosis else "",
+                    prior_patch_code=last_working_replacement or "",
+                )
                 strategy_name = "replacement_only_code"
 
+            result.generation_attempted = True
+            llm_t0 = time.time()
             try:
                 resp = self.provider.generate_one(prompt_to_use, system=SYSTEM_STRUCTURED_REPAIR_PROMPT)
+                result.generation_time_s += round(time.time() - llm_t0, 3)
                 structured_out = StructuredRepairParser.parse(resp.text, unit)
+                result.patch_generated = True
             except Exception as e:
-                last_error = str(e)
+                err_msg = str(e)
+                last_error = err_msg
+                if "no-op repair" in err_msg or "identical" in err_msg.lower():
+                    fail_cls = FailureClass.UNRESOLVED.value
+                elif "AMBIGUOUS" in err_msg or "JSON" in err_msg or "schema" in err_msg.lower():
+                    fail_cls = FailureClass.REPAIR_SCHEMA_FAILURE.value
+                else:
+                    fail_cls = FailureClass.PATCH_SYNTAX.value
+
+                attempt_sig = f"{unit.file_path}:{unit.symbol}:{strategy_name}:{active_hyp_idx}:{err_msg}"
+                is_repeated = attempt_sig in attempt_signatures
+                attempt_signatures.add(attempt_sig)
+                if is_repeated:
+                    result.repeated_attempt_detected = True
+
+                result.failure_class = fail_cls
+                current_hyp_id = diagnosis.hypotheses[active_hyp_idx].id if active_hyp_idx < len(diagnosis.hypotheses) else ""
+                result.refinement_history.append({
+                    "attempt": attempt,
+                    "hypothesis_id": current_hyp_id,
+                    "strategy": strategy_name,
+                    "static_valid": False,
+                    "tests_executed": False,
+                    "resolved": False,
+                    "failure_class": fail_cls,
+                    "error_message": err_msg,
+                    "patch_text": "",
+                })
+
+                t_replan0 = time.time()
+                decision = FailureDrivenReplanner.decide(
+                    failure_class=fail_cls,
+                    attempt=attempt,
+                    max_attempts=max_repair_attempts,
+                    hypotheses_available=len(diagnosis.hypotheses),
+                    active_hypothesis_idx=active_hyp_idx,
+                    error_message=err_msg,
+                    residual_record=last_residual_record,
+                    repeated_attempt=is_repeated,
+                    available_hypotheses=diagnosis.hypotheses,
+                )
+                result.replanning_time_s += round(time.time() - t_replan0, 3)
+                telemetry_logger.log_event("REPLAN", "PREVERIFY_PARSE_REPLAN", details=decision.__dict__)
+                current_action = decision.action
+                if decision.action == ReplanAction.ABORT:
+                    _cleanup()
+                    break
+                if decision.action == ReplanAction.SWITCH_HYPOTHESIS and decision.target_hypothesis_id:
+                    target_idx = None
+                    for idx, h in enumerate(diagnosis.hypotheses):
+                        if h.id == decision.target_hypothesis_id:
+                            target_idx = idx
+                            break
+                    active_hyp_idx = target_idx if target_idx is not None else (active_hyp_idx + 1)
+                    if active_hyp_idx < len(diagnosis.hypotheses):
+                        (
+                            selected_site,
+                            target,
+                            original_code,
+                            target_file_abs,
+                            target_file_rel,
+                            repair_context,
+                            unit,
+                        ) = self._rebuild_repair_context(
+                            problem=problem,
+                            repo_dir=repo_dir,
+                            repo_map=repo_map,
+                            graph=graph,
+                            test_index=test_index,
+                            diagnosis=diagnosis,
+                            active_hyp_idx=active_hyp_idx,
+                            context_retriever=context_retriever,
+                            api_contract=api_contract,
+                            req_matrix=req_matrix,
+                            candidate_profiles_dict=cand_profiles_dict,
+                            candidate_file=candidate_file,
+                            target_provenance=target_provenance,
+                        )
+                        result.target = target
+                        result.repair_unit = unit
+                        last_working_replacement = None
+
+                last_error = decision.prompt_guidance or err_msg
+                _cleanup()
                 continue
 
-            # Deterministic Source Reconstruction
-            reconstructed = SourceReconstructor.reconstruct_single(
-                original_code=original_code,
-                unit=unit,
-                output=structured_out,
-                file_rel_path=unit.file_path,
-            )
+            # Deterministic Source Reconstruction (supporting coordinated multi-site repairs)
+            rec_t0 = time.time()
+            if getattr(structured_out, "sub_edits", None):
+                files_source_multi = {unit.file_path: original_code}
+                edits_multi: list[tuple[RepairUnit, StructuredRepairOutput]] = []
+                if structured_out.replacement and structured_out.repair_action != RepairAction.MULTI_SITE.value:
+                    edits_multi.append((unit, structured_out))
+                for se in structured_out.sub_edits:
+                    se_file = se.get("file_path", unit.file_path).replace("\\", "/")
+                    se_sym = se.get("symbol", unit.symbol)
+                    se_action = se.get("repair_action", RepairAction.REPLACE_STATEMENT.value)
+                    se_rep = se.get("replacement", "")
+                    if se_file not in files_source_multi:
+                        f_abs = repo_p / se_file
+                        if f_abs.exists():
+                            files_source_multi[se_file] = f_abs.read_text(encoding="utf-8", errors="replace")
+                    se_source = files_source_multi.get(se_file, "")
+                    if se_source:
+                        se_unit = RepairUnitPlanner.plan_repair_unit(
+                            file_path=se_file,
+                            source_code=se_source,
+                            target_symbol=se_sym,
+                            diagnosis=diagnosis,
+                        )
+                        se_out = StructuredRepairOutput(
+                            repair_action=se_action,
+                            target_unit_id=se_unit.id,
+                            target_symbol=se_sym,
+                            replacement=se_rep,
+                            reasoning=se.get("reasoning", ""),
+                        )
+                        edits_multi.append((se_unit, se_out))
+                if edits_multi:
+                    reconstructed = SourceReconstructor.reconstruct_multi(
+                        files_source=files_source_multi,
+                        edits=edits_multi,
+                    )
+                else:
+                    reconstructed = SourceReconstructor.reconstruct_single(
+                        original_code=original_code,
+                        unit=unit,
+                        output=structured_out,
+                        file_rel_path=unit.file_path,
+                    )
+            else:
+                reconstructed = SourceReconstructor.reconstruct_single(
+                    original_code=original_code,
+                    unit=unit,
+                    output=structured_out,
+                    file_rel_path=unit.file_path,
+                )
+            result.reconstruction_time_s += round(time.time() - rec_t0, 3)
 
             if not reconstructed.success:
-                last_error = reconstructed.error
+                rec_err = reconstructed.error or "Reconstruction failed"
+                last_error = rec_err
+                result.structurally_valid = False
+                if "No changes produced" in rec_err or "identical" in rec_err.lower():
+                    fail_cls = FailureClass.UNRESOLVED.value
+                else:
+                    fail_cls = FailureClass.REPAIR_VALIDATION_FAILURE.value
+
+                attempt_sig = f"{unit.file_path}:{unit.symbol}:{strategy_name}:{active_hyp_idx}:{rec_err}"
+                is_repeated = attempt_sig in attempt_signatures
+                attempt_signatures.add(attempt_sig)
+                if is_repeated:
+                    result.repeated_attempt_detected = True
+
+                result.failure_class = fail_cls
+                current_hyp_id = diagnosis.hypotheses[active_hyp_idx].id if active_hyp_idx < len(diagnosis.hypotheses) else ""
+                result.refinement_history.append({
+                    "attempt": attempt,
+                    "hypothesis_id": current_hyp_id,
+                    "strategy": strategy_name,
+                    "static_valid": False,
+                    "tests_executed": False,
+                    "resolved": False,
+                    "failure_class": fail_cls,
+                    "error_message": rec_err,
+                    "patch_text": "",
+                })
+
+                t_replan0 = time.time()
+                decision = FailureDrivenReplanner.decide(
+                    failure_class=fail_cls,
+                    attempt=attempt,
+                    max_attempts=max_repair_attempts,
+                    hypotheses_available=len(diagnosis.hypotheses),
+                    active_hypothesis_idx=active_hyp_idx,
+                    error_message=rec_err,
+                    residual_record=last_residual_record,
+                    repeated_attempt=is_repeated,
+                    available_hypotheses=diagnosis.hypotheses,
+                )
+                result.replanning_time_s += round(time.time() - t_replan0, 3)
+                telemetry_logger.log_event("REPLAN", "PREVERIFY_RECONSTRUCT_REPLAN", details=decision.__dict__)
+                current_action = decision.action
+                if decision.action == ReplanAction.ABORT:
+                    _cleanup()
+                    break
+                if decision.action == ReplanAction.SWITCH_HYPOTHESIS and decision.target_hypothesis_id:
+                    target_idx = None
+                    for idx, h in enumerate(diagnosis.hypotheses):
+                        if h.id == decision.target_hypothesis_id:
+                            target_idx = idx
+                            break
+                    active_hyp_idx = target_idx if target_idx is not None else (active_hyp_idx + 1)
+                    if active_hyp_idx < len(diagnosis.hypotheses):
+                        (
+                            selected_site,
+                            target,
+                            original_code,
+                            target_file_abs,
+                            target_file_rel,
+                            repair_context,
+                            unit,
+                        ) = self._rebuild_repair_context(
+                            problem=problem,
+                            repo_dir=repo_dir,
+                            repo_map=repo_map,
+                            graph=graph,
+                            test_index=test_index,
+                            diagnosis=diagnosis,
+                            active_hyp_idx=active_hyp_idx,
+                            context_retriever=context_retriever,
+                            api_contract=api_contract,
+                            req_matrix=req_matrix,
+                            candidate_profiles_dict=cand_profiles_dict,
+                            candidate_file=candidate_file,
+                            target_provenance=target_provenance,
+                        )
+                        result.target = target
+                        result.repair_unit = unit
+                        last_working_replacement = None
+
+                last_error = decision.prompt_guidance or rec_err
+                _cleanup()
                 continue
 
-            # Write to disk temporarily for verification
-            target_file_abs.write_text(reconstructed.modified_contents[unit.file_path], encoding="utf-8")
+            result.structurally_valid = True
+            current_hyp_id = diagnosis.hypotheses[active_hyp_idx].id if active_hyp_idx < len(diagnosis.hypotheses) else ""
+
+            # Write to disk temporarily for verification with transactional backup and rollback
+            orig_sources_map = {}
+            written_backups = []
+            write_failed = False
+            write_err_msg = ""
+            for mod_rel, mod_code in reconstructed.modified_contents.items():
+                dest_f = repo_p / mod_rel
+                dest_f.parent.mkdir(parents=True, exist_ok=True)
+                if mod_rel == unit.file_path:
+                    orig_sources_map[mod_rel] = original_code
+                elif dest_f.exists():
+                    orig_sources_map[mod_rel] = dest_f.read_text(encoding="utf-8", errors="replace")
+                else:
+                    orig_sources_map[mod_rel] = None
+
+                try:
+                    dest_f.write_text(mod_code, encoding="utf-8")
+                    written_backups.append((dest_f, orig_sources_map[mod_rel]))
+                except Exception as write_err:
+                    write_failed = True
+                    write_err_msg = str(write_err)
+                    logger.error(f"Failed to write reconstructed file {mod_rel}: {write_err}")
+                    # Roll back all written files to prior state
+                    for wf, prior_content in written_backups:
+                        try:
+                            if prior_content is None:
+                                if wf.exists():
+                                    wf.unlink()
+                            else:
+                                wf.write_text(prior_content, encoding="utf-8")
+                        except Exception:
+                            pass
+                    break
+
+            if write_failed:
+                _cleanup()
+                result.refinement_history.append({
+                    "attempt": attempt,
+                    "hypothesis_id": current_hyp_id,
+                    "strategy": strategy_name,
+                    "static_valid": False,
+                    "tests_executed": False,
+                    "resolved": False,
+                    "failure_class": FailureClass.PATCH_SYNTAX.value,
+                    "error_message": f"Transactional multi-file write failed: {write_err_msg}",
+                    "patch_text": "",
+                })
+                continue
 
             diff_proc = subprocess.run(["git", "diff"], cwd=repo_dir, capture_output=True, text=True)
             candidate_diff = diff_proc.stdout or reconstructed.patch_text
             if req_matrix:
                 req_matrix.evaluate(candidate_diff)
+
+            # Pre-verification loop breaker: reject duplicate candidate patches before running expensive containers
+            candidate_patch_hash = hashlib.sha256(candidate_diff.encode("utf-8")).hexdigest()[:16]
+            if candidate_patch_hash in patch_hashes:
+                result.repeated_attempt_detected = True
+                telemetry_logger.log_event("REPAIR", "EARLY_LOOP_BREAKER_DUPLICATE_PATCH", details={"hash": candidate_patch_hash, "attempt": attempt})
+                result.refinement_history.append({
+                    "attempt": attempt,
+                    "hypothesis_id": current_hyp_id,
+                    "strategy": strategy_name,
+                    "static_valid": True,
+                    "tests_executed": False,
+                    "resolved": False,
+                    "failure_class": FailureClass.UNRESOLVED.value,
+                    "error_message": f"Pre-verification loop breaker: duplicate patch hash {candidate_patch_hash} already tested.",
+                    "patch_text": candidate_diff,
+                })
+                t_replan0 = time.time()
+                decision = FailureDrivenReplanner.decide(
+                    failure_class=FailureClass.UNRESOLVED.value,
+                    attempt=attempt,
+                    max_attempts=max_repair_attempts,
+                    hypotheses_available=len(diagnosis.hypotheses),
+                    active_hypothesis_idx=active_hyp_idx,
+                    f2p_passed=last_f2p_passed,
+                    p2p_failed=0,
+                    error_message=f"Duplicate patch hash {candidate_patch_hash}",
+                    residual_record=last_residual_record,
+                    repeated_attempt=True,
+                    available_hypotheses=diagnosis.hypotheses,
+                )
+                result.replanning_time_s += round(time.time() - t_replan0, 3)
+                telemetry_logger.log_event("REPLAN", "EARLY_LOOP_BREAKER_REPLAN", details=decision.__dict__)
+                current_action = decision.action
+                if decision.action == ReplanAction.ABORT:
+                    _cleanup()
+                    break
+                if decision.action == ReplanAction.SWITCH_HYPOTHESIS and decision.target_hypothesis_id:
+                    target_idx = None
+                    for idx, h in enumerate(diagnosis.hypotheses):
+                        if h.id == decision.target_hypothesis_id:
+                            target_idx = idx
+                            break
+                    active_hyp_idx = target_idx if target_idx is not None else (active_hyp_idx + 1)
+                    if active_hyp_idx < len(diagnosis.hypotheses):
+                        (
+                            selected_site,
+                            target,
+                            original_code,
+                            target_file_abs,
+                            target_file_rel,
+                            repair_context,
+                            unit,
+                        ) = self._rebuild_repair_context(
+                            problem=problem,
+                            repo_dir=repo_dir,
+                            repo_map=repo_map,
+                            graph=graph,
+                            test_index=test_index,
+                            diagnosis=diagnosis,
+                            active_hyp_idx=active_hyp_idx,
+                            context_retriever=context_retriever,
+                            api_contract=api_contract,
+                            req_matrix=req_matrix,
+                            candidate_profiles_dict=cand_profiles_dict,
+                            candidate_file=candidate_file,
+                            target_provenance=target_provenance,
+                        )
+                        result.target = target
+                        result.repair_unit = unit
+                        last_working_replacement = None
+
+                last_error = decision.prompt_guidance or f"Identical patch proposed again: {candidate_patch_hash}"
+                _cleanup()
+                continue
+
+            patch_hashes.add(candidate_patch_hash)
 
             applied_patch = Patch(
                 hypothesis_id=f"STRUCTURED_V1_ATT_{attempt}",
@@ -593,28 +1261,36 @@ class V1RepairOrchestrator:
             )
 
             # Adaptive Tiered Verification
+            test_t0 = time.time()
+            result.submitted_to_harness = True
             verdict: AdaptiveVerificationVerdict = verifier.verify(
                 instance_id=problem.instance_id,
                 patch=applied_patch,
-                original_sources={unit.file_path: original_code},
+                original_sources=orig_sources_map or {unit.file_path: original_code},
                 reconstructed=reconstructed,
-                target_units=[unit],
+                target_units=reconstructed.units_applied if reconstructed.units_applied else [unit],
                 contract=api_contract,
             )
+            result.test_time_s += round(time.time() - test_t0, 3)
 
             result.test_executed = verdict.tests_executed
             result.resolved = verdict.resolved
             result.failure_class = verdict.failure_class
             result.test_summary = verdict.test_summary
-            result.validation_result = StaticRepairValidator.validate(
+            val_t0 = time.time()
+            val_res = StaticRepairValidator.validate(
                 original_sources={unit.file_path: original_code},
                 reconstructed=reconstructed,
                 target_units=[unit],
                 contract=api_contract,
             )
+            result.static_validation_time_s += round(time.time() - val_t0, 3)
+            result.validation_result = val_res
 
+            current_hyp_id = diagnosis.hypotheses[active_hyp_idx].id if active_hyp_idx < len(diagnosis.hypotheses) else ""
             result.refinement_history.append({
                 "attempt": attempt,
+                "hypothesis_id": current_hyp_id,
                 "strategy": strategy_name,
                 "static_valid": verdict.static_valid,
                 "tests_executed": verdict.tests_executed,
@@ -624,6 +1300,41 @@ class V1RepairOrchestrator:
                 "patch_text": applied_patch.patch_text if applied_patch else "",
             })
 
+            # Record residual failure diagnosis (Priority C)
+            res_rec = ResidualFailureRecord.from_verdict(
+                instance_id=problem.instance_id,
+                attempt=attempt,
+                verdict=verdict,
+                patch_text=applied_patch.patch_text if applied_patch else "",
+                target_str=f"{target.file_path}:{target.symbol}",
+                req_matrix=req_matrix,
+            )
+            result.residual_records.append(res_rec)
+            last_residual_record = res_rec
+
+            # If partial progress was achieved, capture the replacement code to preserve working invariants
+            if res_rec.is_partial_progress and (getattr(structured_out, "replacement", None) or getattr(structured_out, "replacement_code", None)):
+                last_working_replacement = getattr(structured_out, "replacement", None) or getattr(structured_out, "replacement_code", "")
+
+            # Loop breaker & repeated ineffective attempt detection (Priority D)
+            p_text = applied_patch.patch_text if applied_patch else ""
+            patch_hash = hashlib.sha256(p_text.encode("utf-8")).hexdigest()[:16]
+            attempt_sig = f"{unit.file_path}:{unit.symbol}:{patch_hash}:{verdict.failure_class}"
+            is_repeated = False
+            if patch_hash in patch_hashes or attempt_sig in attempt_signatures or (
+                attempt > 1
+                and verdict.failure_class == last_failure_class
+                and verdict.f2p_passed == last_f2p_passed
+                and verdict.f2p_passed == 0
+            ):
+                is_repeated = True
+                result.repeated_attempt_detected = True
+
+            patch_hashes.add(patch_hash)
+            attempt_signatures.add(attempt_sig)
+            last_failure_class = verdict.failure_class
+            last_f2p_passed = verdict.f2p_passed
+
             if verdict.resolved:
                 patch_applied = True
                 result.patch = applied_patch
@@ -631,6 +1342,7 @@ class V1RepairOrchestrator:
                 break
 
             # Failure-Driven Replanning
+            t_replan0 = time.time()
             decision = FailureDrivenReplanner.decide(
                 failure_class=verdict.failure_class,
                 attempt=attempt,
@@ -640,24 +1352,73 @@ class V1RepairOrchestrator:
                 f2p_passed=verdict.f2p_passed,
                 p2p_failed=verdict.p2p_total - verdict.p2p_passed if verdict.p2p_total else 0,
                 error_message=verdict.error_message,
+                residual_record=res_rec,
+                repeated_attempt=is_repeated,
+                available_hypotheses=diagnosis.hypotheses,
             )
+            result.replanning_time_s += round(time.time() - t_replan0, 3)
 
             telemetry_logger.log_event("REPLAN", "FAILURE_REPLAN_DECISION", details=decision.__dict__)
             current_action = decision.action
 
+            if decision.action == ReplanAction.ABORT:
+                _cleanup()
+                break
+
             if decision.action == ReplanAction.SWITCH_HYPOTHESIS and decision.target_hypothesis_id:
-                active_hyp_idx += 1
+                target_idx = None
+                for idx, h in enumerate(diagnosis.hypotheses):
+                    if h.id == decision.target_hypothesis_id:
+                        target_idx = idx
+                        break
+                active_hyp_idx = target_idx if target_idx is not None else (active_hyp_idx + 1)
                 if active_hyp_idx < len(diagnosis.hypotheses):
-                    diagnosis.selected_hypothesis_idx = active_hyp_idx
-                    diagnosis.selected_hypothesis = diagnosis.hypotheses[active_hyp_idx]
+                    (
+                        selected_site,
+                        target,
+                        original_code,
+                        target_file_abs,
+                        target_file_rel,
+                        repair_context,
+                        unit,
+                    ) = self._rebuild_repair_context(
+                        problem=problem,
+                        repo_dir=repo_dir,
+                        repo_map=repo_map,
+                        graph=graph,
+                        test_index=test_index,
+                        diagnosis=diagnosis,
+                        active_hyp_idx=active_hyp_idx,
+                        context_retriever=context_retriever,
+                        api_contract=api_contract,
+                        req_matrix=req_matrix,
+                        candidate_profiles_dict=cand_profiles_dict,
+                        candidate_file=candidate_file,
+                        target_provenance=target_provenance,
+                    )
+                    result.target = target
+                    result.repair_unit = unit
+                    last_working_replacement = None
 
             last_error = decision.prompt_guidance or verdict.error_message
             _cleanup()
 
         result.patch = applied_patch
-        result.patch_applied = patch_applied or (result.resolved)
+        result.patch_applied = patch_applied
         result.runtime_s = round(time.time() - t0, 2)
-        result.telemetry = telemetry_logger.get_breakdown()
+        telemetry_breakdown = telemetry_logger.get_breakdown()
+        telemetry_breakdown.update({
+            "indexing_time_s": result.indexing_time_s,
+            "retrieval_diagnosis_time_s": result.retrieval_diagnosis_time_s,
+            "probing_time_s": result.probing_time_s,
+            "generation_time_s": round(result.generation_time_s, 3),
+            "reconstruction_time_s": round(result.reconstruction_time_s, 3),
+            "static_validation_time_s": round(result.static_validation_time_s, 3),
+            "test_time_s": round(result.test_time_s, 3),
+            "replanning_time_s": round(result.replanning_time_s, 3),
+            "runtime_s": result.runtime_s,
+        })
+        result.telemetry = telemetry_breakdown
 
         # Step 10: Persistent Episode Storage
         try:
@@ -690,7 +1451,7 @@ class V1RepairOrchestrator:
                 ranked_candidates=[s.to_dict() for s in ranked_sites[:5]],
                 validation_result=result.validation_result.to_dict() if result.validation_result else {},
             )
-            save_repair_episode(episode)
+            self.memory.record_episode(episode)
         except Exception as e:
             logger.debug(f"Failed to record repair episode: {e}")
 

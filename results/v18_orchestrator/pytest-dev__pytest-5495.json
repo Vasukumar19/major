@@ -1,0 +1,500 @@
+{
+  "instance_id": "pytest-dev__pytest-5495",
+  "repo": "pytest-dev/pytest",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "4e8292e9434efb2f",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "0abd7d93da49beb0",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "00c58176c092b44a",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "c6576310d2f24640",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": false,
+  "patch_tier": null,
+  "patch_text": "",
+  "test_executed": false,
+  "failure_class": "UNRESOLVED",
+  "runtime_s": 321.05,
+  "f2p_passed": 0,
+  "f2p_total": 0,
+  "p2p_passed": 0,
+  "p2p_total": 0,
+  "refinement_cycles": 3,
+  "target_file": "src/_pytest/pytester.py",
+  "target_symbol": "assert_contains",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "src/_pytest/pytester.py:assert_contains"
+    ],
+    "selected_target": "src/_pytest/pytester.py:assert_contains",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'src/_pytest/pytester.py:assert_contains'.",
+    "target_unjustified": true,
+    "target_changes": []
+  },
+  "generation_attempted": true,
+  "structurally_valid": false,
+  "submitted_to_harness": false,
+  "test_time_s": 0.0,
+  "generation_time_s": 174.226,
+  "reconstruction_time_s": 0.0,
+  "indexing_time_s": 38.515,
+  "retrieval_diagnosis_time_s": 107.894,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.0,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "00c58176c092b44a",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "psf__requests-863",
+      "psf__requests-2148"
+    ],
+    "exemplars_included_in_prompt": [
+      "psf__requests-863",
+      "psf__requests-2148"
+    ],
+    "prompt_included_episode_ids": [
+      "psf__requests-863",
+      "psf__requests-2148"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pytest-dev__pytest-5495",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The `assert_contains` function in `src/_pytest/pytester.py` may not handle `bytes` objects correctly, leading to unexpected behavior.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Modify the `assert_contains` function to handle `bytes` objects appropriately, ensuring binary vs text stream compatibility matching parameter specification.",
+    "affected_sites": [
+      "src/_pytest/pytester.py:assert_contains"
+    ],
+    "defect_confidence": 0.75,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 0,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The `assert_contains` function in `src/_pytest/pytester.py` may not handle `bytes` objects correctly, leading to unexpected behavior.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The function should correctly handle `bytes` objects without triggering unexpected behavior.",
+          "expected_mutations": [
+            "Modify the function to handle `bytes` objects correctly"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Triggering unexpected behavior or regressions"
+          ],
+          "discriminating_variable": "Handling of `bytes` objects",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Modify the `assert_contains` function to handle `bytes` objects appropriately, ensuring binary vs text stream compatibility matching parameter specification.",
+        "affected_sites": [
+          "src/_pytest/pytester.py:assert_contains"
+        ],
+        "supporting_evidence": [
+          "The `assert_contains` function has a history of 1 bug fix (churn score: 0.25).",
+          "The function is GLOBAL_INFRASTRUCTURE with 4 callers (4 cross-module). Mutating it risks high regression."
+        ],
+        "contradicting_evidence": [
+          "Target 'src/_pytest/pytester.py:assert_contains' is GLOBAL_INFRASTRUCTURE with 4 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The `assert_contains` function has a history of 1 bug fix (churn score: 0.25).",
+          "The function is GLOBAL_INFRASTRUCTURE with 4 callers (4 cross-module). Mutating it risks high regression."
+        ],
+        "contradicting_facts": [],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 50.0
+      },
+      {
+        "id": "B",
+        "cause": "The `getitems` function in `src/_pytest/pytester.py` may not handle certain cases correctly, leading to unexpected behavior.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The function should correctly handle all cases without triggering unexpected behavior.",
+          "expected_mutations": [
+            "Modify the function to handle all cases correctly"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Triggering unexpected behavior or regressions"
+          ],
+          "discriminating_variable": "Handling of all cases",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Modify the `getitems` function to handle all cases correctly, ensuring binary vs text stream compatibility matching parameter specification.",
+        "affected_sites": [
+          "src/_pytest/pytester.py:getitems"
+        ],
+        "supporting_evidence": [
+          "The `getitems` function has a history of 1 bug fix (churn score: 0.25).",
+          "The function is GLOBAL_INFRASTRUCTURE with 11 callers (10 cross-module). Mutating it risks high regression."
+        ],
+        "contradicting_evidence": [
+          "Target 'src/_pytest/pytester.py:getitems' is GLOBAL_INFRASTRUCTURE with 10 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The `getitems` function has a history of 1 bug fix (churn score: 0.25).",
+          "The function is GLOBAL_INFRASTRUCTURE with 11 callers (10 cross-module). Mutating it risks high regression."
+        ],
+        "contradicting_facts": [],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.7,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 45.0
+      }
+    ],
+    "repair_sites": [
+      "src/_pytest/pytester.py:assert_contains"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "hypothesis_id": "A",
+      "strategy": "strict_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 2,
+      "hypothesis_id": "A",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 3,
+      "hypothesis_id": "A",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    }
+  ],
+  "repair_unit": {
+    "id": "src/_pytest/pytester.py::assert_contains::METHOD::206-225",
+    "file_path": "src/_pytest/pytester.py",
+    "symbol": "assert_contains",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 206,
+    "end_line": 225,
+    "start_col": 4,
+    "end_col": 81,
+    "source_text": "    def assert_contains(self, entries):\n        __tracebackhide__ = True\n        i = 0\n        entries = list(entries)\n        backlocals = sys._getframe(1).f_locals\n        while entries:\n            name, check = entries.pop(0)\n            for ind, call in enumerate(self.calls[i:]):\n                if call._name == name:\n                    print(\"NAMEMATCH\", name, call)\n                    if eval(check, backlocals, call.__dict__):\n                        print(\"CHECKERMATCH\", repr(check), \"->\", call)\n                    else:\n                        print(\"NOCHECKERMATCH\", repr(check), \"-\", call)\n                        continue\n                    i += ind + 1\n                    break\n                print(\"NONAMEMATCH\", name, \"with\", call)\n            else:\n                pytest.fail(\"could not find {!r} check {!r}\".format(name, check))\n",
+    "parent_symbol": "HookRecorder",
+    "indentation": "    ",
+    "role": "PRIMARY",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "src/_pytest/pytester.py",
+      "symbol": "assert_contains",
+      "role": "PRIMARY",
+      "score": 149.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'assert_contains' (+80)",
+        "Symbol matches issue keywords ['assert', 'contains'] (+20)",
+        "High regression risk: symbol has 4 cross-module callers (-16)",
+        "Located in primary localized file (+15)",
+        "Compact code span (20 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 4 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 276 test(s) (+15)"
+      ],
+      "line_start": 206,
+      "line_end": 225,
+      "unrelated_callers_count": 4,
+      "in_failing_traceback": false,
+      "semantic_radius": 20,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/pytester.py",
+      "symbol": "assert_contains_lines",
+      "role": "PRIMARY",
+      "score": 45.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['assert', 'contains'] (+20)",
+        "Located in primary localized file (+15)",
+        "Compact code span (12 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 4 issue symptoms (-20)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 226 test(s) (+15)"
+      ],
+      "line_start": 1216,
+      "line_end": 1227,
+      "unrelated_callers_count": 2,
+      "in_failing_traceback": false,
+      "semantic_radius": 12,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/pytester.py",
+      "symbol": "genitems",
+      "role": "PRIMARY",
+      "score": 25.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Located in primary localized file (+15)",
+        "Compact code span (12 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 4 issue symptoms (-20)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 358 test(s) (+15)"
+      ],
+      "line_start": 713,
+      "line_end": 724,
+      "unrelated_callers_count": 2,
+      "in_failing_traceback": false,
+      "semantic_radius": 12,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/hookspec.py",
+      "symbol": "pytest_assertrepr_compare",
+      "role": "PRIMARY",
+      "score": -30.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Compact code span (10 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 4 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 222 test(s) (+15)"
+      ],
+      "line_start": 476,
+      "line_end": 485,
+      "unrelated_callers_count": 3,
+      "in_failing_traceback": false,
+      "semantic_radius": 10,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/pytester.py",
+      "symbol": "getitems",
+      "role": "PRIMARY",
+      "score": -55.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 10 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (9 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 4 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 1011 test(s) (+15)"
+      ],
+      "line_start": 953,
+      "line_end": 961,
+      "unrelated_callers_count": 10,
+      "in_failing_traceback": false,
+      "semantic_radius": 9,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/pytester.py",
+      "symbol": "inline_genitems",
+      "role": "PRIMARY",
+      "score": -55.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 28 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (11 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 4 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 2559 test(s) (+15)"
+      ],
+      "line_start": 760,
+      "line_end": 770,
+      "unrelated_callers_count": 28,
+      "in_failing_traceback": false,
+      "semantic_radius": 11,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {},
+  "telemetry": {
+    "task_id": "pytest-dev__pytest-5495",
+    "total_wall_s": 321.05,
+    "llm_time_s": 0.0,
+    "test_time_s": 0.0,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 38.515,
+    "retrieval_diagnosis_time_s": 107.894,
+    "probing_time_s": null,
+    "generation_time_s": 174.226,
+    "reconstruction_time_s": 0.0,
+    "static_validation_time_s": 0.0,
+    "replanning_time_s": 0.0,
+    "runtime_s": 321.05
+  },
+  "test_summary": {},
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "assert_contains",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed.",
+      "Ensure binary vs text stream compatibility matching parameter specification."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

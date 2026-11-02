@@ -2,13 +2,60 @@
 from __future__ import annotations
 
 import difflib
-import re
+import os
 from pathlib import Path
 from typing import Any
 
 from patchforge.repair.generator import apply_edits_detailed, parse_edits, validate_ast
 from patchforge.repair.patch import Patch
 from patchforge.tools.base import Tool, ToolResult
+
+
+def _resolve_and_contain(repo_path: Path, file_path: str, must_exist: bool = False) -> tuple[Path | None, str | None]:
+    """Validates that file_path resolves strictly within the repository root.
+    Rejects parent traversal (..), absolute paths escaping root, and symlink escapes.
+    Returns (resolved_path, None) or (None, error_message).
+    """
+    if not file_path or not str(file_path).strip():
+        return None, "PATH_SECURITY_ERROR: File path cannot be empty."
+
+    clean_p = str(file_path).replace("\\", "/").strip()
+    parts = clean_p.split("/")
+    if ".." in parts:
+        return None, f"PATH_SECURITY_ERROR: Directory traversal rejected for path: '{file_path}'"
+
+    repo_resolved = repo_path.resolve()
+    candidate = Path(file_path)
+
+    if candidate.is_absolute():
+        try:
+            cand_resolved = candidate.resolve()
+            if not cand_resolved.is_relative_to(repo_resolved):
+                return None, f"PATH_SECURITY_ERROR: Absolute path '{file_path}' escapes repository root '{repo_resolved}'"
+            full_path = cand_resolved
+        except (ValueError, RuntimeError):
+            return None, f"PATH_SECURITY_ERROR: Absolute path '{file_path}' escapes repository root"
+    else:
+        full_path = (repo_resolved / clean_p).resolve()
+        try:
+            if not full_path.is_relative_to(repo_resolved):
+                return None, f"PATH_SECURITY_ERROR: Resolved path '{full_path}' escapes repository root '{repo_resolved}'"
+        except (ValueError, RuntimeError):
+            return None, f"PATH_SECURITY_ERROR: Resolved path escapes repository root"
+
+    if full_path.exists():
+        try:
+            real_path = Path(os.path.realpath(full_path))
+            real_repo = Path(os.path.realpath(repo_resolved))
+            if not real_path.is_relative_to(real_repo):
+                return None, f"PATH_SECURITY_ERROR: Symlink '{file_path}' resolves outside repository root: '{real_path}'"
+        except (ValueError, RuntimeError):
+            return None, f"PATH_SECURITY_ERROR: Symlink resolves outside repository root"
+
+    if must_exist and not full_path.exists():
+        return None, f"File '{file_path}' does not exist."
+
+    return full_path, None
 
 
 class ReadFileTool(Tool):
@@ -37,11 +84,10 @@ class ReadFileTool(Tool):
         if end_line - start_line > 150:
             end_line = start_line + 150
 
-        repo_path = Path(self.repo_dir or (state.repo_dir if state and hasattr(state, "repo_dir") else "."))
-        full_path = repo_path / file_path
-
-        if not full_path.exists():
-            return ToolResult(self.name, status="ERROR", error=f"File '{file_path}' does not exist.")
+        repo_path = Path(self.repo_dir or (state.repo_dir if state and hasattr(state, "repo_dir") else ".")).resolve()
+        full_path, err = _resolve_and_contain(repo_path, file_path, must_exist=True)
+        if err or not full_path:
+            return ToolResult(self.name, status="ERROR", error=err or f"File '{file_path}' does not exist.")
 
         try:
             with open(full_path, "r", encoding="utf-8", errors="replace") as f:
@@ -100,15 +146,20 @@ class ReadTestTool(Tool):
     def execute(self, args: dict[str, Any], state: Any = None) -> ToolResult:
         test_path = args.get("test_path", "")
         test_name = args.get("test_name", "")
-        repo_path = Path(self.repo_dir or (state.repo_dir if state and hasattr(state, "repo_dir") else "."))
+        repo_path = Path(self.repo_dir or (state.repo_dir if state and hasattr(state, "repo_dir") else ".")).resolve()
 
-        # Check if test_path is file
-        full_path = repo_path / test_path
+        full_path, err = _resolve_and_contain(repo_path, test_path, must_exist=False)
+        if err or not full_path:
+            return ToolResult(self.name, status="ERROR", error=err or f"PATH_SECURITY_ERROR: Cannot access test '{test_path}'")
+
         if not full_path.exists():
-            # Try searching in tests/ directory
+            # Try searching in tests/ directory within repo_path only
             candidates = list(repo_path.glob(f"**/{test_path}*"))
             if candidates:
-                full_path = candidates[0]
+                cand = candidates[0].resolve()
+                if not cand.is_relative_to(repo_path):
+                    return ToolResult(self.name, status="ERROR", error=f"PATH_SECURITY_ERROR: Candidate '{cand}' escapes repository root.")
+                full_path = cand
                 test_path = str(full_path.relative_to(repo_path)).replace("\\", "/")
             else:
                 return ToolResult(self.name, status="ERROR", error=f"Test path '{test_path}' not found.")
@@ -121,7 +172,6 @@ class ReadTestTool(Tool):
 
         lines = content.splitlines()
         if test_name:
-            # Locate the specific test function
             matching_lines = []
             capturing = False
             for i, line in enumerate(lines, 1):
@@ -179,9 +229,10 @@ class ApplyPatchTool(Tool):
         self.write_to_disk = write_to_disk
 
     def execute(self, args: dict[str, Any], state: Any = None) -> ToolResult:
+        import re
         patch_text = args.get("patch_text", "")
         hypothesis_id = args.get("hypothesis_id", "H1")
-        repo_path = Path(self.repo_dir or (state.repo_dir if state and hasattr(state, "repo_dir") else "."))
+        repo_path = Path(self.repo_dir or (state.repo_dir if state and hasattr(state, "repo_dir") else ".")).resolve()
 
         edits = parse_edits(patch_text)
         if not edits:
@@ -195,26 +246,17 @@ class ApplyPatchTool(Tool):
         if not allowed_files and args.get("expected_target_file"):
             allowed_files = [args.get("expected_target_file")]
 
-        if allowed_files:
-            norm_allowed = {f.replace("\\", "/").lstrip("/") for f in allowed_files}
-            for rel_path in edits.keys():
-                norm_rel = rel_path.replace("\\", "/").lstrip("/")
-                if norm_rel not in norm_allowed:
-                    return ToolResult(
-                        self.name,
-                        status="ERROR",
-                        error=f"TARGET_MISMATCH: target file '{rel_path}' is outside allowed targets ({', '.join(sorted(norm_allowed))}).",
-                    )
+        norm_allowed = {f.replace("\\", "/").lstrip("/") for f in allowed_files} if allowed_files else None
 
-        diff_chunks = []
-        files_changed = []
-        new_contents = {}
-        highest_tier = "EXACT"
-
+        # PHASE 1: Target path resolution, path containment, and allowlist validation
+        validated_targets: dict[str, tuple[Path, list[tuple[str, str]]]] = {}
         for rel_path, blocks in edits.items():
-            full = repo_path / rel_path
+            full, sec_err = _resolve_and_contain(repo_path, rel_path, must_exist=False)
+            if sec_err or not full:
+                return ToolResult(self.name, status="ERROR", error=sec_err or f"PATH_SECURITY_ERROR for '{rel_path}'")
+
             if not full.exists():
-                # Target grounding: auto-correct drifted filenames by searching repo
+                # Target grounding: check if file exists elsewhere within repo_path
                 candidates = list(repo_path.glob(f"**/{Path(rel_path).name}"))
                 if not candidates:
                     s_first = blocks[0][0].strip() if blocks and blocks[0] else ""
@@ -228,11 +270,33 @@ class ApplyPatchTool(Tool):
                                 except Exception:
                                     pass
                 if candidates:
-                    full = candidates[0]
+                    full = candidates[0].resolve()
+                    if not full.is_relative_to(repo_path):
+                        return ToolResult(self.name, status="ERROR", error=f"PATH_SECURITY_ERROR: Candidate '{full}' escapes repository root.")
                     rel_path = str(full.relative_to(repo_path)).replace("\\", "/")
                 else:
                     return ToolResult(self.name, status="ERROR", error=f"TARGET_MISMATCH: target file '{rel_path}' does not exist.")
 
+            # Validate allowed_files after destination is resolved
+            if norm_allowed is not None:
+                norm_rel = rel_path.replace("\\", "/").lstrip("/")
+                if norm_rel not in norm_allowed:
+                    return ToolResult(
+                        self.name,
+                        status="ERROR",
+                        error=f"TARGET_MISMATCH: target file '{rel_path}' is outside allowed targets ({', '.join(sorted(norm_allowed))}).",
+                    )
+
+            validated_targets[rel_path] = (full, blocks)
+
+        # PHASE 2: In-memory simulation and AST validation (ALL files must pass before ANY write)
+        diff_chunks = []
+        files_changed = []
+        new_contents = {}
+        planned_writes: dict[Path, tuple[str, str, str]] = {}  # full -> (rel_path, orig, new_c)
+        highest_tier = "EXACT"
+
+        for rel_path, (full, blocks) in validated_targets.items():
             try:
                 with open(full, "r", encoding="utf-8", errors="replace") as f:
                     orig = f.read()
@@ -281,16 +345,6 @@ class ApplyPatchTool(Tool):
                     error=f"AST Syntax validation failed on {rel_path}: {ast_err}",
                 )
 
-            files_changed.append(rel_path)
-            new_contents[rel_path] = new_c
-
-            if args.get("write_to_disk", self.write_to_disk):
-                try:
-                    with open(full, "w", encoding="utf-8") as f:
-                        f.write(new_c)
-                except Exception as e:
-                    return ToolResult(self.name, status="ERROR", error=f"Failed to write '{rel_path}': {str(e)}")
-
             diff = list(difflib.unified_diff(
                 orig.splitlines(keepends=True),
                 new_c.splitlines(keepends=True),
@@ -298,6 +352,36 @@ class ApplyPatchTool(Tool):
                 tofile=f"b/{rel_path}",
             ))
             diff_chunks.append("".join(diff))
+            files_changed.append(rel_path)
+            new_contents[rel_path] = new_c
+            planned_writes[full] = (rel_path, orig, new_c)
+
+        # PHASE 3: Transactional atomic writes to disk with automatic rollback on error
+        if args.get("write_to_disk", self.write_to_disk):
+            written_backups: dict[Path, str] = {}
+            try:
+                for full, (rel_path, orig, new_c) in planned_writes.items():
+                    # Revalidate containment immediately before writing
+                    if not full.resolve().is_relative_to(repo_path):
+                        raise RuntimeError(f"Path escape detected during write phase for '{full}'")
+                    written_backups[full] = orig
+                    with open(full, "w", encoding="utf-8") as f:
+                        f.write(new_c)
+            except Exception as write_err:
+                # Rollback all already-written files
+                rollback_errors = []
+                for b_full, b_orig in written_backups.items():
+                    try:
+                        with open(b_full, "w", encoding="utf-8") as f:
+                            f.write(b_orig)
+                    except Exception as rb_err:
+                        rollback_errors.append(f"{b_full}: {rb_err}")
+                rb_msg = f" (Rollback errors: {'; '.join(rollback_errors)})" if rollback_errors else " (Successfully rolled back all modified files)."
+                return ToolResult(
+                    self.name,
+                    status="ERROR",
+                    error=f"TRANSACTION_WRITE_FAILED: Failed to write changes to disk: {write_err}{rb_msg}",
+                )
 
         full_diff = "\n".join(diff_chunks)
         patch_obj = Patch(

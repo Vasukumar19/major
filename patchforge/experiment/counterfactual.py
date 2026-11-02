@@ -26,6 +26,18 @@ class CounterfactualEngine:
         contradicted: List[str] = []
         conf_delta = 0.0
 
+        if not observations:
+            return ExperimentResult(
+                experiment_id="EXP_1",
+                question="Does execution reach target and what is the runtime state?",
+                probes=probes,
+                observations=[],
+                supported_hypothesis=None,
+                contradicted_hypotheses=[],
+                confidence_delta=0.0,
+                summary=f"Experiment tested {len(probes)} probes. Observations: 0 captured (no runtime sentinels observed).",
+            )
+
         for probe in probes:
             obs = obs_map.get(probe.probe_id)
             if not obs:
@@ -33,26 +45,36 @@ class CounterfactualEngine:
 
             # Check Function Entry hit
             if probe.probe_id == "P_ENTRY" and obs.observed_value == "ENTER":
-                # Confirm target execution reached
                 conf_delta += 0.1
                 if diagnosis.hypotheses:
                     diagnosis.hypotheses[0].confidence = min(1.0, diagnosis.hypotheses[0].confidence + 0.1)
 
-            # Check variable observation
+            # Check variable observation against declared expectations
             if probe.variable_name and obs.observed_value:
                 val_repr = obs.observed_value
-                if val_repr not in ("None", "{}", "[]", "''", "ERR:"):
-                    # Variable exists and is populated
+                if probe.expected_if_h1_true and val_repr == probe.expected_if_h1_true:
                     supported_h = "A"
                     conf_delta += 0.2
                     if len(diagnosis.hypotheses) > 1:
                         contradicted.append(diagnosis.hypotheses[1].id)
                         diagnosis.hypotheses[1].confidence = max(0.1, diagnosis.hypotheses[1].confidence - 0.25)
-                else:
+                elif probe.expected_if_h2_true and val_repr == probe.expected_if_h2_true:
                     supported_h = "B"
                     conf_delta += 0.2
                     if diagnosis.hypotheses:
                         diagnosis.hypotheses[0].confidence = max(0.1, diagnosis.hypotheses[0].confidence - 0.25)
+                elif val_repr not in ("None", "{}", "[]", "''", "ERR:"):
+                    # Variable populated fallback
+                    supported_h = "A"
+                    conf_delta += 0.15
+                    if len(diagnosis.hypotheses) > 1:
+                        contradicted.append(diagnosis.hypotheses[1].id)
+                        diagnosis.hypotheses[1].confidence = max(0.1, diagnosis.hypotheses[1].confidence - 0.15)
+                else:
+                    supported_h = "B"
+                    conf_delta += 0.15
+                    if diagnosis.hypotheses:
+                        diagnosis.hypotheses[0].confidence = max(0.1, diagnosis.hypotheses[0].confidence - 0.15)
 
         summary = f"Experiment tested {len(probes)} probes. Observations: {len(observations)} captured."
         if supported_h:

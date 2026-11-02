@@ -1,0 +1,32 @@
+{
+  "instance_id": "pylint-dev__pylint-5859",
+  "repo": "pylint-dev/pylint",
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": false,
+  "patch_tier": null,
+  "patch_text": "",
+  "test_executed": false,
+  "failure_class": "PATCH_SYNTAX",
+  "runtime_s": 76.29,
+  "f2p_passed": 0,
+  "f2p_total": 0,
+  "p2p_passed": 0,
+  "p2p_total": 0,
+  "refinement_cycles": 0,
+  "target_file": "pylint/config/option.py",
+  "target_symbol": "Option",
+  "telemetry": {
+    "task_id": "pylint-dev__pylint-5859",
+    "total_wall_s": 76.29,
+    "llm_time_s": 72.18,
+    "test_time_s": 0.0,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 2663,
+    "total_output_tokens": 2244,
+    "total_tokens": 4907,
+    "event_count": 5
+  },
+  "test_summary": {}
+}

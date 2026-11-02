@@ -1,0 +1,700 @@
+{
+  "instance_id": "psf__requests-1963",
+  "repo": "psf/requests",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "48e0408bb74599c3",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "e2008182d3ff683a",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "d60390742cfb49db",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "c6576310d2f24640",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": true,
+  "patch_tier": "AST_GROUNDED",
+  "patch_text": "diff --git a/requests/models.py b/requests/models.py\nindex e2fa09f8..24432045 100644\n--- a/requests/models.py\n+++ b/requests/models.py\n@@ -236,20 +236,22 @@ class Request(RequestHooksMixin):\n         return '<Request [%s]>' % (self.method)\n \n     def prepare(self):\n-        \"\"\"Constructs a :class:`PreparedRequest <PreparedRequest>` for transmission and returns it.\"\"\"\n-        p = PreparedRequest()\n-        p.prepare(\n-            method=self.method,\n-            url=self.url,\n-            headers=self.headers,\n-            files=self.files,\n-            data=self.data,\n-            params=self.params,\n-            auth=self.auth,\n-            cookies=self.cookies,\n-            hooks=self.hooks,\n-        )\n-        return p\n+            \"\"\"Constructs a :class:`PreparedRequest <PreparedRequest>` for transmission and returns it.\"\"\"\n+            p = PreparedRequest()\n+            p.prepare(\n+                method=self.method,\n+                url=self.url,\n+                headers=self.headers,\n+                files=self.files,\n+                data=self.data,\n+                params=self.params,\n+                auth=self.auth,\n+                cookies=self.cookies,\n+                hooks=self.hooks,\n+            )\n+            # Ensure the method is preserved across redirects\n+            p.method = self.method\n+            return p\n \n \n class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):\n",
+  "test_executed": true,
+  "failure_class": "PATCH_SEMANTICS",
+  "runtime_s": 585.13,
+  "f2p_passed": 6,
+  "f2p_total": 7,
+  "p2p_passed": 110,
+  "p2p_total": 112,
+  "refinement_cycles": 3,
+  "target_file": "requests/models.py",
+  "target_symbol": "prepare",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "requests/sessions.py:resolve_redirects"
+    ],
+    "selected_target": "requests/sessions.py:resolve_redirects",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'requests/sessions.py:resolve_redirects'.",
+    "target_unjustified": true,
+    "target_changes": [
+      {
+        "switched_to_hypothesis": "B",
+        "target": "requests/models.py:prepare",
+        "justification": "Target matches hypothesized affected site 'requests/models.py:prepare'."
+      }
+    ]
+  },
+  "generation_attempted": true,
+  "structurally_valid": true,
+  "submitted_to_harness": true,
+  "test_time_s": 199.784,
+  "generation_time_s": 271.772,
+  "reconstruction_time_s": 3.1189999999999998,
+  "indexing_time_s": 0.336,
+  "retrieval_diagnosis_time_s": 109.501,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.033,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "d60390742cfb49db",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "psf__requests-863",
+      "psf__requests-2148"
+    ],
+    "exemplars_included_in_prompt": [
+      "psf__requests-863",
+      "psf__requests-2148"
+    ],
+    "prompt_included_episode_ids": [
+      "psf__requests-863",
+      "psf__requests-2148"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "psf__requests-1963",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The issue is caused by a bug in the `prepare` method, which incorrectly prepares the request for certain types of requests, leading to unexpected behavior.",
+    "invariant": "Preserve the existing behavior of the `prepare` method for standard invocations.",
+    "repair_strategy": "Fix the bug in the `prepare` method to correctly prepare the request for the specific types of requests causing the issue.",
+    "affected_sites": [
+      "requests/models.py:prepare"
+    ],
+    "defect_confidence": 0.75,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 1,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The issue is caused by a bug in the `resolve_redirects` method, which incorrectly handles certain types of redirects, leading to unexpected behavior.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The `resolve_redirects` method should correctly handle the specific types of redirects causing the issue.",
+          "expected_mutations": [
+            "Modify the `resolve_redirects` method to handle the specific types of redirects correctly."
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "The `resolve_redirects` method should not cause any regressions for standard invocations."
+          ],
+          "discriminating_variable": "The type of redirect causing the issue.",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve the existing behavior of the `resolve_redirects` method for standard invocations.",
+        "repair_strategy": "Fix the bug in the `resolve_redirects` method to correctly handle the specific types of redirects causing the issue.",
+        "affected_sites": [
+          "requests/sessions.py:resolve_redirects"
+        ],
+        "supporting_evidence": [
+          "The `resolve_redirects` method has a history of 1 bug fix (churn score: 0.55)."
+        ],
+        "contradicting_evidence": [
+          "No severe contradictions detected."
+        ],
+        "supporting_facts": [
+          "The `resolve_redirects` method has a history of 1 bug fix (churn score: 0.55)."
+        ],
+        "contradicting_facts": [
+          "No severe contradictions detected."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.8,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 75.0
+      },
+      {
+        "id": "B",
+        "cause": "The issue is caused by a bug in the `prepare` method, which incorrectly prepares the request for certain types of requests, leading to unexpected behavior.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The `prepare` method should correctly prepare the request for the specific types of requests causing the issue.",
+          "expected_mutations": [
+            "Modify the `prepare` method to handle the specific types of requests correctly."
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "The `prepare` method should not cause any regressions for standard invocations."
+          ],
+          "discriminating_variable": "The type of request causing the issue.",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve the existing behavior of the `prepare` method for standard invocations.",
+        "repair_strategy": "Fix the bug in the `prepare` method to correctly prepare the request for the specific types of requests causing the issue.",
+        "affected_sites": [
+          "requests/models.py:prepare"
+        ],
+        "supporting_evidence": [
+          "The `prepare` method is GLOBAL_INFRASTRUCTURE with 16 callers (0 cross-module). Mutating it risks high regression (conf=0.95)."
+        ],
+        "contradicting_evidence": [
+          "No severe contradictions detected.",
+          "Target 'requests/models.py:prepare' is GLOBAL_INFRASTRUCTURE with 0 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The `prepare` method is GLOBAL_INFRASTRUCTURE with 16 callers (0 cross-module). Mutating it risks high regression (conf=0.95)."
+        ],
+        "contradicting_facts": [
+          "No severe contradictions detected."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 45.0
+      }
+    ],
+    "repair_sites": [
+      "requests/models.py:prepare"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "hypothesis_id": "A",
+      "strategy": "strict_structured_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "PATCH_SEMANTICS",
+      "error_message": "FAILED test_requests.py::RequestsTestCase::test_pyopenssl_redirect - requests...; FAILED test_requests.py::TestTimeout::test_stream_timeout - requests.exceptio...; FAILED test_requests.py::TestRedirects::test_requests_are_updated_each_time",
+      "patch_text": "diff --git a/requests/sessions.py b/requests/sessions.py\nindex 425db22c..bbd476b3 100644\n--- a/requests/sessions.py\n+++ b/requests/sessions.py\n@@ -135,6 +135,10 @@ class SessionRedirectMixin(object):\n             if resp.status_code == codes.moved and method == 'POST':\n                 method = 'GET'\n \n+            # Preserve the method for 307 and 308\n+            if resp.status_code in (codes.temporary, codes.resume):\n+                method = req.method\n+\n             prepared_request.method = method\n \n             # https://github.com/kennethreitz/requests/issues/1084\n"
+    },
+    {
+      "attempt": 2,
+      "hypothesis_id": "B",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "PATCH_SYNTAX",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Function/Method syntax error: unexpected character after line continuation character",
+      "patch_text": ""
+    },
+    {
+      "attempt": 3,
+      "hypothesis_id": "B",
+      "strategy": "minimal_target_bound_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "PATCH_SEMANTICS",
+      "error_message": "FAILED test_requests.py::RequestsTestCase::test_pyopenssl_redirect - requests...; FAILED test_requests.py::TestTimeout::test_stream_timeout - requests.exceptio...; FAILED test_requests.py::TestRedirects::test_requests_are_updated_each_time",
+      "patch_text": "diff --git a/requests/models.py b/requests/models.py\nindex e2fa09f8..24432045 100644\n--- a/requests/models.py\n+++ b/requests/models.py\n@@ -236,20 +236,22 @@ class Request(RequestHooksMixin):\n         return '<Request [%s]>' % (self.method)\n \n     def prepare(self):\n-        \"\"\"Constructs a :class:`PreparedRequest <PreparedRequest>` for transmission and returns it.\"\"\"\n-        p = PreparedRequest()\n-        p.prepare(\n-            method=self.method,\n-            url=self.url,\n-            headers=self.headers,\n-            files=self.files,\n-            data=self.data,\n-            params=self.params,\n-            auth=self.auth,\n-            cookies=self.cookies,\n-            hooks=self.hooks,\n-        )\n-        return p\n+            \"\"\"Constructs a :class:`PreparedRequest <PreparedRequest>` for transmission and returns it.\"\"\"\n+            p = PreparedRequest()\n+            p.prepare(\n+                method=self.method,\n+                url=self.url,\n+                headers=self.headers,\n+                files=self.files,\n+                data=self.data,\n+                params=self.params,\n+                auth=self.auth,\n+                cookies=self.cookies,\n+                hooks=self.hooks,\n+            )\n+            # Ensure the method is preserved across redirects\n+            p.method = self.method\n+            return p\n \n \n class PreparedRequest(RequestEncodingMixin, RequestHooksMixin):\n"
+    }
+  ],
+  "repair_unit": {
+    "id": "requests/models.py::prepare::METHOD::238-252",
+    "file_path": "requests/models.py",
+    "symbol": "prepare",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 238,
+    "end_line": 252,
+    "start_col": 4,
+    "end_col": 16,
+    "source_text": "    def prepare(self):\n        \"\"\"Constructs a :class:`PreparedRequest <PreparedRequest>` for transmission and returns it.\"\"\"\n        p = PreparedRequest()\n        p.prepare(\n            method=self.method,\n            url=self.url,\n            headers=self.headers,\n            files=self.files,\n            data=self.data,\n            params=self.params,\n            auth=self.auth,\n            cookies=self.cookies,\n            hooks=self.hooks,\n        )\n        return p\n",
+    "parent_symbol": "Request",
+    "indentation": "    ",
+    "role": "HYPOTHESIS_TARGET",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "requests/sessions.py",
+      "symbol": "resolve_redirects",
+      "role": "DIAGNOSIS_DERIVED",
+      "score": 215.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'resolve_redirects' (+80)",
+        "Symbol matches issue keywords ['resolve', 'redirects'] (+20)",
+        "Located in primary localized file (+15)"
+      ],
+      "line_start": 84,
+      "line_end": 184,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 101,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/sessions.py",
+      "symbol": "Session",
+      "role": "PRIMARY",
+      "score": 100.0,
+      "reasons": [
+        "Symbol 'Session' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['session'] (+10)",
+        "High regression risk: symbol has 14 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (4 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 14 test(s) (+15)"
+      ],
+      "line_start": 568,
+      "line_end": 571,
+      "unrelated_callers_count": 14,
+      "in_failing_traceback": false,
+      "semantic_radius": 4,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/models.py",
+      "symbol": "Request",
+      "role": "PRIMARY",
+      "score": 85.0,
+      "reasons": [
+        "Symbol 'Request' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['request'] (+10)",
+        "High regression risk: symbol has 20 cross-module callers (-40)",
+        "Compact code span (30 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 20 test(s) (+15)"
+      ],
+      "line_start": 204,
+      "line_end": 233,
+      "unrelated_callers_count": 20,
+      "in_failing_traceback": false,
+      "semantic_radius": 30,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/sessions.py",
+      "symbol": "post",
+      "role": "PRIMARY",
+      "score": 50.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['post'] (+10)",
+        "High regression risk: symbol has 5 cross-module callers (-20)",
+        "Located in primary localized file (+15)",
+        "Compact code span (9 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 5 test(s) (+15)"
+      ],
+      "line_start": 427,
+      "line_end": 435,
+      "unrelated_callers_count": 5,
+      "in_failing_traceback": false,
+      "semantic_radius": 9,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "test_requests.py",
+      "symbol": "httpbin",
+      "role": "PRIMARY",
+      "score": 15.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['httpbin'] (+10)",
+        "Compact code span (3 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 52 test(s) (+15)"
+      ],
+      "line_start": 32,
+      "line_end": 34,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 3,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/sessions.py",
+      "symbol": "get",
+      "role": "PRIMARY",
+      "score": -10.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['get'] (+10)",
+        "High regression risk: symbol has 37 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (9 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 37 test(s) (+15)"
+      ],
+      "line_start": 397,
+      "line_end": 405,
+      "unrelated_callers_count": 37,
+      "in_failing_traceback": false,
+      "semantic_radius": 9,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/models.py",
+      "symbol": "prepare",
+      "role": "PRIMARY",
+      "score": -35.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 14 cross-module callers (-40)",
+        "Compact code span (15 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 14 test(s) (+15)"
+      ],
+      "line_start": 238,
+      "line_end": 252,
+      "unrelated_callers_count": 14,
+      "in_failing_traceback": false,
+      "semantic_radius": 15,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {
+    "valid": true,
+    "syntax_ok": true,
+    "ast_ok": true,
+    "target_changed": true,
+    "unrelated_targets_preserved": true,
+    "no_markdown_leakage": true,
+    "line_expansion_ok": true,
+    "lines_added": 16,
+    "lines_deleted": 14,
+    "symbols_affected": [
+      "prepare"
+    ],
+    "errors": []
+  },
+  "telemetry": {
+    "task_id": "psf__requests-1963",
+    "total_wall_s": 585.13,
+    "llm_time_s": 0.0,
+    "test_time_s": 199.784,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 0.336,
+    "retrieval_diagnosis_time_s": 109.501,
+    "probing_time_s": null,
+    "generation_time_s": 271.772,
+    "reconstruction_time_s": 3.119,
+    "static_validation_time_s": 0.033,
+    "replanning_time_s": 0.0,
+    "runtime_s": 585.13
+  },
+  "test_summary": {
+    "instance_id": "psf__requests-1963",
+    "resolved": false,
+    "patch_applied": true,
+    "fail_to_pass": {
+      "passed": 6,
+      "total": 7
+    },
+    "pass_to_pass": {
+      "passed": 110,
+      "total": 112
+    },
+    "fail_to_pass_success": [
+      "test_requests.py::RequestsTestCase::test_DIGESTAUTH_QUOTES_QOP_VALUE",
+      "test_requests.py::RequestsTestCase::test_DIGESTAUTH_WRONG_HTTP_401_GET",
+      "test_requests.py::RequestsTestCase::test_DIGEST_AUTH_RETURNS_COOKIE",
+      "test_requests.py::RequestsTestCase::test_DIGEST_HTTP_200_OK_GET",
+      "test_requests.py::RequestsTestCase::test_POSTBIN_GET_POST_FILES_WITH_DATA",
+      "test_requests.py::RequestsTestCase::test_param_cookiejar_works"
+    ],
+    "fail_to_pass_failure": [
+      "test_requests.py::TestRedirects::test_requests_are_updated_each_time"
+    ],
+    "pass_to_pass_success": [
+      "test_requests.py::RequestsTestCase::test_BASICAUTH_TUPLE_HTTP_200_OK_GET",
+      "test_requests.py::RequestsTestCase::test_DIGEST_AUTH_SETS_SESSION_COOKIES",
+      "test_requests.py::RequestsTestCase::test_DIGEST_STREAM",
+      "test_requests.py::RequestsTestCase::test_HTTP_200_OK_GET_ALTERNATIVE",
+      "test_requests.py::RequestsTestCase::test_HTTP_200_OK_GET_WITH_MIXED_PARAMS",
+      "test_requests.py::RequestsTestCase::test_HTTP_200_OK_GET_WITH_PARAMS",
+      "test_requests.py::RequestsTestCase::test_HTTP_200_OK_HEAD",
+      "test_requests.py::RequestsTestCase::test_HTTP_200_OK_PUT",
+      "test_requests.py::RequestsTestCase::test_HTTP_302_ALLOW_REDIRECT_GET",
+      "test_requests.py::RequestsTestCase::test_POSTBIN_GET_POST_FILES",
+      "test_requests.py::RequestsTestCase::test_autoset_header_values_are_native",
+      "test_requests.py::RequestsTestCase::test_basic_building",
+      "test_requests.py::RequestsTestCase::test_basicauth_with_netrc",
+      "test_requests.py::RequestsTestCase::test_can_send_nonstring_objects_with_files",
+      "test_requests.py::RequestsTestCase::test_cannot_send_unprepared_requests",
+      "test_requests.py::RequestsTestCase::test_cookie_as_dict_items",
+      "test_requests.py::RequestsTestCase::test_cookie_as_dict_keeps_items",
+      "test_requests.py::RequestsTestCase::test_cookie_as_dict_keeps_len",
+      "test_requests.py::RequestsTestCase::test_cookie_as_dict_keys",
+      "test_requests.py::RequestsTestCase::test_cookie_as_dict_values",
+      "test_requests.py::RequestsTestCase::test_cookie_parameters",
+      "test_requests.py::RequestsTestCase::test_cookie_persists_via_api",
+      "test_requests.py::RequestsTestCase::test_cookie_quote_wrapped",
+      "test_requests.py::RequestsTestCase::test_cookie_removed_on_expire",
+      "test_requests.py::RequestsTestCase::test_cookie_sent_on_redirect",
+      "test_requests.py::RequestsTestCase::test_custom_content_type",
+      "test_requests.py::RequestsTestCase::test_decompress_gzip",
+      "test_requests.py::RequestsTestCase::test_different_encodings_dont_break_post",
+      "test_requests.py::RequestsTestCase::test_entry_points",
+      "test_requests.py::RequestsTestCase::test_fixes_1329",
+      "test_requests.py::RequestsTestCase::test_generic_cookiejar_works",
+      "test_requests.py::RequestsTestCase::test_get_auth_from_url",
+      "test_requests.py::RequestsTestCase::test_get_auth_from_url_encoded_hashes",
+      "test_requests.py::RequestsTestCase::test_get_auth_from_url_encoded_spaces",
+      "test_requests.py::RequestsTestCase::test_get_auth_from_url_not_encoded_spaces",
+      "test_requests.py::RequestsTestCase::test_get_auth_from_url_percent_chars",
+      "test_requests.py::RequestsTestCase::test_header_keys_are_native",
+      "test_requests.py::RequestsTestCase::test_header_remove_is_case_insensitive",
+      "test_requests.py::RequestsTestCase::test_headers_on_session_with_None_are_not_sent",
+      "test_requests.py::RequestsTestCase::test_hook_receives_request_arguments",
+      "test_requests.py::RequestsTestCase::test_http_error",
+      "test_requests.py::RequestsTestCase::test_invalid_url",
+      "test_requests.py::RequestsTestCase::test_links",
+      "test_requests.py::RequestsTestCase::test_long_authinfo_in_url",
+      "test_requests.py::RequestsTestCase::test_no_content_length",
+      "test_requests.py::RequestsTestCase::test_oddball_schemes_dont_check_URLs",
+      "test_requests.py::RequestsTestCase::test_params_are_added_before_fragment",
+      "test_requests.py::RequestsTestCase::test_params_are_merged_case_sensitive",
+      "test_requests.py::RequestsTestCase::test_path_is_not_double_encoded",
+      "test_requests.py::RequestsTestCase::test_prepared_from_session",
+      "test_requests.py::RequestsTestCase::test_prepared_request_hook",
+      "test_requests.py::RequestsTestCase::test_request_and_response_are_pickleable",
+      "test_requests.py::RequestsTestCase::test_request_cookie_overrides_session_cookie",
+      "test_requests.py::RequestsTestCase::test_request_cookies_not_persisted",
+      "test_requests.py::RequestsTestCase::test_request_ok_set",
+      "test_requests.py::RequestsTestCase::test_requests_in_history_are_not_overridden",
+      "test_requests.py::RequestsTestCase::test_response_is_iterable",
+      "test_requests.py::RequestsTestCase::test_session_hooks_are_overriden_by_request_hooks",
+      "test_requests.py::RequestsTestCase::test_session_hooks_are_used_with_no_request_hooks",
+      "test_requests.py::RequestsTestCase::test_session_pickling",
+      "test_requests.py::RequestsTestCase::test_set_cookie_on_301",
+      "test_requests.py::RequestsTestCase::test_status_raising",
+      "test_requests.py::RequestsTestCase::test_time_elapsed_blank",
+      "test_requests.py::RequestsTestCase::test_transport_adapter_ordering",
+      "test_requests.py::RequestsTestCase::test_unicode_get",
+      "test_requests.py::RequestsTestCase::test_unicode_header_name",
+      "test_requests.py::RequestsTestCase::test_unicode_method_name",
+      "test_requests.py::RequestsTestCase::test_unicode_multipart_post",
+      "test_requests.py::RequestsTestCase::test_unicode_multipart_post_fieldnames",
+      "test_requests.py::RequestsTestCase::test_uppercase_scheme_redirect",
+      "test_requests.py::RequestsTestCase::test_urlencoded_get_query_multivalued_param",
+      "test_requests.py::RequestsTestCase::test_user_agent_transfers",
+      "test_requests.py::TestContentEncodingDetection::test_html4_pragma",
+      "test_requests.py::TestContentEncodingDetection::test_html_charset",
+      "test_requests.py::TestContentEncodingDetection::test_none",
+      "test_requests.py::TestContentEncodingDetection::test_precedence",
+      "test_requests.py::TestContentEncodingDetection::test_xhtml_pragma",
+      "test_requests.py::TestContentEncodingDetection::test_xml",
+      "test_requests.py::TestCaseInsensitiveDict::test_contains",
+      "test_requests.py::TestCaseInsensitiveDict::test_delitem",
+      "test_requests.py::TestCaseInsensitiveDict::test_docstring_example",
+      "test_requests.py::TestCaseInsensitiveDict::test_equality",
+      "test_requests.py::TestCaseInsensitiveDict::test_fixes_649",
+      "test_requests.py::TestCaseInsensitiveDict::test_get",
+      "test_requests.py::TestCaseInsensitiveDict::test_getitem",
+      "test_requests.py::TestCaseInsensitiveDict::test_iter",
+      "test_requests.py::TestCaseInsensitiveDict::test_iterable_init",
+      "test_requests.py::TestCaseInsensitiveDict::test_kwargs_init",
+      "test_requests.py::TestCaseInsensitiveDict::test_len",
+      "test_requests.py::TestCaseInsensitiveDict::test_lower_items",
+      "test_requests.py::TestCaseInsensitiveDict::test_mapping_init",
+      "test_requests.py::TestCaseInsensitiveDict::test_preserve_key_case",
+      "test_requests.py::TestCaseInsensitiveDict::test_preserve_last_key_case",
+      "test_requests.py::TestCaseInsensitiveDict::test_setdefault",
+      "test_requests.py::TestCaseInsensitiveDict::test_update",
+      "test_requests.py::TestCaseInsensitiveDict::test_update_retains_unchanged",
+      "test_requests.py::UtilsTestCase::test_address_in_network",
+      "test_requests.py::UtilsTestCase::test_dotted_netmask",
+      "test_requests.py::UtilsTestCase::test_get_auth_from_url",
+      "test_requests.py::UtilsTestCase::test_get_environ_proxies",
+      "test_requests.py::UtilsTestCase::test_get_environ_proxies_ip_ranges",
+      "test_requests.py::UtilsTestCase::test_is_ipv4_address",
+      "test_requests.py::UtilsTestCase::test_is_valid_cidr",
+      "test_requests.py::UtilsTestCase::test_super_len_io_streams",
+      "test_requests.py::TestMorselToCookieExpires::test_expires_invalid_int",
+      "test_requests.py::TestMorselToCookieExpires::test_expires_invalid_str",
+      "test_requests.py::TestMorselToCookieExpires::test_expires_none",
+      "test_requests.py::TestMorselToCookieExpires::test_expires_valid_str",
+      "test_requests.py::TestMorselToCookieMaxAge::test_max_age_invalid_str",
+      "test_requests.py::TestMorselToCookieMaxAge::test_max_age_valid_int"
+    ],
+    "pass_to_pass_failure": [
+      "test_requests.py::RequestsTestCase::test_pyopenssl_redirect",
+      "test_requests.py::TestTimeout::test_stream_timeout"
+    ],
+    "infra_failure": false,
+    "error": "",
+    "run_id": "eval_1793626614"
+  },
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "prepare",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Preserve original method across 307/308 redirects.",
+        "category": "LOGICAL_BRANCH",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [
+          "307",
+          "308",
+          "method"
+        ],
+        "satisfied": true
+      },
+      {
+        "id": "R2",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

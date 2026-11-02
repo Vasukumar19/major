@@ -181,14 +181,16 @@ class AgentController:
         thought = thought_match.group(1) if thought_match else clean_text[:300]
         name = action_match.group(1) if action_match else ""
         if name:
-            args_match = re.search(r'"arguments":\s*(\{[\s\S]*?\})', clean_text)
-            args = {}
-            if args_match:
+            if any(k in clean_text for k in ('"arguments":', '"args":', '"parameters":')):
+                args_match = re.search(r'"(?:arguments|args|parameters)":\s*(\{[\s\S]*?\})', clean_text)
+                if not args_match:
+                    return thought, None
                 try:
                     args = json.loads(args_match.group(1), strict=False)
+                    return thought, ToolCall(name=name, arguments=args)
                 except Exception:
-                    pass
-            return thought, ToolCall(name=name, arguments=args)
+                    return thought, None
+            return thought, ToolCall(name=name, arguments={})
 
         return clean_text[:300], None
 
@@ -325,9 +327,13 @@ class AgentController:
                 candidates = [
                     str(p.relative_to(repo_p)).replace("\\", "/")
                     for p in repo_p.glob(f"**/{fname}")
-                    if p.is_file() and not any(part in ("tests", "docs", ".git", "experiments", "venv", ".venv") for part in p.parts)
+                    if p.is_file() and not any(part.startswith(".") or part in ("tests", "docs", "experiments", "repos", "third_party", "venv", "build", "dist", "tmp") for part in p.parts)
                 ]
-                if candidates:
+                target_parts = Path(target_f).parts
+                matching_candidates = [c for c in candidates if all(part in Path(c).parts for part in target_parts)]
+                if matching_candidates:
+                    resolved = matching_candidates[0]
+                elif candidates and len(target_parts) == 1:
                     resolved = candidates[0]
             if resolved:
                 if state.active_plan:

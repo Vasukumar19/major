@@ -1,11 +1,13 @@
+# Python & Cache
 .env
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.pytest-temp/
+.patchforge_cache/
 
 # Generated experiment artifacts and cloned benchmark checkouts
 logs/
-results/
 playground/
 experiments/**/repos/
 experiments/**/work/
@@ -13,6 +15,20 @@ experiments/**/graphs/
 experiments/**/structures/
 experiments/**/trajectory.json
 experiments/**/state.json
+
+# Ignore scratch and intermediate run dirs
+scratch/
+repos/
+third_party/
+
+# Benchmark results: preserve frozen cohorts, ignore ephemeral runs
+results/*
+!results/v17_orchestrator/
+!results/v18_orchestrator/
+!results/v19_orchestrator/
+!results/v05_14b/
+!results/v05_baseline/
+!results/reasoning_failure_dataset.json
 
 # Local tooling and temporary files
 .vscode/
@@ -22,8 +38,13 @@ patchforge.eval_*.json
 scratch_*.py
 test_micro_*.py
 test_coder_models.py
-.pytest-temp/
-repos/
-third_party/
-.patchforge_cache/
-scratch/
+
+# Civil engineering and user workspace documents (workspace-local)
+*.docx
+build_portrait_work_plan_doc.py
+build_work_plan_doc.py
+deliverables/
+output/
+remove_remaining_wet_density.py
+revise_density_report.py
+tmp/

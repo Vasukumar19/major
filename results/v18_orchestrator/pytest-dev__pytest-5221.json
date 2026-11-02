@@ -1,0 +1,585 @@
+{
+  "instance_id": "pytest-dev__pytest-5221",
+  "repo": "pytest-dev/pytest",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "4e8292e9434efb2f",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "0abd7d93da49beb0",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "00c58176c092b44a",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "c6576310d2f24640",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": true,
+  "patch_tier": "AST_GROUNDED",
+  "patch_text": "diff --git a/src/_pytest/fixtures.py b/src/_pytest/fixtures.py\nindex 902904457..b5c993396 100644\n--- a/src/_pytest/fixtures.py\n+++ b/src/_pytest/fixtures.py\n@@ -60,6 +60,11 @@ def pytest_sessionstart(session):\n     )\n     session._fixturemanager = FixtureManager(session)\n \n+    # Ensure the condition at line 1044 is met\n+    if callable(scope) and params is None and autouse is False:\n+        # Implement the required transition\n+        session.config._fixture_scopes = {}\n+\n \n scopename2class = {}\n \n@@ -346,12 +351,12 @@ class FixtureRequest(FuncargnamesCompatAttr):\n     the fixture is parametrized indirectly.\n     \"\"\"\n \n-    def __init__(self, pyfuncitem):\n+    def __init__(self, pyfuncitem, scope=\"function\"):\n         self._pyfuncitem = pyfuncitem\n         #: fixture for which this request is being performed\n         self.fixturename = None\n         #: Scope string, one of \"function\", \"class\", \"module\", \"session\"\n-        self.scope = \"function\"\n+        self.scope = scope\n         self._fixture_defs = {}  # argname -> FixtureDef\n         fixtureinfo = pyfuncitem._fixtureinfo\n         self._arg2fixturedefs = fixtureinfo.name2fixturedefs.copy()\n",
+  "test_executed": true,
+  "failure_class": "PATCH_SYNTAX",
+  "runtime_s": 390.61,
+  "f2p_passed": 0,
+  "f2p_total": 0,
+  "p2p_passed": 0,
+  "p2p_total": 0,
+  "refinement_cycles": 3,
+  "target_file": "src/_pytest/fixtures.py",
+  "target_symbol": "1044",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "src/_pytest/fixtures.py:1044"
+    ],
+    "selected_target": "src/_pytest/fixtures.py:1044",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'src/_pytest/fixtures.py:1044'.",
+    "target_unjustified": true,
+    "target_changes": [
+      {
+        "switched_to_hypothesis": "B",
+        "target": "src/_pytest/fixtures.py:FixtureRequest",
+        "justification": "Target 'FixtureRequest' is in diagnosed file 'src/_pytest/fixtures.py' and supported by diagnosis rationale."
+      },
+      {
+        "switched_to_hypothesis": "A",
+        "target": "src/_pytest/fixtures.py:1044",
+        "justification": "Target matches hypothesized affected site 'src/_pytest/fixtures.py:1044'."
+      }
+    ]
+  },
+  "generation_attempted": true,
+  "structurally_valid": true,
+  "submitted_to_harness": true,
+  "test_time_s": 98.065,
+  "generation_time_s": 123.982,
+  "reconstruction_time_s": 20.435,
+  "indexing_time_s": 37.16,
+  "retrieval_diagnosis_time_s": 109.961,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.07500000000000001,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "00c58176c092b44a",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "exemplars_included_in_prompt": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "prompt_included_episode_ids": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pytest-dev__pytest-5221",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The condition at line 1044 in `src/_pytest/fixtures.py` is not being met, leading to unexpected behavior.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Modify the condition at line 1044 to ensure it correctly handles the default arguments.",
+    "affected_sites": [
+      "src/_pytest/fixtures.py:1044"
+    ],
+    "defect_confidence": 0.75,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 0,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The condition at line 1044 in `src/_pytest/fixtures.py` is not being met, leading to unexpected behavior.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The condition at line 1044 should be met, leading to the correct state transformation.",
+          "expected_mutations": [
+            "params = list(params)"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "The condition at line 1044 should not be skipped or incorrectly handled."
+          ],
+          "discriminating_variable": "callable(scope) and params is None and autouse is False",
+          "support_count": 1,
+          "contradiction_count": 0
+        },
+        "support_count": 1,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Modify the condition at line 1044 to ensure it correctly handles the default arguments.",
+        "affected_sites": [
+          "src/_pytest/fixtures.py:1044"
+        ],
+        "supporting_evidence": [
+          "The condition at line 1044 is critical for the correct state transformation.",
+          "The mutation `params = list(params)` is expected to be executed.",
+          "Causal Support: Predicted branch matches observed divergence transition."
+        ],
+        "contradicting_evidence": [
+          "No severe contradictions detected."
+        ],
+        "supporting_facts": [
+          "The condition at line 1044 is critical for the correct state transformation.",
+          "The mutation `params = list(params)` is expected to be executed."
+        ],
+        "contradicting_facts": [
+          "No severe contradictions detected."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 90.0
+      },
+      {
+        "id": "B",
+        "cause": "The `FixtureRequest` class in `src/_pytest/fixtures.py` is not handling the default arguments correctly.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The `FixtureRequest` class should correctly handle the default arguments.",
+          "expected_mutations": [
+            "params = list(params)"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "The `FixtureRequest` class should not incorrectly handle the default arguments."
+          ],
+          "discriminating_variable": "callable(scope) and params is None and autouse is False",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Modify the `FixtureRequest` class to correctly handle the default arguments.",
+        "affected_sites": [
+          "src/_pytest/fixtures.py:FixtureRequest"
+        ],
+        "supporting_evidence": [
+          "The `FixtureRequest` class is a critical component for handling fixture requests.",
+          "The mutation `params = list(params)` is expected to be executed."
+        ],
+        "contradicting_evidence": [
+          "No severe contradictions detected.",
+          "Target 'src/_pytest/fixtures.py:FixtureRequest' is GLOBAL_INFRASTRUCTURE with 10 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The `FixtureRequest` class is a critical component for handling fixture requests.",
+          "The mutation `params = list(params)` is expected to be executed."
+        ],
+        "contradicting_facts": [
+          "No severe contradictions detected."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.7,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 45.0
+      }
+    ],
+    "repair_sites": [
+      "src/_pytest/fixtures.py:1044"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "hypothesis_id": "A",
+      "strategy": "strict_structured_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "PATCH_SYNTAX",
+      "error_message": "INTERNALERROR> NameError: name 'scope' is not defined",
+      "patch_text": "diff --git a/src/_pytest/fixtures.py b/src/_pytest/fixtures.py\nindex 902904457..232fcc6bc 100644\n--- a/src/_pytest/fixtures.py\n+++ b/src/_pytest/fixtures.py\n@@ -60,6 +60,11 @@ def pytest_sessionstart(session):\n     )\n     session._fixturemanager = FixtureManager(session)\n \n+    # Ensure the condition at line 1044 is met\n+    if callable(scope) and params is None and autouse is False:\n+        # Implement the required transition\n+        pass\n+\n \n scopename2class = {}\n \n"
+    },
+    {
+      "attempt": 2,
+      "hypothesis_id": "B",
+      "strategy": "refined_structured_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "PATCH_SYNTAX",
+      "error_message": "INTERNALERROR> NameError: name 'scope' is not defined",
+      "patch_text": "diff --git a/src/_pytest/fixtures.py b/src/_pytest/fixtures.py\nindex 902904457..9c6f547f4 100644\n--- a/src/_pytest/fixtures.py\n+++ b/src/_pytest/fixtures.py\n@@ -60,6 +60,11 @@ def pytest_sessionstart(session):\n     )\n     session._fixturemanager = FixtureManager(session)\n \n+    # Ensure the condition at line 1044 is met\n+    if callable(scope) and params is None and autouse is False:\n+        # Implement the required transition\n+        pass\n+\n \n scopename2class = {}\n \n@@ -346,12 +351,12 @@ class FixtureRequest(FuncargnamesCompatAttr):\n     the fixture is parametrized indirectly.\n     \"\"\"\n \n-    def __init__(self, pyfuncitem):\n+    def __init__(self, pyfuncitem, scope=\"function\"):\n         self._pyfuncitem = pyfuncitem\n         #: fixture for which this request is being performed\n         self.fixturename = None\n         #: Scope string, one of \"function\", \"class\", \"module\", \"session\"\n-        self.scope = \"function\"\n+        self.scope = scope\n         self._fixture_defs = {}  # argname -> FixtureDef\n         fixtureinfo = pyfuncitem._fixtureinfo\n         self._arg2fixturedefs = fixtureinfo.name2fixturedefs.copy()\n"
+    },
+    {
+      "attempt": 3,
+      "hypothesis_id": "A",
+      "strategy": "replacement_only_code",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "PATCH_SYNTAX",
+      "error_message": "INTERNALERROR> NameError: name 'scope' is not defined",
+      "patch_text": "diff --git a/src/_pytest/fixtures.py b/src/_pytest/fixtures.py\nindex 902904457..b5c993396 100644\n--- a/src/_pytest/fixtures.py\n+++ b/src/_pytest/fixtures.py\n@@ -60,6 +60,11 @@ def pytest_sessionstart(session):\n     )\n     session._fixturemanager = FixtureManager(session)\n \n+    # Ensure the condition at line 1044 is met\n+    if callable(scope) and params is None and autouse is False:\n+        # Implement the required transition\n+        session.config._fixture_scopes = {}\n+\n \n scopename2class = {}\n \n@@ -346,12 +351,12 @@ class FixtureRequest(FuncargnamesCompatAttr):\n     the fixture is parametrized indirectly.\n     \"\"\"\n \n-    def __init__(self, pyfuncitem):\n+    def __init__(self, pyfuncitem, scope=\"function\"):\n         self._pyfuncitem = pyfuncitem\n         #: fixture for which this request is being performed\n         self.fixturename = None\n         #: Scope string, one of \"function\", \"class\", \"module\", \"session\"\n-        self.scope = \"function\"\n+        self.scope = scope\n         self._fixture_defs = {}  # argname -> FixtureDef\n         fixtureinfo = pyfuncitem._fixtureinfo\n         self._arg2fixturedefs = fixtureinfo.name2fixturedefs.copy()\n"
+    }
+  ],
+  "repair_unit": {
+    "id": "src/_pytest/fixtures.py::pytest_sessionstart::FUNCTION::48-66",
+    "file_path": "src/_pytest/fixtures.py",
+    "symbol": "pytest_sessionstart",
+    "unit_type": "FUNCTION",
+    "node_type": "FunctionDef",
+    "start_line": 48,
+    "end_line": 66,
+    "start_col": 0,
+    "end_col": 12,
+    "source_text": "def pytest_sessionstart(session):\n    import _pytest.python\n    import _pytest.nodes\n\n    scopename2class.update(\n        {\n            \"package\": _pytest.python.Package,\n            \"class\": _pytest.python.Class,\n            \"module\": _pytest.python.Module,\n            \"function\": _pytest.nodes.Item,\n            \"session\": _pytest.main.Session,\n        }\n    )\n    session._fixturemanager = FixtureManager(session)\n\n    # Ensure the condition at line 1044 is met\n    if callable(scope) and params is None and autouse is False:\n        # Implement the required transition\n        pass\n",
+    "parent_symbol": "",
+    "indentation": "",
+    "role": "HYPOTHESIS_TARGET",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "src/_pytest/fixtures.py",
+      "symbol": "1044",
+      "role": "DIAGNOSIS_DERIVED",
+      "score": 205.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site '1044' (+80)",
+        "Located in primary localized file (+15)",
+        "Compact code span (14 lines) preferred (+10)"
+      ],
+      "line_start": 48,
+      "line_end": 61,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 14,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/hookspec.py",
+      "symbol": "pytest_report_to_serializable",
+      "role": "PRIMARY",
+      "score": 95.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['pytest'] (+10)",
+        "Compact code span (15 lines) preferred (+10)",
+        "Counterfactual: plausible coverage (+15)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 48 test(s) (+15)"
+      ],
+      "line_start": 383,
+      "line_end": 397,
+      "unrelated_callers_count": 3,
+      "in_failing_traceback": false,
+      "semantic_radius": 15,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/hookspec.py",
+      "symbol": "pytest_report_from_serializable",
+      "role": "PRIMARY",
+      "score": 95.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['pytest'] (+10)",
+        "Compact code span (14 lines) preferred (+10)",
+        "Counterfactual: plausible coverage (+15)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 48 test(s) (+15)"
+      ],
+      "line_start": 401,
+      "line_end": 414,
+      "unrelated_callers_count": 3,
+      "in_failing_traceback": false,
+      "semantic_radius": 14,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/fixtures.py",
+      "symbol": "fixture",
+      "role": "PRIMARY",
+      "score": 90.0,
+      "reasons": [
+        "Symbol 'fixture' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['fixture'] (+10)",
+        "High regression risk: symbol has 15 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 276 test(s) (+15)"
+      ],
+      "line_start": 998,
+      "line_end": 1049,
+      "unrelated_callers_count": 15,
+      "in_failing_traceback": false,
+      "semantic_radius": 52,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/unittest.py",
+      "symbol": "fixture",
+      "role": "PRIMARY",
+      "score": 85.0,
+      "reasons": [
+        "Symbol 'fixture' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['fixture'] (+10)",
+        "High regression risk: symbol has 15 cross-module callers (-40)",
+        "Compact code span (15 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 276 test(s) (+15)"
+      ],
+      "line_start": 89,
+      "line_end": 103,
+      "unrelated_callers_count": 15,
+      "in_failing_traceback": false,
+      "semantic_radius": 15,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/fixtures.py",
+      "symbol": "getfixturevalue",
+      "role": "PRIMARY",
+      "score": -8.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 7 cross-module callers (-28)",
+        "Located in primary localized file (+15)",
+        "Compact code span (9 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 51 test(s) (+15)"
+      ],
+      "line_start": 470,
+      "line_end": 478,
+      "unrelated_callers_count": 7,
+      "in_failing_traceback": false,
+      "semantic_radius": 9,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/fixtures.py",
+      "symbol": "FixtureRequest",
+      "role": "PRIMARY",
+      "score": -30.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 10 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 1770 test(s) (+15)"
+      ],
+      "line_start": 341,
+      "line_end": 491,
+      "unrelated_callers_count": 10,
+      "in_failing_traceback": false,
+      "semantic_radius": 151,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {
+    "valid": true,
+    "syntax_ok": true,
+    "ast_ok": true,
+    "target_changed": true,
+    "unrelated_targets_preserved": true,
+    "no_markdown_leakage": true,
+    "line_expansion_ok": true,
+    "lines_added": 1,
+    "lines_deleted": 1,
+    "symbols_affected": [
+      "pytest_sessionstart"
+    ],
+    "errors": []
+  },
+  "telemetry": {
+    "task_id": "pytest-dev__pytest-5221",
+    "total_wall_s": 390.61,
+    "llm_time_s": 0.0,
+    "test_time_s": 98.065,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 37.16,
+    "retrieval_diagnosis_time_s": 109.961,
+    "probing_time_s": null,
+    "generation_time_s": 123.982,
+    "reconstruction_time_s": 20.435,
+    "static_validation_time_s": 0.075,
+    "replanning_time_s": 0.0,
+    "runtime_s": 390.61
+  },
+  "test_summary": {
+    "instance_id": "pytest-dev__pytest-5221",
+    "resolved": false,
+    "patch_applied": false,
+    "fail_to_pass": {
+      "passed": 0,
+      "total": 0
+    },
+    "pass_to_pass": {
+      "passed": 0,
+      "total": 0
+    },
+    "fail_to_pass_success": [],
+    "fail_to_pass_failure": [],
+    "pass_to_pass_success": [],
+    "pass_to_pass_failure": [],
+    "infra_failure": false,
+    "error": "",
+    "run_id": "eval_1791822919"
+  },
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "1044",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "At line 1044 (`if callable(scope) and params is None and autouse is False:`), implement required transition: Must intercept this condition and produce the expected state transformation.",
+        "category": "ALGORITHMIC_TRANSITION",
+        "source": "EXECUTION_PATH",
+        "affected_symbols": [
+          "fixture"
+        ],
+        "expected_state": "",
+        "expected_transition": "Must intercept this condition and produce the expected state transformation.",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [
+          "callable",
+          "scope",
+          "params"
+        ],
+        "satisfied": true
+      },
+      {
+        "id": "R2",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

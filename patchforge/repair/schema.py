@@ -243,6 +243,11 @@ class StructuredRepairOutput:
     schema_validation: Optional[SchemaValidationResult] = None
     semantic_validation: Optional[SemanticValidationResult] = None
 
+    @property
+    def replacement_code(self) -> str:
+        """Compatibility property alias for replacement code string."""
+        return self.replacement
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "repair_action": self.repair_action,
@@ -300,6 +305,7 @@ class ReconstructedPatch:
     units_applied: list[RepairUnit] = field(default_factory=list)
     validation: StaticValidationResult = field(default_factory=StaticValidationResult)
     error: str = ""
+    healed_imports: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -311,4 +317,5 @@ class ReconstructedPatch:
             "units_applied": [u.to_dict() for u in self.units_applied],
             "validation": self.validation.to_dict(),
             "error": self.error,
+            "healed_imports": self.healed_imports,
         }

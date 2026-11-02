@@ -24,8 +24,9 @@ class RunTargetedTestTool(Tool):
         "required": ["test_target"],
     }
 
-    def __init__(self, tester: Any = None):
+    def __init__(self, tester: Any = None, allow_host_execution: bool = False):
         self.tester = tester
+        self.allow_host_execution = allow_host_execution
 
     def execute(self, args: dict[str, Any], state: Any = None) -> ToolResult:
         test_target = args.get("test_target", "")
@@ -44,15 +45,46 @@ class RunTargetedTestTool(Tool):
                         "passed": verdict.passed if hasattr(verdict, "passed") else False,
                         "fail_to_pass_passed": getattr(verdict, "fail_to_pass_passed", 0),
                         "fail_to_pass_total": getattr(verdict, "fail_to_pass_total", 0),
+                        "isolation": "CONTAINER",
                     },
-                    message=f"Test executed with classification {getattr(verdict, 'classification', 'UNKNOWN')}.",
+                    message=f"Test executed in container sandbox with classification {getattr(verdict, 'classification', 'UNKNOWN')}.",
                     raw_output=getattr(verdict, "test_output", "")[:2000],
                 )
             except Exception as e:
-                return ToolResult(self.name, status="ERROR", error=f"Tester execution failed: {str(e)}")
+                return ToolResult(
+                    self.name,
+                    status="ERROR",
+                    error=f"SANDBOX_EXECUTION_FAILURE: Tester container execution failed: {str(e)}. Host execution fallback is disabled.",
+                    data={"isolation": "CONTAINER_FAILED", "allow_host_execution": False},
+                )
 
-        # Local pytest fallback for local test files
-        repo_path = Path(state.repo_dir if state and hasattr(state, "repo_dir") else ".")
+        # Host execution guard: untrusted tests must not execute on host without explicit opt-in.
+        # Fail-closed: authorization is strictly read from self.allow_host_execution configured
+        # at tool initialization. Untrusted model arguments in args and agent-controlled or
+        # externally supplied state objects cannot grant host execution privileges.
+        allow_host = bool(self.allow_host_execution is True)
+
+        if not allow_host:
+            return ToolResult(
+                self.name,
+                status="ERROR",
+                error=(
+                    "SECURITY_POLICY: Local host test execution is disabled by default for untrusted repositories. "
+                    "Safe container execution required or explicit allow_host_execution=True opt-in."
+                ),
+                data={"isolation": "BLOCKED", "allow_host_execution": False},
+            )
+
+        # Local pytest execution for explicitly authorized repositories
+        repo_path = Path(state.repo_dir if state and hasattr(state, "repo_dir") else ".").resolve()
+        if not repo_path.is_dir():
+            return ToolResult(
+                self.name,
+                status="ERROR",
+                error=f"SECURITY_POLICY: Invalid or missing repository directory: '{repo_path}'",
+                data={"isolation": "BLOCKED", "allow_host_execution": True},
+            )
+
         try:
             cmd = ["pytest", test_target, "-q"]
             proc = subprocess.run(cmd, cwd=str(repo_path), capture_output=True, text=True, timeout=timeout)
@@ -60,8 +92,13 @@ class RunTargetedTestTool(Tool):
             return ToolResult(
                 self.name,
                 status="SUCCESS",
-                data={"passed": passed, "exit_code": proc.returncode, "stdout": proc.stdout[:1500]},
-                message=f"Local test {test_target} {'PASSED' if passed else 'FAILED'}.",
+                data={
+                    "passed": passed,
+                    "exit_code": proc.returncode,
+                    "stdout": proc.stdout[:1500],
+                    "isolation": "EXPLICIT_HOST_OPT_IN",
+                },
+                message=f"Local host test {test_target} {'PASSED' if passed else 'FAILED'}.",
                 raw_output=(proc.stdout + "\n" + proc.stderr)[:2000],
             )
         except subprocess.TimeoutExpired:
@@ -83,21 +120,53 @@ class RunReproductionTool(Tool):
         "required": ["repro_code"],
     }
 
+    def __init__(self, allow_host_execution: bool = False):
+        self.allow_host_execution = allow_host_execution
+
     def execute(self, args: dict[str, Any], state: Any = None) -> ToolResult:
         repro_code = args.get("repro_code", "")
-        repo_path = Path(state.repo_dir if state and hasattr(state, "repo_dir") else ".")
+        # Fail-closed: untrusted model code must not execute directly on host by default.
+        # Authorization is strictly read from self.allow_host_execution configured at tool initialization.
+        # Untrusted model arguments in args and agent-controlled or externally supplied state objects
+        # cannot grant host execution privileges.
+        allow_host = bool(self.allow_host_execution is True)
+
+        if not allow_host:
+            return ToolResult(
+                self.name,
+                status="ERROR",
+                error=(
+                    "SECURITY_POLICY: Host execution of model-generated reproduction code is disabled by default. "
+                    "An isolated container sandbox is required, or explicit allow_host_execution=True opt-in."
+                ),
+                data={"isolation": "BLOCKED", "allow_host_execution": False},
+            )
+
+        repo_path = Path(state.repo_dir if state and hasattr(state, "repo_dir") else ".").resolve()
+        if not repo_path.is_dir():
+            return ToolResult(
+                self.name,
+                status="ERROR",
+                error=f"SECURITY_POLICY: Invalid or missing repository directory: '{repo_path}'",
+                data={"isolation": "BLOCKED", "allow_host_execution": True},
+            )
 
         import tempfile
+        tf_name = None
         try:
             with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False, encoding="utf-8") as tf:
                 tf.write(repro_code)
                 tf_name = tf.name
 
             proc = subprocess.run(["python", tf_name], cwd=str(repo_path), capture_output=True, text=True, timeout=15)
-            try:
-                Path(tf_name).unlink()
-            except Exception:
-                pass
+
+            stderr_text = proc.stderr or ""
+            # Distinguish syntax/import crashes from actual expected defect reproduction
+            syntax_or_import_error = any(err in stderr_text for err in [
+                "SyntaxError", "ImportError", "ModuleNotFoundError", "IndentationError"
+            ])
+
+            reproduced = (proc.returncode != 0) and not syntax_or_import_error
 
             return ToolResult(
                 self.name,
@@ -106,15 +175,23 @@ class RunReproductionTool(Tool):
                     "exit_code": proc.returncode,
                     "stdout": proc.stdout[:1000],
                     "stderr": proc.stderr[:1000],
-                    "reproduced": proc.returncode != 0,
+                    "reproduced": reproduced,
+                    "syntax_or_import_error": syntax_or_import_error,
+                    "isolation": "EXPLICIT_HOST_OPT_IN",
                 },
-                message=f"Reproduction script exited with code {proc.returncode}.",
+                message=f"Reproduction script exited with code {proc.returncode}{' (syntax/import error)' if syntax_or_import_error else ''}.",
                 raw_output=(proc.stdout + "\n" + proc.stderr)[:1500],
             )
         except subprocess.TimeoutExpired:
             return ToolResult(self.name, status="TIMEOUT", error="Reproduction script timed out after 15s.")
         except Exception as e:
             return ToolResult(self.name, status="ERROR", error=f"Failed executing reproduction: {str(e)}")
+        finally:
+            if tf_name:
+                try:
+                    Path(tf_name).unlink(missing_ok=True)
+                except Exception:
+                    pass
 
 
 class InspectFailureTool(Tool):

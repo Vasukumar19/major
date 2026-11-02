@@ -1,0 +1,660 @@
+{
+  "instance_id": "psf__requests-863",
+  "repo": "psf/requests",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "48e0408bb74599c3",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "e2008182d3ff683a",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "d60390742cfb49db",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "c6576310d2f24640",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": true,
+  "patch_tier": "AST_GROUNDED",
+  "patch_text": "diff --git a/requests/models.py b/requests/models.py\nindex d8456375..25e0352e 100644\n--- a/requests/models.py\n+++ b/requests/models.py\n@@ -46,135 +46,139 @@ class Request(object):\n     \"\"\"\n \n     def __init__(self,\n-        url=None,\n-        headers=dict(),\n-        files=None,\n-        method=None,\n-        data=dict(),\n-        params=dict(),\n-        auth=None,\n-        cookies=None,\n-        timeout=None,\n-        redirect=False,\n-        allow_redirects=False,\n-        proxies=None,\n-        hooks=None,\n-        config=None,\n-        prefetch=True,\n-        _poolmanager=None,\n-        verify=None,\n-        session=None,\n-        cert=None):\n-\n-        #: Dictionary of configurations for this request.\n-        self.config = dict(config or [])\n-\n-        #: Float describes the timeout of the request.\n-        #  (Use socket.setdefaulttimeout() as fallback)\n-        self.timeout = timeout\n-\n-        #: Request URL.\n-        #: Accept objects that have string representations.\n-        try:\n-            self.url = unicode(url)\n-        except NameError:\n-            # We're on Python 3.\n-            self.url = str(url)\n-        except UnicodeDecodeError:\n-            self.url = url\n+            url=None,\n+            headers=dict(),\n+            files=None,\n+            method=None,\n+            data=dict(),\n+            params=dict(),\n+            auth=None,\n+            cookies=None,\n+            timeout=None,\n+            redirect=False,\n+            allow_redirects=False,\n+            proxies=None,\n+            hooks=None,\n+            config=None,\n+            prefetch=True,\n+            _poolmanager=None,\n+            verify=None,\n+            session=None,\n+            cert=None):\n+\n+            #: Dictionary of configurations for this request.\n+            self.config = dict(config or [])\n+\n+            #: Float describes the timeout of the request.\n+            #  (Use socket.setdefaulttimeout() as fallback)\n+            self.timeout = timeout\n+\n+            #: Request URL.\n+            #: Accept objects that have string representations.\n+            try:\n+                self.url = unicode(url)\n+            except NameError:\n+                # We're on Python 3.\n+                self.url = str(url)\n+            except UnicodeDecodeError:\n+                self.url = url\n \n-        #: Dictionary of HTTP Headers to attach to the :class:`Request <Request>`.\n-        self.headers = dict(headers or [])\n+            #: Dictionary of HTTP Headers to attach to the :class:`Request <Request>`.\n+            self.headers = dict(headers or [])\n \n-        #: Dictionary of files to multipart upload (``{filename: content}``).\n-        self.files = None\n+            #: Dictionary of files to multipart upload (``{filename: content}``).\n+            self.files = None\n \n-        #: HTTP Method to use.\n-        self.method = method\n+            #: HTTP Method to use.\n+            self.method = method\n \n-        #: Dictionary, bytes or file stream of request body data to attach to the\n-        #: :class:`Request <Request>`.\n-        self.data = None\n+            #: Dictionary, bytes or file stream of request body data to attach to the\n+            #: :class:`Request <Request>`.\n+            self.data = None\n \n-        #: Dictionary or byte of querystring data to attach to the\n-        #: :class:`Request <Request>`. The dictionary values can be lists for representing\n-        #: multivalued query parameters.\n-        self.params = None\n+            #: Dictionary or byte of querystring data to attach to the\n+            #: :class:`Request <Request>`. The dictionary values can be lists for representing\n+            #: multivalued query parameters.\n+            self.params = None\n \n-        #: True if :class:`Request <Request>` is part of a redirect chain (disables history\n-        #: and HTTPError storage).\n-        self.redirect = redirect\n+            #: True if :class:`Request <Request>` is part of a redirect chain (disables history\n+            #: and HTTPError storage).\n+            self.redirect = redirect\n \n-        #: Set to True if full redirects are allowed (e.g. re-POST-ing of data at new ``Location``)\n-        self.allow_redirects = allow_redirects\n+            #: Set to True if full redirects are allowed (e.g. re-POST-ing of data at new ``Location``)\n+            self.allow_redirects = allow_redirects\n \n-        # Dictionary mapping protocol to the URL of the proxy (e.g. {'http': 'foo.bar:3128'})\n-        self.proxies = dict(proxies or [])\n+            # Dictionary mapping protocol to the URL of the proxy (e.g. {'http': 'foo.bar:3128'})\n+            self.proxies = dict(proxies or [])\n \n-        for proxy_type,uri_ref in list(self.proxies.items()):\n-            if not uri_ref:\n-                del self.proxies[proxy_type]\n+            for proxy_type,uri_ref in list(self.proxies.items()):\n+                if not uri_ref:\n+                    del self.proxies[proxy_type]\n \n-        # If no proxies are given, allow configuration by environment variables\n-        # HTTP_PROXY and HTTPS_PROXY.\n-        if not self.proxies and self.config.get('trust_env'):\n-            self.proxies = get_environ_proxies()\n+            # If no proxies are given, allow configuration by environment variables\n+            # HTTP_PROXY and HTTPS_PROXY.\n+            if not self.proxies and self.config.get('trust_env'):\n+                self.proxies = get_environ_proxies()\n \n-        self.data = data\n-        self.params = params\n-        self.files = files\n+            self.data = data\n+            self.params = params\n+            self.files = files\n \n-        #: :class:`Response <Response>` instance, containing\n-        #: content and metadata of HTTP Response, once :attr:`sent <send>`.\n-        self.response = Response()\n+            #: :class:`Response <Response>` instance, containing\n+            #: content and metadata of HTTP Response, once :attr:`sent <send>`.\n+            self.response = Response()\n \n-        #: Authentication tuple or object to attach to :class:`Request <Request>`.\n-        self.auth = auth\n+            #: Authentication tuple or object to attach to :class:`Request <Request>`.\n+            self.auth = auth\n \n-        #: CookieJar to attach to :class:`Request <Request>`.\n-        if isinstance(cookies, cookielib.CookieJar):\n-            self.cookies = cookies\n-        else:\n-            self.cookies = cookiejar_from_dict(cookies)\n+            #: CookieJar to attach to :class:`Request <Request>`.\n+            if isinstance(cookies, cookielib.CookieJar):\n+                self.cookies = cookies\n+            else:\n+                self.cookies = cookiejar_from_dict(cookies)\n \n-        #: True if Request has been sent.\n-        self.sent = False\n+            #: True if Request has been sent.\n+            self.sent = False\n \n-        #: Event-handling hooks.\n-        self.hooks = {}\n+            #: Event-handling hooks.\n+            self.hooks = {}\n \n-        for event in HOOKS:\n-            self.hooks[event] = []\n+            for event in HOOKS:\n+                self.hooks[event] = []\n \n-        hooks = hooks or {}\n+            hooks = hooks or {}\n \n-        for (k, v) in list(hooks.items()):\n-            self.register_hook(event=k, hook=v)\n+            for (k, v) in list(hooks.items()):\n+                if isinstance(v, list):\n+                    for hook in v:\n+                        self.register_hook(event=k, hook=hook)\n+                else:\n+                    self.register_hook(event=k, hook=v)\n \n-        #: Session.\n-        self.session = session\n+            #: Session.\n+            self.session = session\n \n-        #: SSL Verification.\n-        self.verify = verify\n+            #: SSL Verification.\n+            self.verify = verify\n \n-        #: SSL Certificate\n-        self.cert = cert\n+            #: SSL Certificate\n+            self.cert = cert\n \n-        #: Prefetch response content\n-        self.prefetch = prefetch\n+            #: Prefetch response content\n+            self.prefetch = prefetch\n \n-        if headers:\n-            headers = CaseInsensitiveDict(self.headers)\n-        else:\n-            headers = CaseInsensitiveDict()\n+            if headers:\n+                headers = CaseInsensitiveDict(self.headers)\n+            else:\n+                headers = CaseInsensitiveDict()\n \n-        # Add configured base headers.\n-        for (k, v) in list(self.config.get('base_headers', {}).items()):\n-            if k not in headers:\n-                headers[k] = v\n+            # Add configured base headers.\n+            for (k, v) in list(self.config.get('base_headers', {}).items()):\n+                if k not in headers:\n+                    headers[k] = v\n \n-        self.headers = headers\n-        self._poolmanager = _poolmanager\n+            self.headers = headers\n+            self._poolmanager = _poolmanager\n \n     def __repr__(self):\n         return '<Request [%s]>' % (self.method)\n@@ -839,7 +843,10 @@ class Response(object):\n     def json(self):\n         \"\"\"Returns the json-encoded content of a response, if any.\"\"\"\n         try:\n-            return json.loads(self.text or self.content)\n+            content = self.text or self.content\n+            if isinstance(content, bytes):\n+                content = content.decode('utf-8')\n+            return json.loads(content)\n         except ValueError:\n             return None\n \n",
+  "test_executed": true,
+  "failure_class": "REGRESSION",
+  "runtime_s": 601.79,
+  "f2p_passed": 4,
+  "f2p_total": 4,
+  "p2p_passed": 59,
+  "p2p_total": 60,
+  "refinement_cycles": 3,
+  "target_file": "requests/models.py",
+  "target_symbol": "Request",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "requests/models.py:json"
+    ],
+    "selected_target": "requests/models.py:json",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'requests/models.py:json'.",
+    "target_unjustified": true,
+    "target_changes": [
+      {
+        "switched_to_hypothesis": "A",
+        "target": "requests/models.py:Request",
+        "justification": "Target matches hypothesized affected site 'requests/models.py:Request'."
+      }
+    ]
+  },
+  "generation_attempted": true,
+  "structurally_valid": true,
+  "submitted_to_harness": true,
+  "test_time_s": 211.211,
+  "generation_time_s": 219.034,
+  "reconstruction_time_s": 5.848,
+  "indexing_time_s": 0.409,
+  "retrieval_diagnosis_time_s": 164.71,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.034,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "d60390742cfb49db",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "psf__requests-2148",
+      "psf__requests-2674"
+    ],
+    "exemplars_included_in_prompt": [
+      "psf__requests-2148",
+      "psf__requests-2674"
+    ],
+    "prompt_included_episode_ids": [
+      "psf__requests-2148",
+      "psf__requests-2674"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "psf__requests-863",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The `Request` class in `requests/models.py` has a high churn score and is a global infrastructure with multiple cross-module callers, making it risky to mutate.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Refactor the `Request` class to isolate changes and minimize impact on existing callers. Consider creating a new class or method to handle the new feature without altering the existing behavior.",
+    "affected_sites": [
+      "requests/models.py:Request"
+    ],
+    "defect_confidence": 0.75,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 0,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The `Request` class in `requests/models.py` has a high churn score and is a global infrastructure with multiple cross-module callers, making it risky to mutate.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "New class or method for the new feature",
+          "expected_mutations": [
+            "Add new class or method"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Existing callers fail"
+          ],
+          "discriminating_variable": "New feature implementation",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Refactor the `Request` class to isolate changes and minimize impact on existing callers. Consider creating a new class or method to handle the new feature without altering the existing behavior.",
+        "affected_sites": [
+          "requests/models.py:Request"
+        ],
+        "supporting_evidence": [
+          "E1 | CODE_GRAPH: `Request` is GLOBAL_INFRASTRUCTURE with 7 callers (5 cross-module). Mutating it risks high regression.",
+          "E2 | TEMPORAL: `Request` has a history of 3 bug fixes (churn score: 0.60)."
+        ],
+        "contradicting_evidence": [
+          "No runtime tracebacks or failing test assertions observed.",
+          "Target 'requests/models.py:Request' is GLOBAL_INFRASTRUCTURE with 15 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "E1 | CODE_GRAPH: `Request` is GLOBAL_INFRASTRUCTURE with 7 callers (5 cross-module). Mutating it risks high regression.",
+          "E2 | TEMPORAL: `Request` has a history of 3 bug fixes (churn score: 0.60)."
+        ],
+        "contradicting_facts": [
+          "No runtime tracebacks or failing test assertions observed."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 50.0
+      },
+      {
+        "id": "B",
+        "cause": "The `request` function in `requests/sessions.py` is a global infrastructure with multiple cross-module callers, making it risky to mutate.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "New function or method for the new feature",
+          "expected_mutations": [
+            "Add new function or method"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Existing callers fail"
+          ],
+          "discriminating_variable": "New feature implementation",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Refactor the `request` function to isolate changes and minimize impact on existing callers. Consider creating a new function or method to handle the new feature without altering the existing behavior.",
+        "affected_sites": [
+          "requests/sessions.py:request"
+        ],
+        "supporting_evidence": [
+          "E3 | CODE_GRAPH: `request` is GLOBAL_INFRASTRUCTURE with 16 callers (1 cross-module). Mutating it risks high regression.",
+          "E4 | TEMPORAL: `request` has a history of 1 bug fixes (churn score: 0.15)."
+        ],
+        "contradicting_evidence": [
+          "No runtime tracebacks or failing test assertions observed.",
+          "Target 'requests/sessions.py:request' is GLOBAL_INFRASTRUCTURE with 15 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "E3 | CODE_GRAPH: `request` is GLOBAL_INFRASTRUCTURE with 16 callers (1 cross-module). Mutating it risks high regression.",
+          "E4 | TEMPORAL: `request` has a history of 1 bug fixes (churn score: 0.15)."
+        ],
+        "contradicting_facts": [
+          "No runtime tracebacks or failing test assertions observed."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 50.0
+      },
+      {
+        "id": "C",
+        "cause": "The `json` method in `requests/models.py` is a feature-local method with no bounded callers, making it safe for targeted repair.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "Modify `json` method",
+          "expected_mutations": [
+            "Modify `json` method"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Existing callers fail"
+          ],
+          "discriminating_variable": "New feature implementation",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Modify the `json` method to include the new feature without affecting existing behavior.",
+        "affected_sites": [
+          "requests/models.py:json"
+        ],
+        "supporting_evidence": [
+          "E10 | CODE_GRAPH: `json` is FEATURE_LOCAL with bounded callers (0). Safe for targeted repair.",
+          "E11 | TEMPORAL: `json` has a history of 3 bug fixes (churn score: 0.60).",
+          "Target 'requests/models.py:json' is FEATURE_LOCAL with bounded blast radius (+20)"
+        ],
+        "contradicting_evidence": [
+          "No runtime tracebacks or failing test assertions observed."
+        ],
+        "supporting_facts": [
+          "E10 | CODE_GRAPH: `json` is FEATURE_LOCAL with bounded callers (0). Safe for targeted repair.",
+          "E11 | TEMPORAL: `json` has a history of 3 bug fixes (churn score: 0.60)."
+        ],
+        "contradicting_facts": [
+          "No runtime tracebacks or failing test assertions observed."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 95.0
+      }
+    ],
+    "repair_sites": [
+      "requests/models.py:Request"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "hypothesis_id": "C",
+      "strategy": "strict_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 2,
+      "hypothesis_id": "C",
+      "strategy": "refined_structured_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "REGRESSION",
+      "error_message": "FAILED tests/test_requests.py::RequestsTestSuite::test_session_persistent_cookies; FAILED tests/test_requests.py::RequestsTestSuite::test_str_data_content_type; FAILED tests/test_requests.py::RequestsTestSuite::test_unpickled_session_requests",
+      "patch_text": "diff --git a/requests/models.py b/requests/models.py\nindex d8456375..bd1418ed 100644\n--- a/requests/models.py\n+++ b/requests/models.py\n@@ -839,7 +839,10 @@ class Response(object):\n     def json(self):\n         \"\"\"Returns the json-encoded content of a response, if any.\"\"\"\n         try:\n-            return json.loads(self.text or self.content)\n+            content = self.text or self.content\n+            if isinstance(content, bytes):\n+                content = content.decode('utf-8')\n+            return json.loads(content)\n         except ValueError:\n             return None\n \n"
+    },
+    {
+      "attempt": 3,
+      "hypothesis_id": "A",
+      "strategy": "replacement_only_code",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "REGRESSION",
+      "error_message": "FAILED tests/test_requests.py::RequestsTestSuite::test_session_persistent_cookies; FAILED tests/test_requests.py::RequestsTestSuite::test_str_data_content_type; FAILED tests/test_requests.py::RequestsTestSuite::test_unpickled_session_requests",
+      "patch_text": "diff --git a/requests/models.py b/requests/models.py\nindex d8456375..25e0352e 100644\n--- a/requests/models.py\n+++ b/requests/models.py\n@@ -46,135 +46,139 @@ class Request(object):\n     \"\"\"\n \n     def __init__(self,\n-        url=None,\n-        headers=dict(),\n-        files=None,\n-        method=None,\n-        data=dict(),\n-        params=dict(),\n-        auth=None,\n-        cookies=None,\n-        timeout=None,\n-        redirect=False,\n-        allow_redirects=False,\n-        proxies=None,\n-        hooks=None,\n-        config=None,\n-        prefetch=True,\n-        _poolmanager=None,\n-        verify=None,\n-        session=None,\n-        cert=None):\n-\n-        #: Dictionary of configurations for this request.\n-        self.config = dict(config or [])\n-\n-        #: Float describes the timeout of the request.\n-        #  (Use socket.setdefaulttimeout() as fallback)\n-        self.timeout = timeout\n-\n-        #: Request URL.\n-        #: Accept objects that have string representations.\n-        try:\n-            self.url = unicode(url)\n-        except NameError:\n-            # We're on Python 3.\n-            self.url = str(url)\n-        except UnicodeDecodeError:\n-            self.url = url\n+            url=None,\n+            headers=dict(),\n+            files=None,\n+            method=None,\n+            data=dict(),\n+            params=dict(),\n+            auth=None,\n+            cookies=None,\n+            timeout=None,\n+            redirect=False,\n+            allow_redirects=False,\n+            proxies=None,\n+            hooks=None,\n+            config=None,\n+            prefetch=True,\n+            _poolmanager=None,\n+            verify=None,\n+            session=None,\n+            cert=None):\n+\n+            #: Dictionary of configurations for this request.\n+            self.config = dict(config or [])\n+\n+            #: Float describes the timeout of the request.\n+            #  (Use socket.setdefaulttimeout() as fallback)\n+            self.timeout = timeout\n+\n+            #: Request URL.\n+            #: Accept objects that have string representations.\n+            try:\n+                self.url = unicode(url)\n+            except NameError:\n+                # We're on Python 3.\n+                self.url = str(url)\n+            except UnicodeDecodeError:\n+                self.url = url\n \n-        #: Dictionary of HTTP Headers to attach to the :class:`Request <Request>`.\n-        self.headers = dict(headers or [])\n+            #: Dictionary of HTTP Headers to attach to the :class:`Request <Request>`.\n+            self.headers = dict(headers or [])\n \n-        #: Dictionary of files to multipart upload (``{filename: content}``).\n-        self.files = None\n+            #: Dictionary of files to multipart upload (``{filename: content}``).\n+            self.files = None\n \n-        #: HTTP Method to use.\n-        self.method = method\n+            #: HTTP Method to use.\n+            self.method = method\n \n-        #: Dictionary, bytes or file stream of request body data to attach to the\n-        #: :class:`Request <Request>`.\n-        self.data = None\n+            #: Dictionary, bytes or file stream of request body data to attach to the\n+            #: :class:`Request <Request>`.\n+            self.data = None\n \n-        #: Dictionary or byte of querystring data to attach to the\n-        #: :class:`Request <Request>`. The dictionary values can be lists for representing\n-        #: multivalued query parameters.\n-        self.params = None\n+            #: Dictionary or byte of querystring data to attach to the\n+            #: :class:`Request <Request>`. The dictionary values can be lists for representing\n+            #: multivalued query parameters.\n+            self.params = None\n \n-        #: True if :class:`Request <Request>` is part of a redirect chain (disables history\n-        #: and HTTPError storage).\n-        self.redirect = redirect\n+            #: True if :class:`Request <Request>` is part of a redirect chain (disables history\n+            #: and HTTPError storage).\n+            self.redirect = redirect\n \n-        #: Set to True if full redirects are allowed (e.g. re-POST-ing of data at new ``Location``)\n-        self.allow_redirects = allow_redirects\n+            #: Set to True if full redirects are allowed (e.g. re-POST-ing of data at new ``Location``)\n+            self.allow_redirects = allow_redirects\n \n-        # Dictionary mapping protocol to the URL of the proxy (e.g. {'http': 'foo.bar:3128'})\n-        self.proxies = dict(proxies or [])\n+            # Dictionary mapping protocol to the URL of the proxy (e.g. {'http': 'foo.bar:3128'})\n+            self.proxies = dict(proxies or [])\n \n-        for proxy_type,uri_ref in list(self.proxies.items()):\n-            if not uri_ref:\n-                del self.proxies[proxy_type]\n+            for proxy_type,uri_ref in list(self.proxies.items()):\n+                if not uri_ref:\n+                    del self.proxies[proxy_type]\n \n-        # If no proxies are given, allow configuration by environment variables\n-        # HTTP_PROXY and HTTPS_PROXY.\n-        if not self.proxies and self.config.get('trust_env'):\n-            self.proxies = get_environ_proxies()\n+            # If no proxies are given, allow configuration by environment variables\n+            # HTTP_PROXY and HTTPS_PROXY.\n+            if not self.proxies and self.config.get('trust_env'):\n+                self.proxies = get_environ_proxies()\n \n-        self.data = data\n-        self.params = params\n-        self.files = files\n+            self.data = data\n+            self.params = params\n+            self.files = files\n \n-        #: :class:`Response <Response>` instance, containing\n-        #: content and metadata of HTTP Response, once :attr:`sent <send>`.\n-        self.response = Response()\n+            #: :class:`Response <Response>` instance, containing\n+            #: content and metadata of HTTP Response, once :attr:`sent <send>`.\n+            self.response = Response()\n \n-        #: Authentication tuple or object to attach to :class:`Request <Request>`.\n-        self.auth = auth\n+            #: Authentication tuple or object to attach to :class:`Request <Request>`.\n+            self.auth = auth\n \n-        #: CookieJar to attach to :class:`Request <Request>`.\n-        if isinstance(cookies, cookielib.CookieJar):\n-            self.cookies = cookies\n-        else:\n-            self.cookies = cookiejar_from_dict(cookies)\n+            #: CookieJar to attach to :class:`Request <Request>`.\n+            if isinstance(cookies, cookielib.CookieJar):\n+                self.cookies = cookies\n+            else:\n+                self.cookies = cookiejar_from_dict(cookies)\n \n-        #: True if Request has been sent.\n-        self.sent = False\n+            #: True if Request has been sent.\n+            self.sent = False\n \n-        #: Event-handling hooks.\n-        self.hooks = {}\n+            #: Event-handling hooks.\n+            self.hooks = {}\n \n-        for event in HOOKS:\n-            self.hooks[event] = []\n+            for event in HOOKS:\n+                self.hooks[event] = []\n \n-        hooks = hooks or {}\n+            hooks = hooks or {}\n \n-        for (k, v) in list(hooks.items()):\n-            self.register_hook(event=k, hook=v)\n+            for (k, v) in list(hooks.items()):\n+                if isinstance(v, list):\n+                    for hook in v:\n+                        self.register_hook(event=k, hook=hook)\n+                else:\n+                    self.register_hook(event=k, hook=v)\n \n-        #: Session.\n-        self.session = session\n+            #: Session.\n+            self.session = session\n \n-        #: SSL Verification.\n-        self.verify = verify\n+            #: SSL Verification.\n+            self.verify = verify\n \n-        #: SSL Certificate\n-        self.cert = cert\n+            #: SSL Certificate\n+            self.cert = cert\n \n-        #: Prefetch response content\n-        self.prefetch = prefetch\n+            #: Prefetch response content\n+            self.prefetch = prefetch\n \n-        if headers:\n-            headers = CaseInsensitiveDict(self.headers)\n-        else:\n-            headers = CaseInsensitiveDict()\n+            if headers:\n+                headers = CaseInsensitiveDict(self.headers)\n+            else:\n+                headers = CaseInsensitiveDict()\n \n-        # Add configured base headers.\n-        for (k, v) in list(self.config.get('base_headers', {}).items()):\n-            if k not in headers:\n-                headers[k] = v\n+            # Add configured base headers.\n+            for (k, v) in list(self.config.get('base_headers', {}).items()):\n+                if k not in headers:\n+                    headers[k] = v\n \n-        self.headers = headers\n-        self._poolmanager = _poolmanager\n+            self.headers = headers\n+            self._poolmanager = _poolmanager\n \n     def __repr__(self):\n         return '<Request [%s]>' % (self.method)\n@@ -839,7 +843,10 @@ class Response(object):\n     def json(self):\n         \"\"\"Returns the json-encoded content of a response, if any.\"\"\"\n         try:\n-            return json.loads(self.text or self.content)\n+            content = self.text or self.content\n+            if isinstance(content, bytes):\n+                content = content.decode('utf-8')\n+            return json.loads(content)\n         except ValueError:\n             return None\n \n"
+    }
+  ],
+  "repair_unit": {
+    "id": "requests/models.py::__init__::METHOD::48-177",
+    "file_path": "requests/models.py",
+    "symbol": "__init__",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 48,
+    "end_line": 177,
+    "start_col": 4,
+    "end_col": 40,
+    "source_text": "    def __init__(self,\n        url=None,\n        headers=dict(),\n        files=None,\n        method=None,\n        data=dict(),\n        params=dict(),\n        auth=None,\n        cookies=None,\n        timeout=None,\n        redirect=False,\n        allow_redirects=False,\n        proxies=None,\n        hooks=None,\n        config=None,\n        prefetch=True,\n        _poolmanager=None,\n        verify=None,\n        session=None,\n        cert=None):\n\n        #: Dictionary of configurations for this request.\n        self.config = dict(config or [])\n\n        #: Float describes the timeout of the request.\n        #  (Use socket.setdefaulttimeout() as fallback)\n        self.timeout = timeout\n\n        #: Request URL.\n        #: Accept objects that have string representations.\n        try:\n            self.url = unicode(url)\n        except NameError:\n            # We're on Python 3.\n            self.url = str(url)\n        except UnicodeDecodeError:\n            self.url = url\n\n        #: Dictionary of HTTP Headers to attach to the :class:`Request <Request>`.\n        self.headers = dict(headers or [])\n\n        #: Dictionary of files to multipart upload (``{filename: content}``).\n        self.files = None\n\n        #: HTTP Method to use.\n        self.method = method\n\n        #: Dictionary, bytes or file stream of request body data to attach to the\n        #: :class:`Request <Request>`.\n        self.data = None\n\n        #: Dictionary or byte of querystring data to attach to the\n        #: :class:`Request <Request>`. The dictionary values can be lists for representing\n        #: multivalued query parameters.\n        self.params = None\n\n        #: True if :class:`Request <Request>` is part of a redirect chain (disables history\n        #: and HTTPError storage).\n        self.redirect = redirect\n\n        #: Set to True if full redirects are allowed (e.g. re-POST-ing of data at new ``Location``)\n        self.allow_redirects = allow_redirects\n\n        # Dictionary mapping protocol to the URL of the proxy (e.g. {'http': 'foo.bar:3128'})\n        self.proxies = dict(proxies or [])\n\n        for proxy_type,uri_ref in list(self.proxies.items()):\n            if not uri_ref:\n                del self.proxies[proxy_type]\n\n        # If no proxies are given, allow configuration by environment variables\n        # HTTP_PROXY and HTTPS_PROXY.\n        if not self.proxies and self.config.get('trust_env'):\n            self.proxies = get_environ_proxies()\n\n        self.data = data\n        self.params = params\n        self.files = files\n\n        #: :class:`Response <Response>` instance, containing\n        #: content and metadata of HTTP Response, once :attr:`sent <send>`.\n        self.response = Response()\n\n        #: Authentication tuple or object to attach to :class:`Request <Request>`.\n        self.auth = auth\n\n        #: CookieJar to attach to :class:`Request <Request>`.\n        if isinstance(cookies, cookielib.CookieJar):\n            self.cookies = cookies\n        else:\n            self.cookies = cookiejar_from_dict(cookies)\n\n        #: True if Request has been sent.\n        self.sent = False\n\n        #: Event-handling hooks.\n        self.hooks = {}\n\n        for event in HOOKS:\n            self.hooks[event] = []\n\n        hooks = hooks or {}\n\n        for (k, v) in list(hooks.items()):\n            self.register_hook(event=k, hook=v)\n\n        #: Session.\n        self.session = session\n\n        #: SSL Verification.\n        self.verify = verify\n\n        #: SSL Certificate\n        self.cert = cert\n\n        #: Prefetch response content\n        self.prefetch = prefetch\n\n        if headers:\n            headers = CaseInsensitiveDict(self.headers)\n        else:\n            headers = CaseInsensitiveDict()\n\n        # Add configured base headers.\n        for (k, v) in list(self.config.get('base_headers', {}).items()):\n            if k not in headers:\n                headers[k] = v\n\n        self.headers = headers\n        self._poolmanager = _poolmanager\n",
+    "parent_symbol": "Request",
+    "indentation": "    ",
+    "role": "HYPOTHESIS_TARGET",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "requests/models.py",
+      "symbol": "json",
+      "role": "PRIMARY",
+      "score": 235.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'json' (+80)",
+        "Located in primary localized file (+15)",
+        "Compact code span (6 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_LOCAL with bounded impact (+25)",
+        "Direct tests available: 24 test(s) (+15)"
+      ],
+      "line_start": 839,
+      "line_end": 844,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 6,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/models.py",
+      "symbol": "Request",
+      "role": "PRIMARY",
+      "score": 140.0,
+      "reasons": [
+        "Symbol 'Request' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['request'] (+10)",
+        "Located in primary localized file (+15)",
+        "Compact code span (4 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 3 test(s) (+15)"
+      ],
+      "line_start": 463,
+      "line_end": 466,
+      "unrelated_callers_count": 3,
+      "in_failing_traceback": false,
+      "semantic_radius": 4,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/sessions.py",
+      "symbol": "request",
+      "role": "PRIMARY",
+      "score": 115.0,
+      "reasons": [
+        "Symbol 'request' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['request'] (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 4 test(s) (+15)"
+      ],
+      "line_start": 121,
+      "line_end": 244,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 124,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/api.py",
+      "symbol": "request",
+      "role": "PRIMARY",
+      "score": 115.0,
+      "reasons": [
+        "Symbol 'request' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['request'] (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 4 test(s) (+15)"
+      ],
+      "line_start": 19,
+      "line_end": 54,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 36,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/packages/urllib3/request.py",
+      "symbol": "request",
+      "role": "PRIMARY",
+      "score": 85.0,
+      "reasons": [
+        "Symbol 'request' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['request'] (+10)",
+        "High regression risk: symbol has 15 cross-module callers (-40)",
+        "Compact code span (21 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 4 test(s) (+15)"
+      ],
+      "line_start": 51,
+      "line_end": 71,
+      "unrelated_callers_count": 15,
+      "in_failing_traceback": false,
+      "semantic_radius": 21,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/models.py",
+      "symbol": "iter_lines",
+      "role": "PRIMARY",
+      "score": 4.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 4 cross-module callers (-16)",
+        "Located in primary localized file (+15)",
+        "Compact code span (26 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 4 test(s) (+15)"
+      ],
+      "line_start": 755,
+      "line_end": 780,
+      "unrelated_callers_count": 4,
+      "in_failing_traceback": false,
+      "semantic_radius": 26,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {
+    "valid": true,
+    "syntax_ok": true,
+    "ast_ok": true,
+    "target_changed": true,
+    "unrelated_targets_preserved": true,
+    "no_markdown_leakage": true,
+    "line_expansion_ok": true,
+    "lines_added": 133,
+    "lines_deleted": 129,
+    "symbols_affected": [
+      "__init__"
+    ],
+    "errors": []
+  },
+  "telemetry": {
+    "task_id": "psf__requests-863",
+    "total_wall_s": 601.79,
+    "llm_time_s": 0.0,
+    "test_time_s": 211.211,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 0.409,
+    "retrieval_diagnosis_time_s": 164.71,
+    "probing_time_s": null,
+    "generation_time_s": 219.034,
+    "reconstruction_time_s": 5.848,
+    "static_validation_time_s": 0.034,
+    "replanning_time_s": 0.0,
+    "runtime_s": 601.79
+  },
+  "test_summary": {
+    "instance_id": "psf__requests-863",
+    "resolved": false,
+    "patch_applied": true,
+    "fail_to_pass": {
+      "passed": 4,
+      "total": 4
+    },
+    "pass_to_pass": {
+      "passed": 59,
+      "total": 60
+    },
+    "fail_to_pass_success": [
+      "tests/test_requests.py::RequestsTestSuite::test_POSTBIN_GET_POST_FILES_WITH_HEADERS",
+      "tests/test_requests.py::RequestsTestSuite::test_nonurlencoded_postdata",
+      "tests/test_requests.py::RequestsTestSuite::test_prefetch_redirect_bug",
+      "tests/test_requests.py::RequestsTestSuite::test_urlencoded_post_data"
+    ],
+    "fail_to_pass_failure": [],
+    "pass_to_pass_success": [
+      "tests/test_requests.py::RequestsTestSuite::test_BASICAUTH_HTTP_200_OK_GET",
+      "tests/test_requests.py::RequestsTestSuite::test_BASICAUTH_TUPLE_HTTP_200_OK_GET",
+      "tests/test_requests.py::RequestsTestSuite::test_GET_no_redirect",
+      "tests/test_requests.py::RequestsTestSuite::test_HEAD_no_redirect",
+      "tests/test_requests.py::RequestsTestSuite::test_HTTP_200_OK_GET",
+      "tests/test_requests.py::RequestsTestSuite::test_HTTP_200_OK_GET_WITH_MIXED_PARAMS",
+      "tests/test_requests.py::RequestsTestSuite::test_HTTP_200_OK_GET_WITH_PARAMS",
+      "tests/test_requests.py::RequestsTestSuite::test_HTTP_200_OK_HEAD",
+      "tests/test_requests.py::RequestsTestSuite::test_HTTP_200_OK_PUT",
+      "tests/test_requests.py::RequestsTestSuite::test_HTTP_302_ALLOW_REDIRECT_GET",
+      "tests/test_requests.py::RequestsTestSuite::test_HTTP_302_GET",
+      "tests/test_requests.py::RequestsTestSuite::test_POSTBIN_GET_POST_FILES",
+      "tests/test_requests.py::RequestsTestSuite::test_POSTBIN_GET_POST_FILES_WITH_PARAMS",
+      "tests/test_requests.py::RequestsTestSuite::test_accept_objects_with_string_representations_as_urls",
+      "tests/test_requests.py::RequestsTestSuite::test_bytes_files",
+      "tests/test_requests.py::RequestsTestSuite::test_cached_response",
+      "tests/test_requests.py::RequestsTestSuite::test_can_have_none_in_header_values",
+      "tests/test_requests.py::RequestsTestSuite::test_connection_error",
+      "tests/test_requests.py::RequestsTestSuite::test_connection_error_with_safe_mode",
+      "tests/test_requests.py::RequestsTestSuite::test_danger_mode_redirects",
+      "tests/test_requests.py::RequestsTestSuite::test_decompress_gzip",
+      "tests/test_requests.py::RequestsTestSuite::test_default_status_raising",
+      "tests/test_requests.py::RequestsTestSuite::test_empty_response",
+      "tests/test_requests.py::RequestsTestSuite::test_entry_points",
+      "tests/test_requests.py::RequestsTestSuite::test_file_post_data",
+      "tests/test_requests.py::RequestsTestSuite::test_head_content",
+      "tests/test_requests.py::RequestsTestSuite::test_httpauth_recursion",
+      "tests/test_requests.py::RequestsTestSuite::test_invalid_url",
+      "tests/test_requests.py::RequestsTestSuite::test_invalid_urls_throw_requests_exception",
+      "tests/test_requests.py::RequestsTestSuite::test_iter_lines",
+      "tests/test_requests.py::RequestsTestSuite::test_max_redirects",
+      "tests/test_requests.py::RequestsTestSuite::test_multiple_hooks",
+      "tests/test_requests.py::RequestsTestSuite::test_nonurlencoded_post_data",
+      "tests/test_requests.py::RequestsTestSuite::test_nonzero_evaluation",
+      "tests/test_requests.py::RequestsTestSuite::test_params_accepts_kv_list",
+      "tests/test_requests.py::RequestsTestSuite::test_params_are_added_before_fragment",
+      "tests/test_requests.py::RequestsTestSuite::test_path_is_not_double_encoded",
+      "tests/test_requests.py::RequestsTestSuite::test_post_fields_with_multiple_values_and_files",
+      "tests/test_requests.py::RequestsTestSuite::test_post_fields_with_multiple_values_and_files_as_tuples",
+      "tests/test_requests.py::RequestsTestSuite::test_prefetch_return_response_interaction",
+      "tests/test_requests.py::RequestsTestSuite::test_redirect_history",
+      "tests/test_requests.py::RequestsTestSuite::test_relative_redirect_history",
+      "tests/test_requests.py::RequestsTestSuite::test_request_ok_set",
+      "tests/test_requests.py::RequestsTestSuite::test_response_has_unicode_url",
+      "tests/test_requests.py::RequestsTestSuite::test_response_sent",
+      "tests/test_requests.py::RequestsTestSuite::test_session_HTTP_200_OK_GET",
+      "tests/test_requests.py::RequestsTestSuite::test_session_persistent_headers",
+      "tests/test_requests.py::RequestsTestSuite::test_session_pickling",
+      "tests/test_requests.py::RequestsTestSuite::test_status_raising",
+      "tests/test_requests.py::RequestsTestSuite::test_unicode_get",
+      "tests/test_requests.py::RequestsTestSuite::test_upload_binary_data",
+      "tests/test_requests.py::RequestsTestSuite::test_urlencoded_get_query_multivalued_param",
+      "tests/test_requests.py::RequestsTestSuite::test_urlencoded_post_query_and_data",
+      "tests/test_requests.py::RequestsTestSuite::test_urlencoded_post_query_multivalued_and_data",
+      "tests/test_requests.py::RequestsTestSuite::test_urlencoded_post_querystring",
+      "tests/test_requests.py::RequestsTestSuite::test_urlencoded_post_querystring_multivalued",
+      "tests/test_requests.py::RequestsTestSuite::test_useful_exception_for_invalid_port",
+      "tests/test_requests.py::RequestsTestSuite::test_useful_exception_for_invalid_scheme",
+      "tests/test_requests.py::RequestsTestSuite::test_user_agent_transfers"
+    ],
+    "pass_to_pass_failure": [
+      "tests/test_requests.py::RequestsTestSuite::test_connection_keepalive_and_close"
+    ],
+    "infra_failure": false,
+    "error": "",
+    "run_id": "eval_1793625260"
+  },
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "Request",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,652 @@
+{
+  "instance_id": "pytest-dev__pytest-7490",
+  "repo": "pytest-dev/pytest",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "4e8292e9434efb2f",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "0abd7d93da49beb0",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "00c58176c092b44a",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "c6576310d2f24640",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": true,
+  "patch_tier": "AST_GROUNDED",
+  "patch_text": "diff --git a/src/_pytest/fixtures.py b/src/_pytest/fixtures.py\nindex 8fd56f8ac..4d20115cf 100644\n--- a/src/_pytest/fixtures.py\n+++ b/src/_pytest/fixtures.py\n@@ -568,19 +568,22 @@ class FixtureRequest:\n                 item.funcargs[argname] = self.getfixturevalue(argname)\n \n     def getfixturevalue(self, argname: str) -> Any:\n-        \"\"\" Dynamically run a named fixture function.\n+            \"\"\" Dynamically run a named fixture function.\n \n-        Declaring fixtures via function argument is recommended where possible.\n-        But if you can only decide whether to use another fixture at test\n-        setup time, you may use this function to retrieve it inside a fixture\n-        or test function body.\n+            Declaring fixtures via function argument is recommended where possible.\n+            But if you can only decide whether to use another fixture at test\n+            setup time, you may use this function to retrieve it inside a fixture\n+            or test function body.\n \n-        :raise pytest.FixtureLookupError:\n-            If the given fixture could not be found.\n-        \"\"\"\n-        fixturedef = self._get_active_fixturedef(argname)\n-        assert fixturedef.cached_result is not None\n-        return fixturedef.cached_result[0]\n+            :raise pytest.FixtureLookupError:\n+                If the given fixture could not be found.\n+            \"\"\"\n+            fixturedef = self._get_active_fixturedef(argname)\n+            if fixturedef is None:\n+                self.raiseerror(f\"Fixture '{argname}' not found.\")\n+            if fixturedef.cached_result is None:\n+                self.raiseerror(f\"Fixture '{argname}' not found.\")\n+            return fixturedef.cached_result[0]\n \n     def _get_active_fixturedef(\n         self, argname: str\n@@ -1228,7 +1231,10 @@ def fixture(\n     ] = ...,\n     name: Optional[str] = ...\n ) -> _FixtureFunction:\n-    raise NotImplementedError()\n+    try:\n+        return fixture_function\n+    except Exception as e:\n+        raise NotImplementedError() from e\n \n \n @overload  # noqa: F811\n",
+  "test_executed": true,
+  "failure_class": "WRONG_HYPOTHESIS",
+  "runtime_s": 451.58,
+  "f2p_passed": 0,
+  "f2p_total": 2,
+  "p2p_passed": 78,
+  "p2p_total": 78,
+  "refinement_cycles": 3,
+  "target_file": "src/_pytest/fixtures.py",
+  "target_symbol": "getfixturevalue",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "src/_pytest/fixtures.py:getfixturevalue"
+    ],
+    "selected_target": "src/_pytest/fixtures.py:getfixturevalue",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'src/_pytest/fixtures.py:getfixturevalue'.",
+    "target_unjustified": true,
+    "target_changes": [
+      {
+        "switched_to_hypothesis": "B",
+        "target": "src/_pytest/fixtures.py:fixture",
+        "justification": "Target 'fixture' is in diagnosed file 'src/_pytest/fixtures.py' and supported by diagnosis rationale."
+      },
+      {
+        "switched_to_hypothesis": "A",
+        "target": "src/_pytest/fixtures.py:getfixturevalue",
+        "justification": "Target matches hypothesized affected site 'src/_pytest/fixtures.py:getfixturevalue'."
+      }
+    ]
+  },
+  "generation_attempted": true,
+  "structurally_valid": true,
+  "submitted_to_harness": true,
+  "test_time_s": 112.292,
+  "generation_time_s": 132.869,
+  "reconstruction_time_s": 32.569,
+  "indexing_time_s": 48.53,
+  "retrieval_diagnosis_time_s": 124.083,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.081,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "00c58176c092b44a",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "exemplars_included_in_prompt": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "prompt_included_episode_ids": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pytest-dev__pytest-7490",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The regression in c9737ae914891027da5f0bd39494dd51a3b3f19f introduced a bug in the `getfixturevalue` method, causing it to fail when trying to retrieve a fixture that does not exist.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Add a check in the `getfixturevalue` method to handle the case where the fixture does not exist, returning a default value or raising a specific exception.",
+    "affected_sites": [
+      "src/_pytest/fixtures.py:getfixturevalue"
+    ],
+    "defect_confidence": 0.75,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 0,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The regression in c9737ae914891027da5f0bd39494dd51a3b3f19f introduced a bug in the `getfixturevalue` method, causing it to fail when trying to retrieve a fixture that does not exist.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "if fixturedef is None: raise FixtureNotFoundError(argname)",
+          "expected_mutations": [
+            "Add a check for fixturedef being None"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "fixturedef.cached_result[0] is None"
+          ],
+          "discriminating_variable": "fixturedef",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Add a check in the `getfixturevalue` method to handle the case where the fixture does not exist, returning a default value or raising a specific exception.",
+        "affected_sites": [
+          "src/_pytest/fixtures.py:getfixturevalue"
+        ],
+        "supporting_evidence": [
+          "The problem hint mentions a regression in the specified commit.",
+          "The causal path for `getfixturevalue` shows it calls `_get_active_fixturedef`, which could return None if the fixture does not exist."
+        ],
+        "contradicting_evidence": [
+          "No severe contradictions detected.",
+          "Target 'src/_pytest/fixtures.py:getfixturevalue' is GLOBAL_INFRASTRUCTURE with 9 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The problem hint mentions a regression in the specified commit.",
+          "The causal path for `getfixturevalue` shows it calls `_get_active_fixturedef`, which could return None if the fixture does not exist."
+        ],
+        "contradicting_facts": [
+          "No severe contradictions detected."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 50.0
+      },
+      {
+        "id": "B",
+        "cause": "The regression in c9737ae914891027da5f0bd39494dd51a3b3f19f introduced a bug in the `fixture` method, causing it to fail when setting up a fixture.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "try: setup_fixture() except Exception as e: handle_exception(e)",
+          "expected_mutations": [
+            "Add try-except block around fixture setup"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "setup_fixture() raises an unhandled exception"
+          ],
+          "discriminating_variable": "setup_fixture",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Add error handling in the `fixture` method to manage cases where fixture setup fails, ensuring it does not propagate the error to the caller.",
+        "affected_sites": [
+          "src/_pytest/fixtures.py:fixture"
+        ],
+        "supporting_evidence": [
+          "The problem hint mentions a regression in the specified commit.",
+          "The causal path for `fixture` shows it calls `setup`, which could fail if the fixture setup is incorrect."
+        ],
+        "contradicting_evidence": [
+          "No severe contradictions detected.",
+          "Target 'src/_pytest/fixtures.py:fixture' is GLOBAL_INFRASTRUCTURE with 32 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The problem hint mentions a regression in the specified commit.",
+          "The causal path for `fixture` shows it calls `setup`, which could fail if the fixture setup is incorrect."
+        ],
+        "contradicting_facts": [
+          "No severe contradictions detected."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.7,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 45.0
+      }
+    ],
+    "repair_sites": [
+      "src/_pytest/fixtures.py:getfixturevalue"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "hypothesis_id": "A",
+      "strategy": "strict_structured_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "WRONG_HYPOTHESIS",
+      "error_message": "PASSED testing/test_skipping.py::TestXFail::test_xfail_raises[(AttributeError, TypeError)-IndexError-*1 failed*]; FAILED testing/test_skipping.py::TestXFail::test_dynamic_xfail_set_during_runtest_failed; FAILED testing/test_skipping.py::TestXFail::test_dynamic_xfail_set_during_runtest_passed_strict",
+      "patch_text": "diff --git a/src/_pytest/fixtures.py b/src/_pytest/fixtures.py\nindex 8fd56f8ac..def2e4ead 100644\n--- a/src/_pytest/fixtures.py\n+++ b/src/_pytest/fixtures.py\n@@ -579,7 +579,8 @@ class FixtureRequest:\n             If the given fixture could not be found.\n         \"\"\"\n         fixturedef = self._get_active_fixturedef(argname)\n-        assert fixturedef.cached_result is not None\n+        if fixturedef.cached_result is None:\n+            self.raiseerror(f\"Fixture '{argname}' not found.\")\n         return fixturedef.cached_result[0]\n \n     def _get_active_fixturedef(\n"
+    },
+    {
+      "attempt": 2,
+      "hypothesis_id": "B",
+      "strategy": "refined_structured_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "WRONG_HYPOTHESIS",
+      "error_message": "PASSED testing/test_skipping.py::TestXFail::test_xfail_raises[(AttributeError, TypeError)-IndexError-*1 failed*]; FAILED testing/test_skipping.py::TestXFail::test_dynamic_xfail_set_during_runtest_failed; FAILED testing/test_skipping.py::TestXFail::test_dynamic_xfail_set_during_runtest_passed_strict",
+      "patch_text": "diff --git a/src/_pytest/fixtures.py b/src/_pytest/fixtures.py\nindex 8fd56f8ac..426579918 100644\n--- a/src/_pytest/fixtures.py\n+++ b/src/_pytest/fixtures.py\n@@ -579,7 +579,8 @@ class FixtureRequest:\n             If the given fixture could not be found.\n         \"\"\"\n         fixturedef = self._get_active_fixturedef(argname)\n-        assert fixturedef.cached_result is not None\n+        if fixturedef.cached_result is None:\n+            self.raiseerror(f\"Fixture '{argname}' not found.\")\n         return fixturedef.cached_result[0]\n \n     def _get_active_fixturedef(\n@@ -1228,7 +1229,10 @@ def fixture(\n     ] = ...,\n     name: Optional[str] = ...\n ) -> _FixtureFunction:\n-    raise NotImplementedError()\n+    try:\n+        return fixture_function\n+    except Exception as e:\n+        raise NotImplementedError() from e\n \n \n @overload  # noqa: F811\n"
+    },
+    {
+      "attempt": 3,
+      "hypothesis_id": "A",
+      "strategy": "replacement_only_code",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "WRONG_HYPOTHESIS",
+      "error_message": "PASSED testing/test_skipping.py::TestXFail::test_xfail_raises[(AttributeError, TypeError)-IndexError-*1 failed*]; FAILED testing/test_skipping.py::TestXFail::test_dynamic_xfail_set_during_runtest_failed; FAILED testing/test_skipping.py::TestXFail::test_dynamic_xfail_set_during_runtest_passed_strict",
+      "patch_text": "diff --git a/src/_pytest/fixtures.py b/src/_pytest/fixtures.py\nindex 8fd56f8ac..4d20115cf 100644\n--- a/src/_pytest/fixtures.py\n+++ b/src/_pytest/fixtures.py\n@@ -568,19 +568,22 @@ class FixtureRequest:\n                 item.funcargs[argname] = self.getfixturevalue(argname)\n \n     def getfixturevalue(self, argname: str) -> Any:\n-        \"\"\" Dynamically run a named fixture function.\n+            \"\"\" Dynamically run a named fixture function.\n \n-        Declaring fixtures via function argument is recommended where possible.\n-        But if you can only decide whether to use another fixture at test\n-        setup time, you may use this function to retrieve it inside a fixture\n-        or test function body.\n+            Declaring fixtures via function argument is recommended where possible.\n+            But if you can only decide whether to use another fixture at test\n+            setup time, you may use this function to retrieve it inside a fixture\n+            or test function body.\n \n-        :raise pytest.FixtureLookupError:\n-            If the given fixture could not be found.\n-        \"\"\"\n-        fixturedef = self._get_active_fixturedef(argname)\n-        assert fixturedef.cached_result is not None\n-        return fixturedef.cached_result[0]\n+            :raise pytest.FixtureLookupError:\n+                If the given fixture could not be found.\n+            \"\"\"\n+            fixturedef = self._get_active_fixturedef(argname)\n+            if fixturedef is None:\n+                self.raiseerror(f\"Fixture '{argname}' not found.\")\n+            if fixturedef.cached_result is None:\n+                self.raiseerror(f\"Fixture '{argname}' not found.\")\n+            return fixturedef.cached_result[0]\n \n     def _get_active_fixturedef(\n         self, argname: str\n@@ -1228,7 +1231,10 @@ def fixture(\n     ] = ...,\n     name: Optional[str] = ...\n ) -> _FixtureFunction:\n-    raise NotImplementedError()\n+    try:\n+        return fixture_function\n+    except Exception as e:\n+        raise NotImplementedError() from e\n \n \n @overload  # noqa: F811\n"
+    }
+  ],
+  "repair_unit": {
+    "id": "src/_pytest/fixtures.py::getfixturevalue::METHOD::570-584",
+    "file_path": "src/_pytest/fixtures.py",
+    "symbol": "getfixturevalue",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 570,
+    "end_line": 584,
+    "start_col": 4,
+    "end_col": 42,
+    "source_text": "    def getfixturevalue(self, argname: str) -> Any:\n        \"\"\" Dynamically run a named fixture function.\n\n        Declaring fixtures via function argument is recommended where possible.\n        But if you can only decide whether to use another fixture at test\n        setup time, you may use this function to retrieve it inside a fixture\n        or test function body.\n\n        :raise pytest.FixtureLookupError:\n            If the given fixture could not be found.\n        \"\"\"\n        fixturedef = self._get_active_fixturedef(argname)\n        if fixturedef.cached_result is None:\n            self.raiseerror(f\"Fixture '{argname}' not found.\")\n        return fixturedef.cached_result[0]\n",
+    "parent_symbol": "FixtureRequest",
+    "indentation": "    ",
+    "role": "HYPOTHESIS_TARGET",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "src/_pytest/fixtures.py",
+      "symbol": "getfixturevalue",
+      "role": "PRIMARY",
+      "score": 109.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'getfixturevalue' (+80)",
+        "High regression risk: symbol has 9 cross-module callers (-36)",
+        "Located in primary localized file (+15)",
+        "Compact code span (14 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 4 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 260 test(s) (+15)"
+      ],
+      "line_start": 570,
+      "line_end": 583,
+      "unrelated_callers_count": 9,
+      "in_failing_traceback": false,
+      "semantic_radius": 14,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/fixtures.py",
+      "symbol": "fixture",
+      "role": "PRIMARY",
+      "score": 65.0,
+      "reasons": [
+        "Symbol 'fixture' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['fixture'] (+10)",
+        "High regression risk: symbol has 32 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (15 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 4 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 288 test(s) (+15)"
+      ],
+      "line_start": 1217,
+      "line_end": 1231,
+      "unrelated_callers_count": 32,
+      "in_failing_traceback": false,
+      "semantic_radius": 15,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/_code/code.py",
+      "symbol": "for_later",
+      "role": "PRIMARY",
+      "score": 20.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['for'] (+10)",
+        "Compact code span (3 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 4 issue symptoms (-20)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 107 test(s) (+15)"
+      ],
+      "line_start": 457,
+      "line_end": 459,
+      "unrelated_callers_count": 2,
+      "in_failing_traceback": false,
+      "semantic_radius": 3,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/fixtures.py",
+      "symbol": "FixtureRequest",
+      "role": "PRIMARY",
+      "score": -45.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['fixturerequest'] (+10)",
+        "High regression risk: symbol has 10 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (3 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 4 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 1980 test(s) (+15)"
+      ],
+      "line_start": 465,
+      "line_end": 467,
+      "unrelated_callers_count": 10,
+      "in_failing_traceback": false,
+      "semantic_radius": 3,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/_code/code.py",
+      "symbol": "toterminal",
+      "role": "PRIMARY",
+      "score": -70.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 24 cross-module callers (-40)",
+        "Compact code span (2 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 4 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 1461 test(s) (+15)"
+      ],
+      "line_start": 902,
+      "line_end": 903,
+      "unrelated_callers_count": 24,
+      "in_failing_traceback": false,
+      "semantic_radius": 2,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/_code/code.py",
+      "symbol": "FormattedExcinfo",
+      "role": "PRIMARY",
+      "score": -80.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 20 cross-module callers (-40)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 4 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 2140 test(s) (+15)"
+      ],
+      "line_start": 620,
+      "line_end": 770,
+      "unrelated_callers_count": 20,
+      "in_failing_traceback": false,
+      "semantic_radius": 151,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {
+    "valid": true,
+    "syntax_ok": true,
+    "ast_ok": true,
+    "target_changed": true,
+    "unrelated_targets_preserved": true,
+    "no_markdown_leakage": true,
+    "line_expansion_ok": true,
+    "lines_added": 16,
+    "lines_deleted": 14,
+    "symbols_affected": [
+      "getfixturevalue"
+    ],
+    "errors": []
+  },
+  "telemetry": {
+    "task_id": "pytest-dev__pytest-7490",
+    "total_wall_s": 451.58,
+    "llm_time_s": 0.0,
+    "test_time_s": 112.292,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 48.53,
+    "retrieval_diagnosis_time_s": 124.083,
+    "probing_time_s": null,
+    "generation_time_s": 132.869,
+    "reconstruction_time_s": 32.569,
+    "static_validation_time_s": 0.081,
+    "replanning_time_s": 0.0,
+    "runtime_s": 451.58
+  },
+  "test_summary": {
+    "instance_id": "pytest-dev__pytest-7490",
+    "resolved": false,
+    "patch_applied": true,
+    "fail_to_pass": {
+      "passed": 0,
+      "total": 2
+    },
+    "pass_to_pass": {
+      "passed": 78,
+      "total": 78
+    },
+    "fail_to_pass_success": [],
+    "fail_to_pass_failure": [
+      "testing/test_skipping.py::TestXFail::test_dynamic_xfail_set_during_runtest_failed",
+      "testing/test_skipping.py::TestXFail::test_dynamic_xfail_set_during_runtest_passed_strict"
+    ],
+    "pass_to_pass_success": [
+      "testing/test_skipping.py::test_importorskip",
+      "testing/test_skipping.py::TestEvaluation::test_no_marker",
+      "testing/test_skipping.py::TestEvaluation::test_marked_xfail_no_args",
+      "testing/test_skipping.py::TestEvaluation::test_marked_skipif_no_args",
+      "testing/test_skipping.py::TestEvaluation::test_marked_one_arg",
+      "testing/test_skipping.py::TestEvaluation::test_marked_one_arg_with_reason",
+      "testing/test_skipping.py::TestEvaluation::test_marked_one_arg_twice",
+      "testing/test_skipping.py::TestEvaluation::test_marked_one_arg_twice2",
+      "testing/test_skipping.py::TestEvaluation::test_marked_skipif_with_boolean_without_reason",
+      "testing/test_skipping.py::TestEvaluation::test_marked_skipif_with_invalid_boolean",
+      "testing/test_skipping.py::TestEvaluation::test_skipif_class",
+      "testing/test_skipping.py::TestXFail::test_xfail_simple[True]",
+      "testing/test_skipping.py::TestXFail::test_xfail_simple[False]",
+      "testing/test_skipping.py::TestXFail::test_xfail_xpassed",
+      "testing/test_skipping.py::TestXFail::test_xfail_using_platform",
+      "testing/test_skipping.py::TestXFail::test_xfail_xpassed_strict",
+      "testing/test_skipping.py::TestXFail::test_xfail_run_anyway",
+      "testing/test_skipping.py::TestXFail::test_xfail_run_with_skip_mark[test_input0-expected0]",
+      "testing/test_skipping.py::TestXFail::test_xfail_run_with_skip_mark[test_input1-expected1]",
+      "testing/test_skipping.py::TestXFail::test_xfail_evalfalse_but_fails",
+      "testing/test_skipping.py::TestXFail::test_xfail_not_report_default",
+      "testing/test_skipping.py::TestXFail::test_xfail_not_run_xfail_reporting",
+      "testing/test_skipping.py::TestXFail::test_xfail_not_run_no_setup_run",
+      "testing/test_skipping.py::TestXFail::test_xfail_xpass",
+      "testing/test_skipping.py::TestXFail::test_xfail_imperative",
+      "testing/test_skipping.py::TestXFail::test_xfail_imperative_in_setup_function",
+      "testing/test_skipping.py::TestXFail::test_dynamic_xfail_no_run",
+      "testing/test_skipping.py::TestXFail::test_dynamic_xfail_set_during_funcarg_setup",
+      "testing/test_skipping.py::TestXFail::test_xfail_raises[TypeError-TypeError-*1",
+      "testing/test_skipping.py::TestXFail::test_xfail_raises[(AttributeError,",
+      "testing/test_skipping.py::TestXFail::test_xfail_raises[TypeError-IndexError-*1",
+      "testing/test_skipping.py::TestXFail::test_strict_sanity",
+      "testing/test_skipping.py::TestXFail::test_strict_xfail[True]",
+      "testing/test_skipping.py::TestXFail::test_strict_xfail[False]",
+      "testing/test_skipping.py::TestXFail::test_strict_xfail_condition[True]",
+      "testing/test_skipping.py::TestXFail::test_strict_xfail_condition[False]",
+      "testing/test_skipping.py::TestXFail::test_xfail_condition_keyword[True]",
+      "testing/test_skipping.py::TestXFail::test_xfail_condition_keyword[False]",
+      "testing/test_skipping.py::TestXFail::test_strict_xfail_default_from_file[true]",
+      "testing/test_skipping.py::TestXFail::test_strict_xfail_default_from_file[false]",
+      "testing/test_skipping.py::TestXFailwithSetupTeardown::test_failing_setup_issue9",
+      "testing/test_skipping.py::TestXFailwithSetupTeardown::test_failing_teardown_issue9",
+      "testing/test_skipping.py::TestSkip::test_skip_class",
+      "testing/test_skipping.py::TestSkip::test_skips_on_false_string",
+      "testing/test_skipping.py::TestSkip::test_arg_as_reason",
+      "testing/test_skipping.py::TestSkip::test_skip_no_reason",
+      "testing/test_skipping.py::TestSkip::test_skip_with_reason",
+      "testing/test_skipping.py::TestSkip::test_only_skips_marked_test",
+      "testing/test_skipping.py::TestSkip::test_strict_and_skip",
+      "testing/test_skipping.py::TestSkipif::test_skipif_conditional",
+      "testing/test_skipping.py::TestSkipif::test_skipif_reporting[\"hasattr(sys,",
+      "testing/test_skipping.py::TestSkipif::test_skipif_reporting[True,",
+      "testing/test_skipping.py::TestSkipif::test_skipif_using_platform",
+      "testing/test_skipping.py::TestSkipif::test_skipif_reporting_multiple[skipif-SKIP-skipped]",
+      "testing/test_skipping.py::TestSkipif::test_skipif_reporting_multiple[xfail-XPASS-xpassed]",
+      "testing/test_skipping.py::test_skip_not_report_default",
+      "testing/test_skipping.py::test_skipif_class",
+      "testing/test_skipping.py::test_skipped_reasons_functional",
+      "testing/test_skipping.py::test_skipped_folding",
+      "testing/test_skipping.py::test_reportchars",
+      "testing/test_skipping.py::test_reportchars_error",
+      "testing/test_skipping.py::test_reportchars_all",
+      "testing/test_skipping.py::test_reportchars_all_error",
+      "testing/test_skipping.py::test_errors_in_xfail_skip_expressions",
+      "testing/test_skipping.py::test_xfail_skipif_with_globals",
+      "testing/test_skipping.py::test_default_markers",
+      "testing/test_skipping.py::test_xfail_test_setup_exception",
+      "testing/test_skipping.py::test_imperativeskip_on_xfail_test",
+      "testing/test_skipping.py::TestBooleanCondition::test_skipif",
+      "testing/test_skipping.py::TestBooleanCondition::test_skipif_noreason",
+      "testing/test_skipping.py::TestBooleanCondition::test_xfail",
+      "testing/test_skipping.py::test_xfail_item",
+      "testing/test_skipping.py::test_module_level_skip_error",
+      "testing/test_skipping.py::test_module_level_skip_with_allow_module_level",
+      "testing/test_skipping.py::test_invalid_skip_keyword_parameter",
+      "testing/test_skipping.py::test_mark_xfail_item",
+      "testing/test_skipping.py::test_summary_list_after_errors",
+      "testing/test_skipping.py::test_relpath_rootdir"
+    ],
+    "pass_to_pass_failure": [],
+    "infra_failure": false,
+    "error": "",
+    "run_id": "eval_1791825208"
+  },
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "getfixturevalue",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed.",
+      "Ensure binary vs text stream compatibility matching parameter specification."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Open file in binary mode ('rb') when text mode is disabled or binary flag is passed.",
+        "category": "LOGICAL_BRANCH",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [
+          "'rb'",
+          "\"rb\"",
+          "mode",
+          "text",
+          "binary"
+        ],
+        "satisfied": false
+      },
+      {
+        "id": "R2",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

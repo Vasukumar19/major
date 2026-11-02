@@ -72,7 +72,7 @@ def test_missing_patch_action_routes_correctively():
     controller = AgentController(provider=provider, tools=tools, policy=AgentPolicy(max_turns=2))
     # Run 1 turn
     controller.policy.max_turns = 1
-    controller.run(problem, instance_id="test__pkg-1234")
+    controller.run(problem, instance_id="test__pkg-1234", initial_state=state)
 
     # Verify that the passive turn was caught and synthesized into read_file
     assert state.guard_firings["passive_patch_recovery"] >= 1

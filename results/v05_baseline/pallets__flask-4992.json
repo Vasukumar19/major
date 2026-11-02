@@ -1,0 +1,72 @@
+{
+  "instance_id": "pallets__flask-4992",
+  "repo": "pallets/flask",
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": true,
+  "patch_valid": true,
+  "patch_tier": "EXACT",
+  "patch_text": "diff --git a/src/flask/config.py b/src/flask/config.py\nindex d4fc310f..d6521010 100644\n--- a/src/flask/config.py\n+++ b/src/flask/config.py\n@@ -233,6 +233,7 @@ class Config(dict):\n         self,\n         filename: str,\n         load: t.Callable[[t.IO[t.Any]], t.Mapping],\n+        mode: str = 'r',\n         silent: bool = False,\n     ) -> bool:\n         \"\"\"Update the values in the config from a file that is loaded\n@@ -253,6 +254,8 @@ class Config(dict):\n             mapping of loaded data from the file.\n         :type load: ``Callable[[Reader], Mapping]`` where ``Reader``\n             implements a ``read`` method.\n+        :param mode: The file mode to open the file with (default is 'r').\n+        :type mode: str\n         :param silent: Ignore the file if it doesn't exist.\n         :return: ``True`` if the file was loaded successfully.\n \n@@ -261,7 +264,7 @@ class Config(dict):\n         filename = os.path.join(self.root_path, filename)\n \n         try:\n-            with open(filename) as f:\n+            with open(filename, mode) as f:\n                 obj = load(f)\n         except OSError as e:\n             if silent and e.errno in (errno.ENOENT, errno.EISDIR):\n",
+  "test_executed": true,
+  "failure_class": "WRONG_HYPOTHESIS",
+  "runtime_s": 68.0,
+  "f2p_passed": 0,
+  "f2p_total": 1,
+  "p2p_passed": 18,
+  "p2p_total": 18,
+  "refinement_cycles": 3,
+  "target_file": "src/flask/config.py",
+  "target_symbol": "Config",
+  "telemetry": {
+    "task_id": "pallets__flask-4992",
+    "total_wall_s": 68.0,
+    "llm_time_s": 35.15,
+    "test_time_s": 31.62,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 6377,
+    "total_output_tokens": 876,
+    "total_tokens": 7253,
+    "event_count": 11
+  },
+  "test_summary": {
+    "instance_id": "pallets__flask-4992",
+    "resolved": false,
+    "patch_applied": true,
+    "fail_to_pass": {
+      "passed": 0,
+      "total": 1
+    },
+    "pass_to_pass": {
+      "passed": 18,
+      "total": 18
+    },
+    "fail_to_pass_success": [],
+    "fail_to_pass_failure": [
+      "tests/test_config.py::test_config_from_file_toml"
+    ],
+    "pass_to_pass_success": [
+      "tests/test_config.py::test_config_from_pyfile",
+      "tests/test_config.py::test_config_from_object",
+      "tests/test_config.py::test_config_from_file_json",
+      "tests/test_config.py::test_from_prefixed_env",
+      "tests/test_config.py::test_from_prefixed_env_custom_prefix",
+      "tests/test_config.py::test_from_prefixed_env_nested",
+      "tests/test_config.py::test_config_from_mapping",
+      "tests/test_config.py::test_config_from_class",
+      "tests/test_config.py::test_config_from_envvar",
+      "tests/test_config.py::test_config_from_envvar_missing",
+      "tests/test_config.py::test_config_missing",
+      "tests/test_config.py::test_config_missing_file",
+      "tests/test_config.py::test_custom_config_class",
+      "tests/test_config.py::test_session_lifetime",
+      "tests/test_config.py::test_get_namespace",
+      "tests/test_config.py::test_from_pyfile_weird_encoding[utf-8]",
+      "tests/test_config.py::test_from_pyfile_weird_encoding[iso-8859-15]",
+      "tests/test_config.py::test_from_pyfile_weird_encoding[latin-1]"
+    ],
+    "pass_to_pass_failure": [],
+    "infra_failure": false,
+    "error": "",
+    "run_id": "eval_1789888206"
+  }
+}

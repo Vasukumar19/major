@@ -64,6 +64,7 @@ class AgentState:
     phase: AgentPhase = AgentPhase.INVESTIGATE
     turn_count: int = 0
     max_turns: int = 15
+    allow_host_execution: bool = False
 
     # Navigation & Exploration
     visited_files: list[str] = field(default_factory=list)

@@ -9,7 +9,12 @@ from patchforge.tools.reasoning import FormulateHypothesisTool, ProposePlanTool,
 from patchforge.tools.search import FindReferencesTool, FindSymbolTool, SearchCodeTool, SearchExactTool
 
 
-def create_default_tool_registry(repo_dir: str = "", repograph_adapter=None, tester=None) -> ToolRegistry:
+def create_default_tool_registry(
+    repo_dir: str = "",
+    repograph_adapter=None,
+    tester=None,
+    allow_host_execution: bool = False,
+) -> ToolRegistry:
     """Instantiate and register core PatchForge v0.3 tools."""
     registry = ToolRegistry()
     registry.register(SearchCodeTool(repo_dir=repo_dir))
@@ -20,8 +25,8 @@ def create_default_tool_registry(repo_dir: str = "", repograph_adapter=None, tes
     registry.register(ReadTestTool(repo_dir=repo_dir))
     registry.register(InspectGraphTool(repo_dir=repo_dir, repograph_adapter=repograph_adapter))
     registry.register(InspectGitHistoryTool(repo_dir=repo_dir))
-    registry.register(RunTargetedTestTool(tester=tester))
-    registry.register(RunReproductionTool())
+    registry.register(RunTargetedTestTool(tester=tester, allow_host_execution=allow_host_execution))
+    registry.register(RunReproductionTool(allow_host_execution=allow_host_execution))
     registry.register(InspectFailureTool())
     registry.register(FormulateHypothesisTool())
     registry.register(ProposePlanTool())

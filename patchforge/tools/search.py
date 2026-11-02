@@ -8,6 +8,12 @@ from pathlib import Path
 from typing import Any
 
 from patchforge.tools.base import Tool, ToolResult
+from patchforge.tools.editor import _resolve_and_contain
+
+IGNORED_DIRS = {
+    ".git", "__pycache__", "venv", ".venv", "env",
+    "build", "dist", "third_party", ".pytest_cache", ".tox", "node_modules", ".eggs"
+}
 
 
 class SearchCodeTool(Tool):
@@ -44,7 +50,9 @@ class SearchCodeTool(Tool):
             return ToolResult(self.name, status="ERROR", error=f"Invalid regex '{query}': {str(e)}")
 
         matches = []
-        for root, _, files in os.walk(repo_path):
+        for root, dirs, files in os.walk(repo_path):
+            dirs[:] = sorted([d for d in dirs if d not in IGNORED_DIRS])
+            files.sort()
             for file in files:
                 if not file.endswith(".py"):
                     continue
@@ -109,7 +117,9 @@ class SearchExactTool(Tool):
         repo_path = Path(self.repo_dir or (state.repo_dir if state and hasattr(state, "repo_dir") else "."))
 
         matches = []
-        for root, _, files in os.walk(repo_path):
+        for root, dirs, files in os.walk(repo_path):
+            dirs[:] = sorted([d for d in dirs if d not in IGNORED_DIRS])
+            files.sort()
             for file in files:
                 if not file.endswith(".py"):
                     continue
@@ -167,15 +177,21 @@ class FindSymbolTool(Tool):
         file_path = args.get("file_path", "")
         repo_path = Path(self.repo_dir or (state.repo_dir if state and hasattr(state, "repo_dir") else "."))
 
-        found_symbols = []
+        exact_symbols = []
+        substring_symbols = []
         files_to_check = []
 
         if file_path:
-            full_file = repo_path / file_path
-            if full_file.exists():
-                files_to_check.append((file_path, full_file))
+            resolved_file, err = _resolve_and_contain(repo_path, file_path, must_exist=False)
+            if err:
+                return ToolResult(self.name, status="ERROR", error=err)
+            if resolved_file and resolved_file.exists():
+                rel = str(resolved_file.relative_to(repo_path.resolve())).replace("\\", "/")
+                files_to_check.append((rel, resolved_file))
         else:
-            for root, _, files in os.walk(repo_path):
+            for root, dirs, files in os.walk(repo_path):
+                dirs[:] = sorted([d for d in dirs if d not in IGNORED_DIRS])
+                files.sort()
                 for file in files:
                     if file.endswith(".py"):
                         full = Path(root) / file
@@ -189,20 +205,23 @@ class FindSymbolTool(Tool):
                 tree = ast.parse(content, filename=str(full))
                 for node in ast.walk(tree):
                     if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-                        if node.name == symbol_name or symbol_name in node.name:
-                            found_symbols.append({
-                                "symbol": node.name,
-                                "type": "class" if isinstance(node, ast.ClassDef) else "function",
-                                "file": rel,
-                                "line_start": node.lineno,
-                                "line_end": getattr(node, "end_lineno", node.lineno + 10),
-                            })
-                            if len(found_symbols) >= 10:
-                                break
+                        sym_info = {
+                            "symbol": node.name,
+                            "type": "class" if isinstance(node, ast.ClassDef) else "function",
+                            "file": rel,
+                            "line_start": node.lineno,
+                            "line_end": getattr(node, "end_lineno", node.lineno + 10),
+                        }
+                        if node.name == symbol_name:
+                            exact_symbols.append(sym_info)
+                        elif symbol_name in node.name:
+                            substring_symbols.append(sym_info)
             except Exception:
                 continue
-            if len(found_symbols) >= 10:
-                break
+
+        exact_symbols.sort(key=lambda s: (s["file"], s["line_start"], s["symbol"]))
+        substring_symbols.sort(key=lambda s: (s["file"], s["line_start"], s["symbol"]))
+        found_symbols = (exact_symbols + substring_symbols)[:10]
 
         return ToolResult(
             tool_name=self.name,
@@ -238,7 +257,9 @@ class FindReferencesTool(Tool):
         pattern = re.compile(rf"\b{re.escape(symbol_name)}\b")
         references = []
 
-        for root, _, files in os.walk(repo_path):
+        for root, dirs, files in os.walk(repo_path):
+            dirs[:] = sorted([d for d in dirs if d not in IGNORED_DIRS])
+            files.sort()
             for file in files:
                 if not file.endswith(".py"):
                     continue

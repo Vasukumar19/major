@@ -1,0 +1,51 @@
+{
+  "instance_id": "pytest-dev__pytest-5495",
+  "repo": "pytest-dev/pytest",
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": true,
+  "patch_valid": true,
+  "patch_tier": "EXACT",
+  "patch_text": "diff --git a/src/_pytest/nodes.py b/src/_pytest/nodes.py\nindex f476e4141..0fc821f74 100644\n--- a/src/_pytest/nodes.py\n+++ b/src/_pytest/nodes.py\n@@ -373,49 +373,14 @@ class File(FSCollector):\n \n \n class Item(Node):\n-    \"\"\" a basic test invocation item. Note that for a single function\n-    there might be multiple test invocation items.\n-    \"\"\"\n-\n-    nextitem = None\n-\n-    def __init__(self, name, parent=None, config=None, session=None, nodeid=None):\n-        super().__init__(name, parent, config, session, nodeid=nodeid)\n-        self._report_sections = []\n-\n-        #: user properties is a list of tuples (name, value) that holds user\n-        #: defined properties for this test.\n-        self.user_properties = []\n-\n-    def add_report_section(self, when, key, content):\n-        \"\"\"\n-        Adds a new report section, similar to what's done internally to add stdout and\n-        stderr captured output::\n-\n-            item.add_report_section(\"call\", \"stdout\", \"report section contents\")\n-\n-        :param str when:\n-            One of the possible capture states, ``\"setup\"``, ``\"call\"``, ``\"teardown\"``.\n-        :param str key:\n-            Name of the section, can be customized at will. Pytest uses ``\"stdout\"`` and\n-            ``\"stderr\"`` internally.\n-\n-        :param str content:\n-            The full contents as a string.\n-        \"\"\"\n-        if content:\n-            self._report_sections.append((when, key, content))\n-\n-    def reportinfo(self):\n-        return self.fspath, None, \"\"\n-\n-    @property\n-    def location(self):\n-        try:\n-            return self._location\n-        except AttributeError:\n-            location = self.reportinfo()\n-            fspath = self.session._node_location_to_relpath(location[0])\n-            location = (fspath, location[1], str(location[2]))\n-            self._location = location\n-            return location\n+    def _reprcompare_bytes(self, other):\n+        if self == other:\n+            return True\n+        return self._reprcompare_bytes_diff(other)\n+\n+    def _reprcompare_bytes_diff(self, other):\n+        diff = []\n+        for i, (a, b) in enumerate(zip(self, other)):\n+            if a != b:\n+                diff.append((i, a, b))\n+        return diff\n",
+  "test_executed": true,
+  "failure_class": "REFINEMENT_EXHAUSTED",
+  "runtime_s": 238.85,
+  "f2p_passed": 0,
+  "f2p_total": 0,
+  "p2p_passed": 0,
+  "p2p_total": 0,
+  "refinement_cycles": 3,
+  "target_file": "src/_pytest/nodes.py",
+  "target_symbol": "Item",
+  "telemetry": {
+    "task_id": "pytest-dev__pytest-5495",
+    "total_wall_s": 238.85,
+    "llm_time_s": 52.25,
+    "test_time_s": 179.74,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 7122,
+    "total_output_tokens": 2096,
+    "total_tokens": 9218,
+    "event_count": 13
+  },
+  "test_summary": {
+    "instance_id": "pytest-dev__pytest-5495",
+    "resolved": false,
+    "patch_applied": false,
+    "fail_to_pass": {
+      "passed": 0,
+      "total": 0
+    },
+    "pass_to_pass": {
+      "passed": 0,
+      "total": 0
+    },
+    "fail_to_pass_success": [],
+    "fail_to_pass_failure": [],
+    "pass_to_pass_success": [],
+    "pass_to_pass_failure": [],
+    "infra_failure": false,
+    "error": "",
+    "run_id": "eval_1789889184"
+  }
+}

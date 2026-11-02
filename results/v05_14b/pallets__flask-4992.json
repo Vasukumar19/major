@@ -1,0 +1,73 @@
+{
+  "instance_id": "pallets__flask-4992",
+  "repo": "pallets/flask",
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": true,
+  "patch_valid": true,
+  "patch_tier": "EXACT",
+  "patch_text": "diff --git a/src/flask/config.py b/src/flask/config.py\nindex d4fc310f..42dc57f0 100644\n--- a/src/flask/config.py\n+++ b/src/flask/config.py\n@@ -233,6 +233,7 @@ class Config(dict):\n         self,\n         filename: str,\n         load: t.Callable[[t.IO[t.Any]], t.Mapping],\n+        mode: str = 't',\n         silent: bool = False,\n     ) -> bool:\n         \"\"\"Update the values in the config from a file that is loaded\n@@ -245,7 +246,7 @@ class Config(dict):\n             app.config.from_file(\"config.json\", load=json.load)\n \n             import toml\n-            app.config.from_file(\"config.toml\", load=toml.load)\n+            app.config.from_file(\"config.toml\", load=toml.load, mode='b')\n \n         :param filename: The path to the data file. This can be an\n             absolute path or relative to the config root path.\n@@ -253,6 +254,7 @@ class Config(dict):\n             mapping of loaded data from the file.\n         :type load: ``Callable[[Reader], Mapping]`` where ``Reader``\n             implements a ``read`` method.\n+        :param mode: The mode in which to open the file ('t' for text, 'b' for binary).\n         :param silent: Ignore the file if it doesn't exist.\n         :return: ``True`` if the file was loaded successfully.\n \n@@ -261,7 +263,7 @@ class Config(dict):\n         filename = os.path.join(self.root_path, filename)\n \n         try:\n-            with open(filename) as f:\n+            with open(filename, mode) as f:\n                 obj = load(f)\n         except OSError as e:\n             if silent and e.errno in (errno.ENOENT, errno.EISDIR):\n",
+  "test_executed": true,
+  "failure_class": "WRONG_HYPOTHESIS",
+  "runtime_s": 455.8,
+  "f2p_passed": 0,
+  "f2p_total": 1,
+  "p2p_passed": 16,
+  "p2p_total": 18,
+  "refinement_cycles": 3,
+  "target_file": "src/flask/config.py",
+  "target_symbol": "Config",
+  "telemetry": {
+    "task_id": "pallets__flask-4992",
+    "total_wall_s": 455.8,
+    "llm_time_s": 427.07,
+    "test_time_s": 27.88,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 6515,
+    "total_output_tokens": 2280,
+    "total_tokens": 8795,
+    "event_count": 11
+  },
+  "test_summary": {
+    "instance_id": "pallets__flask-4992",
+    "resolved": false,
+    "patch_applied": true,
+    "fail_to_pass": {
+      "passed": 0,
+      "total": 1
+    },
+    "pass_to_pass": {
+      "passed": 16,
+      "total": 18
+    },
+    "fail_to_pass_success": [],
+    "fail_to_pass_failure": [
+      "tests/test_config.py::test_config_from_file_toml"
+    ],
+    "pass_to_pass_success": [
+      "tests/test_config.py::test_config_from_pyfile",
+      "tests/test_config.py::test_config_from_object",
+      "tests/test_config.py::test_from_prefixed_env",
+      "tests/test_config.py::test_from_prefixed_env_custom_prefix",
+      "tests/test_config.py::test_from_prefixed_env_nested",
+      "tests/test_config.py::test_config_from_mapping",
+      "tests/test_config.py::test_config_from_class",
+      "tests/test_config.py::test_config_from_envvar",
+      "tests/test_config.py::test_config_from_envvar_missing",
+      "tests/test_config.py::test_config_missing",
+      "tests/test_config.py::test_custom_config_class",
+      "tests/test_config.py::test_session_lifetime",
+      "tests/test_config.py::test_get_namespace",
+      "tests/test_config.py::test_from_pyfile_weird_encoding[utf-8]",
+      "tests/test_config.py::test_from_pyfile_weird_encoding[iso-8859-15]",
+      "tests/test_config.py::test_from_pyfile_weird_encoding[latin-1]"
+    ],
+    "pass_to_pass_failure": [
+      "tests/test_config.py::test_config_from_file_json",
+      "tests/test_config.py::test_config_missing_file"
+    ],
+    "infra_failure": false,
+    "error": "",
+    "run_id": "eval_1789896305"
+  }
+}

@@ -1,0 +1,577 @@
+{
+  "instance_id": "pylint-dev__pylint-7228",
+  "repo": "pylint-dev/pylint",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "4e8292e9434efb2f",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "0abd7d93da49beb0",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "00c58176c092b44a",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "c6576310d2f24640",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": true,
+  "patch_tier": "AST_GROUNDED",
+  "patch_text": "diff --git a/pylint/config/option_manager_mixin.py b/pylint/config/option_manager_mixin.py\nindex 2f0aac75f..821a0c973 100644\n--- a/pylint/config/option_manager_mixin.py\n+++ b/pylint/config/option_manager_mixin.py\n@@ -331,7 +331,10 @@ class OptionsManagerMixIn:\n         \"\"\"\n         with _patch_optparse():\n             args = sys.argv[1:] if args is None else list(args)\n-            (options, args) = self.cmdline_parser.parse_args(args=args)\n+            try:\n+                (options, args) = self.cmdline_parser.parse_args(args=args)\n+            except optparse.OptionError as e:\n+                raise source.error(f\"Error parsing command line options: {e}\")\n             for provider in self._nocallback_options:\n                 config = provider.config\n                 for attr in config.__dict__.keys():\n",
+  "test_executed": true,
+  "failure_class": "UNRESOLVED",
+  "runtime_s": 353.9,
+  "f2p_passed": 0,
+  "f2p_total": 2,
+  "p2p_passed": 10,
+  "p2p_total": 10,
+  "refinement_cycles": 3,
+  "target_file": "pylint/config/option_manager_mixin.py",
+  "target_symbol": "load_command_line_configuration",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "pylint/config/option_manager_mixin.py:load_command_line_configuration",
+      "pylint/config/arguments_manager.py:load_command_line_configuration"
+    ],
+    "selected_target": "pylint/config/option_manager_mixin.py:load_command_line_configuration",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'pylint/config/option_manager_mixin.py:load_command_line_configuration'.",
+    "target_unjustified": true,
+    "target_changes": [
+      {
+        "switched_to_hypothesis": "B",
+        "target": "pylint/config/option_manager_mixin.py:load_command_line_configuration",
+        "justification": "Target matches hypothesized affected site 'pylint/config/option_manager_mixin.py:load_command_line_configuration'."
+      }
+    ]
+  },
+  "generation_attempted": true,
+  "structurally_valid": true,
+  "submitted_to_harness": true,
+  "test_time_s": 34.682,
+  "generation_time_s": 171.61200000000002,
+  "reconstruction_time_s": 0.672,
+  "indexing_time_s": 10.89,
+  "retrieval_diagnosis_time_s": 134.772,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.007,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "00c58176c092b44a",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "psf__requests-2148",
+      "psf__requests-863"
+    ],
+    "exemplars_included_in_prompt": [
+      "psf__requests-2148",
+      "psf__requests-863"
+    ],
+    "prompt_included_episode_ids": [
+      "psf__requests-2148",
+      "psf__requests-863"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pylint-dev__pylint-7228",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "There is a bug in the `load_command_line_configuration` method that causes it to fail when certain command-line arguments are passed.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Fix the bug in the `load_command_line_configuration` method to handle the command-line arguments correctly.",
+    "affected_sites": [
+      "pylint/config/option_manager_mixin.py:load_command_line_configuration",
+      "pylint/config/arguments_manager.py:load_command_line_configuration"
+    ],
+    "defect_confidence": 0.8,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 1,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The issue is not related to the `pylint` codebase but rather to a regex pattern used in the codebase that is not supported or documented.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The regex pattern is invalid, and a friendly error message is displayed.",
+          "expected_mutations": [
+            "Modify the regex pattern to use supported characters"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Runtime traceback due to an unrecognized option"
+          ],
+          "discriminating_variable": "Invalid regex pattern",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Modify the regex pattern to use supported characters and add a friendly error message when an unrecognized option is passed to Pylint.",
+        "affected_sites": [
+          "pylint/config/option_manager_mixin.py:load_command_line_configuration",
+          "pylint/config/arguments_manager.py:load_command_line_configuration"
+        ],
+        "supporting_evidence": [
+          "The regex pattern `re.compile(\"[\\p{Han}a-z_]\")` raises normally, and `\\p` is not documented.",
+          "Similar to the helpful output when passing an unrecognized option to Pylint, a friendly output indicating that the regex pattern is invalid without the traceback can be added."
+        ],
+        "contradicting_evidence": [
+          "No severe contradictions detected."
+        ],
+        "supporting_facts": [
+          "The regex pattern `re.compile(\"[\\p{Han}a-z_]\")` raises normally, and `\\p` is not documented.",
+          "Similar to the helpful output when passing an unrecognized option to Pylint, a friendly output indicating that the regex pattern is invalid without the traceback can be added."
+        ],
+        "contradicting_facts": [
+          "No severe contradictions detected."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.8,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 75.0
+      },
+      {
+        "id": "B",
+        "cause": "There is a bug in the `load_command_line_configuration` method that causes it to fail when certain command-line arguments are passed.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The `load_command_line_configuration` method handles the command-line arguments correctly.",
+          "expected_mutations": [
+            "Fix the bug in the `load_command_line_configuration` method"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Runtime traceback due to incorrect handling of command-line arguments"
+          ],
+          "discriminating_variable": "Incorrect handling of command-line arguments",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Fix the bug in the `load_command_line_configuration` method to handle the command-line arguments correctly.",
+        "affected_sites": [
+          "pylint/config/option_manager_mixin.py:load_command_line_configuration",
+          "pylint/config/arguments_manager.py:load_command_line_configuration"
+        ],
+        "supporting_evidence": [
+          "The causal path for `load_command_line_configuration` shows that it is called with command-line arguments.",
+          "The causal path for `load_command_line_configuration` shows that it is called with command-line arguments."
+        ],
+        "contradicting_evidence": [
+          "No runtime tracebacks or failing test assertions observed."
+        ],
+        "supporting_facts": [
+          "The causal path for `load_command_line_configuration` shows that it is called with command-line arguments.",
+          "The causal path for `load_command_line_configuration` shows that it is called with command-line arguments."
+        ],
+        "contradicting_facts": [
+          "No runtime tracebacks or failing test assertions observed."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.7,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 70.0
+      }
+    ],
+    "repair_sites": [
+      "pylint/config/option_manager_mixin.py:load_command_line_configuration",
+      "pylint/config/arguments_manager.py:load_command_line_configuration"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "hypothesis_id": "A",
+      "strategy": "strict_structured_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "WRONG_HYPOTHESIS",
+      "error_message": "except ValueError:; FAILED tests/config/test_config.py::test_regex_error - re.error: bad escape \\...; FAILED tests/config/test_config.py::test_csv_regex_error - re.error: missing ...",
+      "patch_text": "diff --git a/pylint/config/option_manager_mixin.py b/pylint/config/option_manager_mixin.py\nindex 2f0aac75f..821a0c973 100644\n--- a/pylint/config/option_manager_mixin.py\n+++ b/pylint/config/option_manager_mixin.py\n@@ -331,7 +331,10 @@ class OptionsManagerMixIn:\n         \"\"\"\n         with _patch_optparse():\n             args = sys.argv[1:] if args is None else list(args)\n-            (options, args) = self.cmdline_parser.parse_args(args=args)\n+            try:\n+                (options, args) = self.cmdline_parser.parse_args(args=args)\n+            except optparse.OptionError as e:\n+                raise source.error(f\"Error parsing command line options: {e}\")\n             for provider in self._nocallback_options:\n                 config = provider.config\n                 for attr in config.__dict__.keys():\n"
+    },
+    {
+      "attempt": 2,
+      "hypothesis_id": "B",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "PATCH_SYNTAX",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Function/Method syntax error: unexpected character after line continuation character",
+      "patch_text": ""
+    },
+    {
+      "attempt": 3,
+      "hypothesis_id": "B",
+      "strategy": "minimal_target_bound_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    }
+  ],
+  "repair_unit": {
+    "id": "pylint/config/option_manager_mixin.py::load_command_line_configuration::METHOD::327-345",
+    "file_path": "pylint/config/option_manager_mixin.py",
+    "symbol": "load_command_line_configuration",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 327,
+    "end_line": 345,
+    "start_col": 4,
+    "end_col": 23,
+    "source_text": "    def load_command_line_configuration(self, args=None) -> list[str]:\n        \"\"\"Override configuration according to command line parameters.\n\n        return additional arguments\n        \"\"\"\n        with _patch_optparse():\n            args = sys.argv[1:] if args is None else list(args)\n            try:\n                (options, args) = self.cmdline_parser.parse_args(args=args)\n            except optparse.OptionError as e:\n                raise source.error(f\"Error parsing command line options: {e}\")\n            for provider in self._nocallback_options:\n                config = provider.config\n                for attr in config.__dict__.keys():\n                    value = getattr(options, attr, None)\n                    if value is None:\n                        continue\n                    setattr(config, attr, value)\n            return args\n",
+    "parent_symbol": "OptionsManagerMixIn",
+    "indentation": "    ",
+    "role": "HYPOTHESIS_TARGET",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "pylint/config/option_manager_mixin.py",
+      "symbol": "load_command_line_configuration",
+      "role": "PRIMARY",
+      "score": 210.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'load_command_line_configuration' (+80)",
+        "Symbol matches issue keywords ['command', 'line', 'configuration'] (+30)",
+        "Compact code span (16 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 22 test(s) (+15)"
+      ],
+      "line_start": 327,
+      "line_end": 342,
+      "unrelated_callers_count": 2,
+      "in_failing_traceback": false,
+      "semantic_radius": 16,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/config/arguments_manager.py",
+      "symbol": "load_command_line_configuration",
+      "role": "PRIMARY",
+      "score": 210.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'load_command_line_configuration' (+80)",
+        "Symbol matches issue keywords ['command', 'line', 'configuration'] (+30)",
+        "Compact code span (21 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 22 test(s) (+15)"
+      ],
+      "line_start": 615,
+      "line_end": 635,
+      "unrelated_callers_count": 2,
+      "in_failing_traceback": false,
+      "semantic_radius": 21,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/lint/pylinter.py",
+      "symbol": "_parse_error_mode",
+      "role": "PRIMARY",
+      "score": 95.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['parse', 'error'] (+20)",
+        "Located in primary localized file (+15)",
+        "Compact code span (13 lines) preferred (+10)",
+        "Counterfactual: plausible coverage (+15)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 55 test(s) (+15)"
+      ],
+      "line_start": 508,
+      "line_end": 520,
+      "unrelated_callers_count": 2,
+      "in_failing_traceback": false,
+      "semantic_radius": 13,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/config/arguments_manager.py",
+      "symbol": "_parse_command_line_configuration",
+      "role": "PRIMARY",
+      "score": 50.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['parse', 'command', 'line', 'configuration'] (+30)",
+        "Compact code span (11 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 12 test(s) (+15)"
+      ],
+      "line_start": 265,
+      "line_end": 275,
+      "unrelated_callers_count": 2,
+      "in_failing_traceback": false,
+      "semantic_radius": 11,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/__init__.py",
+      "symbol": "modify_sys_path",
+      "role": "PRIMARY",
+      "score": 30.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['sys', 'path'] (+20)",
+        "Compact code span (26 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Direct tests available: 87 test(s) (+15)"
+      ],
+      "line_start": 80,
+      "line_end": 105,
+      "unrelated_callers_count": 1,
+      "in_failing_traceback": false,
+      "semantic_radius": 26,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "pylint/lint/pylinter.py",
+      "symbol": "PyLinter",
+      "role": "PRIMARY",
+      "score": -55.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 48 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 670 test(s) (+15)"
+      ],
+      "line_start": 269,
+      "line_end": 338,
+      "unrelated_callers_count": 48,
+      "in_failing_traceback": false,
+      "semantic_radius": 70,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {
+    "valid": true,
+    "syntax_ok": true,
+    "ast_ok": true,
+    "target_changed": true,
+    "unrelated_targets_preserved": true,
+    "no_markdown_leakage": true,
+    "line_expansion_ok": true,
+    "lines_added": 4,
+    "lines_deleted": 1,
+    "symbols_affected": [
+      "load_command_line_configuration"
+    ],
+    "errors": []
+  },
+  "telemetry": {
+    "task_id": "pylint-dev__pylint-7228",
+    "total_wall_s": 353.9,
+    "llm_time_s": 0.0,
+    "test_time_s": 34.682,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 10.89,
+    "retrieval_diagnosis_time_s": 134.772,
+    "probing_time_s": null,
+    "generation_time_s": 171.612,
+    "reconstruction_time_s": 0.672,
+    "static_validation_time_s": 0.007,
+    "replanning_time_s": 0.0,
+    "runtime_s": 353.9
+  },
+  "test_summary": {
+    "instance_id": "pylint-dev__pylint-7228",
+    "resolved": false,
+    "patch_applied": true,
+    "fail_to_pass": {
+      "passed": 0,
+      "total": 2
+    },
+    "pass_to_pass": {
+      "passed": 10,
+      "total": 10
+    },
+    "fail_to_pass_success": [],
+    "fail_to_pass_failure": [
+      "tests/config/test_config.py::test_regex_error",
+      "tests/config/test_config.py::test_csv_regex_error"
+    ],
+    "pass_to_pass_success": [
+      "tests/config/test_config.py::test_can_read_toml_env_variable",
+      "tests/config/test_config.py::test_unknown_message_id",
+      "tests/config/test_config.py::test_unknown_option_name",
+      "tests/config/test_config.py::test_unknown_short_option_name",
+      "tests/config/test_config.py::test_unknown_confidence",
+      "tests/config/test_config.py::test_empty_confidence",
+      "tests/config/test_config.py::test_unknown_yes_no",
+      "tests/config/test_config.py::test_unknown_py_version",
+      "tests/config/test_config.py::test_short_verbose",
+      "tests/config/test_config.py::test_argument_separator"
+    ],
+    "pass_to_pass_failure": [],
+    "infra_failure": false,
+    "error": "",
+    "run_id": "eval_1791826279"
+  },
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "load_command_line_configuration",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [
+      "passing"
+    ],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed."
+    ],
+    "expected_exceptions": [
+      "source.error"
+    ],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Raise or wrap into `source.error` upon encountering error condition.",
+        "category": "EXCEPTION_HANDLING",
+        "source": "CONTRACT",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [
+          "error"
+        ],
+        "satisfied": true
+      },
+      {
+        "id": "R2",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

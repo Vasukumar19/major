@@ -1,0 +1,563 @@
+{
+  "instance_id": "pytest-dev__pytest-7220",
+  "repo": "pytest-dev/pytest",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "2ad20c8826cd40eb",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "fd93b90085410112",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "256217bb2bc62feb",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "b6687cafe3958613",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": true,
+  "patch_tier": "AST_GROUNDED",
+  "patch_text": "diff --git a/src/_pytest/capture.py b/src/_pytest/capture.py\nindex 64f4b8b92..2ad32c718 100644\n--- a/src/_pytest/capture.py\n+++ b/src/_pytest/capture.py\n@@ -15,6 +15,7 @@ from typing import Tuple\n \n import pytest\n from _pytest.compat import TYPE_CHECKING\n+from _pytest.compat import str\n from _pytest.config import Config\n \n if TYPE_CHECKING:\n@@ -298,13 +299,14 @@ class SysCaptureBinary:\n         return res\n \n     def done(self):\n-        self._assert_state(\"done\", (\"initialized\", \"started\", \"suspended\", \"done\"))\n-        if self._state == \"done\":\n-            return\n-        setattr(sys, self.name, self._old)\n-        del self._old\n-        self.tmpfile.close()\n-        self._state = \"done\"\n+            self._assert_state(\"done\", (\"initialized\", \"started\", \"suspended\", \"done\"))\n+            if self._state == \"done\":\n+                return\n+            setattr(sys, self.name, self._old)\n+            del self._old\n+            self.tmpfile.close()\n+            self._state = \"done\"\n+            self._finalized = True\n \n     def suspend(self):\n         self._assert_state(\"suspend\", (\"started\", \"suspended\"))\n@@ -549,14 +551,8 @@ class MultiCapture:\n             self.in_.done()\n \n     def readouterr(self) -> CaptureResult:\n-        if self.out:\n-            out = self.out.snap()\n-        else:\n-            out = \"\"\n-        if self.err:\n-            err = self.err.snap()\n-        else:\n-            err = \"\"\n+        out = self.out.snap() if self.out else \"\"\n+        err = self.err.snap() if self.err else \"\"\n         return CaptureResult(out, err)\n \n \n",
+  "test_executed": true,
+  "failure_class": "PATCH_SYNTAX",
+  "runtime_s": 335.13,
+  "f2p_passed": 0,
+  "f2p_total": 0,
+  "p2p_passed": 0,
+  "p2p_total": 0,
+  "refinement_cycles": 3,
+  "target_file": "src/_pytest/capture.py",
+  "target_symbol": "done",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "src/_pytest/capture.py:readouterr"
+    ],
+    "selected_target": "src/_pytest/capture.py:readouterr",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'src/_pytest/capture.py:readouterr'.",
+    "target_unjustified": true,
+    "target_changes": [
+      {
+        "switched_to_hypothesis": "B",
+        "target": "src/_pytest/capture.py:done",
+        "justification": "Target 'done' is in diagnosed file 'src/_pytest/capture.py' and supported by diagnosis rationale."
+      }
+    ]
+  },
+  "generation_attempted": true,
+  "structurally_valid": true,
+  "submitted_to_harness": true,
+  "test_time_s": 85.38,
+  "generation_time_s": 65.73,
+  "reconstruction_time_s": 7.291,
+  "indexing_time_s": 57.922,
+  "retrieval_diagnosis_time_s": 118.069,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.046,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "256217bb2bc62feb",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "exemplars_included_in_prompt": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "prompt_included_episode_ids": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pytest-dev__pytest-7220",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The `done` method in `src/_pytest/capture.py` does not satisfy the required postconditions, leading to a potential issue with state transition.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Ensure that the state transition in the `done` method satisfies the required postconditions. This may involve modifying the logic to handle cases where `self._state` is not set.",
+    "affected_sites": [
+      "src/_pytest/capture.py:readouterr"
+    ],
+    "defect_confidence": 0.75,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 1,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The `readouterr` method in `src/_pytest/capture.py` does not satisfy the required postconditions at line 552, leading to a potential issue with state transition.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The `if self.out:` condition should evaluate to true, and the subsequent state mutations should occur.",
+          "expected_mutations": [
+            "out = self.out.snap()",
+            "err = self.err.snap()"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "The `if self.out:` condition should not evaluate to false, leading to a skipped state mutation."
+          ],
+          "discriminating_variable": "self.out",
+          "support_count": 1,
+          "contradiction_count": 0
+        },
+        "support_count": 1,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Ensure that the state transition at line 552 satisfies the required postconditions. This may involve modifying the logic to handle cases where `self.out` is not set.",
+        "affected_sites": [
+          "src/_pytest/capture.py:readouterr"
+        ],
+        "supporting_evidence": [
+          "The `readouterr` method is GLOBAL_INFRASTRUCTURE with 23 callers (19 cross-module). Mutating it risks high regression.",
+          "The `readouterr` method overwrites state variables: err, out.",
+          "Causal Support: Predicted branch matches observed divergence transition."
+        ],
+        "contradicting_evidence": [
+          "No severe contradictions detected.",
+          "Target 'src/_pytest/capture.py:readouterr' is GLOBAL_INFRASTRUCTURE with 19 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The `readouterr` method is GLOBAL_INFRASTRUCTURE with 23 callers (19 cross-module). Mutating it risks high regression.",
+          "The `readouterr` method overwrites state variables: err, out."
+        ],
+        "contradicting_facts": [
+          "No severe contradictions detected."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 65.0
+      },
+      {
+        "id": "B",
+        "cause": "The `done` method in `src/_pytest/capture.py` does not satisfy the required postconditions, leading to a potential issue with state transition.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The `done` method should complete its execution without errors.",
+          "expected_mutations": [
+            "self._state = ..."
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "The `done` method should not raise exceptions or fail to complete its execution."
+          ],
+          "discriminating_variable": "self._state",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Ensure that the state transition in the `done` method satisfies the required postconditions. This may involve modifying the logic to handle cases where `self._state` is not set.",
+        "affected_sites": [
+          "src/_pytest/capture.py:done"
+        ],
+        "supporting_evidence": [
+          "The `done` method is GLOBAL_INFRASTRUCTURE with 10 callers (8 cross-module). Mutating it risks high regression.",
+          "The `done` method mutates attributes/containers: self._state."
+        ],
+        "contradicting_evidence": [
+          "No severe contradictions detected.",
+          "Target 'src/_pytest/capture.py:done' is GLOBAL_INFRASTRUCTURE with 8 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The `done` method is GLOBAL_INFRASTRUCTURE with 10 callers (8 cross-module). Mutating it risks high regression.",
+          "The `done` method mutates attributes/containers: self._state."
+        ],
+        "contradicting_facts": [
+          "No severe contradictions detected."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 50.0
+      }
+    ],
+    "repair_sites": [
+      "src/_pytest/capture.py:readouterr"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "strategy": "strict_structured_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "PATCH_SYNTAX",
+      "error_message": "ImportError: cannot import name 'str' from '_pytest.compat' (/testbed/src/_pytest/compat.py); ImportError: Error importing plugin \"capture\": cannot import name 'str' from '_pytest.compat' (/testbed/src/_pytest/compat.py)",
+      "patch_text": "diff --git a/src/_pytest/capture.py b/src/_pytest/capture.py\nindex 64f4b8b92..aba843050 100644\n--- a/src/_pytest/capture.py\n+++ b/src/_pytest/capture.py\n@@ -15,6 +15,7 @@ from typing import Tuple\n \n import pytest\n from _pytest.compat import TYPE_CHECKING\n+from _pytest.compat import str\n from _pytest.config import Config\n \n if TYPE_CHECKING:\n@@ -549,14 +550,8 @@ class MultiCapture:\n             self.in_.done()\n \n     def readouterr(self) -> CaptureResult:\n-        if self.out:\n-            out = self.out.snap()\n-        else:\n-            out = \"\"\n-        if self.err:\n-            err = self.err.snap()\n-        else:\n-            err = \"\"\n+        out = self.out.snap() if self.out else \"\"\n+        err = self.err.snap() if self.err else \"\"\n         return CaptureResult(out, err)\n \n \n"
+    },
+    {
+      "attempt": 2,
+      "strategy": "minimal_target_bound_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "PATCH_SYNTAX",
+      "error_message": "ImportError: cannot import name 'str' from '_pytest.compat' (/testbed/src/_pytest/compat.py); ImportError: Error importing plugin \"capture\": cannot import name 'str' from '_pytest.compat' (/testbed/src/_pytest/compat.py)",
+      "patch_text": "diff --git a/src/_pytest/capture.py b/src/_pytest/capture.py\nindex 64f4b8b92..aba843050 100644\n--- a/src/_pytest/capture.py\n+++ b/src/_pytest/capture.py\n@@ -15,6 +15,7 @@ from typing import Tuple\n \n import pytest\n from _pytest.compat import TYPE_CHECKING\n+from _pytest.compat import str\n from _pytest.config import Config\n \n if TYPE_CHECKING:\n@@ -549,14 +550,8 @@ class MultiCapture:\n             self.in_.done()\n \n     def readouterr(self) -> CaptureResult:\n-        if self.out:\n-            out = self.out.snap()\n-        else:\n-            out = \"\"\n-        if self.err:\n-            err = self.err.snap()\n-        else:\n-            err = \"\"\n+        out = self.out.snap() if self.out else \"\"\n+        err = self.err.snap() if self.err else \"\"\n         return CaptureResult(out, err)\n \n \n"
+    },
+    {
+      "attempt": 3,
+      "strategy": "replacement_only_code",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "PATCH_SYNTAX",
+      "error_message": "ImportError: cannot import name 'str' from '_pytest.compat' (/testbed/src/_pytest/compat.py); ImportError: Error importing plugin \"capture\": cannot import name 'str' from '_pytest.compat' (/testbed/src/_pytest/compat.py)",
+      "patch_text": "diff --git a/src/_pytest/capture.py b/src/_pytest/capture.py\nindex 64f4b8b92..2ad32c718 100644\n--- a/src/_pytest/capture.py\n+++ b/src/_pytest/capture.py\n@@ -15,6 +15,7 @@ from typing import Tuple\n \n import pytest\n from _pytest.compat import TYPE_CHECKING\n+from _pytest.compat import str\n from _pytest.config import Config\n \n if TYPE_CHECKING:\n@@ -298,13 +299,14 @@ class SysCaptureBinary:\n         return res\n \n     def done(self):\n-        self._assert_state(\"done\", (\"initialized\", \"started\", \"suspended\", \"done\"))\n-        if self._state == \"done\":\n-            return\n-        setattr(sys, self.name, self._old)\n-        del self._old\n-        self.tmpfile.close()\n-        self._state = \"done\"\n+            self._assert_state(\"done\", (\"initialized\", \"started\", \"suspended\", \"done\"))\n+            if self._state == \"done\":\n+                return\n+            setattr(sys, self.name, self._old)\n+            del self._old\n+            self.tmpfile.close()\n+            self._state = \"done\"\n+            self._finalized = True\n \n     def suspend(self):\n         self._assert_state(\"suspend\", (\"started\", \"suspended\"))\n@@ -549,14 +551,8 @@ class MultiCapture:\n             self.in_.done()\n \n     def readouterr(self) -> CaptureResult:\n-        if self.out:\n-            out = self.out.snap()\n-        else:\n-            out = \"\"\n-        if self.err:\n-            err = self.err.snap()\n-        else:\n-            err = \"\"\n+        out = self.out.snap() if self.out else \"\"\n+        err = self.err.snap() if self.err else \"\"\n         return CaptureResult(out, err)\n \n \n"
+    }
+  ],
+  "repair_unit": {
+    "id": "src/_pytest/capture.py::done::METHOD::301-308",
+    "file_path": "src/_pytest/capture.py",
+    "symbol": "done",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 301,
+    "end_line": 308,
+    "start_col": 4,
+    "end_col": 28,
+    "source_text": "    def done(self):\n        self._assert_state(\"done\", (\"initialized\", \"started\", \"suspended\", \"done\"))\n        if self._state == \"done\":\n            return\n        setattr(sys, self.name, self._old)\n        del self._old\n        self.tmpfile.close()\n        self._state = \"done\"\n",
+    "parent_symbol": "SysCaptureBinary",
+    "indentation": "    ",
+    "role": "HYPOTHESIS_TARGET",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "src/_pytest/capture.py",
+      "symbol": "readouterr",
+      "role": "PRIMARY",
+      "score": 105.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'readouterr' (+80)",
+        "High regression risk: symbol has 19 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (10 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 1993 test(s) (+15)"
+      ],
+      "line_start": 551,
+      "line_end": 560,
+      "unrelated_callers_count": 19,
+      "in_failing_traceback": false,
+      "semantic_radius": 10,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/capture.py",
+      "symbol": "writeorg",
+      "role": "PRIMARY",
+      "score": 25.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Located in primary localized file (+15)",
+        "Compact code span (5 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 109 test(s) (+15)"
+      ],
+      "line_start": 321,
+      "line_end": 325,
+      "unrelated_callers_count": 1,
+      "in_failing_traceback": false,
+      "semantic_radius": 5,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/capture.py",
+      "symbol": "resume",
+      "role": "PRIMARY",
+      "score": 25.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Located in primary localized file (+15)",
+        "Compact code span (6 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 327 test(s) (+15)"
+      ],
+      "line_start": 314,
+      "line_end": 319,
+      "unrelated_callers_count": 3,
+      "in_failing_traceback": false,
+      "semantic_radius": 6,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/capture.py",
+      "symbol": "start",
+      "role": "PRIMARY",
+      "score": -33.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['start'] (+10)",
+        "High regression risk: symbol has 7 cross-module callers (-28)",
+        "Located in primary localized file (+15)",
+        "Compact code span (4 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 921 test(s) (+15)"
+      ],
+      "line_start": 287,
+      "line_end": 290,
+      "unrelated_callers_count": 7,
+      "in_failing_traceback": false,
+      "semantic_radius": 4,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/capture.py",
+      "symbol": "done",
+      "role": "PRIMARY",
+      "score": -47.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 8 cross-module callers (-32)",
+        "Located in primary localized file (+15)",
+        "Compact code span (8 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 872 test(s) (+15)"
+      ],
+      "line_start": 300,
+      "line_end": 307,
+      "unrelated_callers_count": 8,
+      "in_failing_traceback": false,
+      "semantic_radius": 8,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/_code/code.py",
+      "symbol": "toterminal",
+      "role": "PRIMARY",
+      "score": -70.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 24 cross-module callers (-40)",
+        "Compact code span (2 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 1448 test(s) (+15)"
+      ],
+      "line_start": 926,
+      "line_end": 927,
+      "unrelated_callers_count": 24,
+      "in_failing_traceback": false,
+      "semantic_radius": 2,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {
+    "valid": true,
+    "syntax_ok": true,
+    "ast_ok": true,
+    "target_changed": true,
+    "unrelated_targets_preserved": true,
+    "no_markdown_leakage": true,
+    "line_expansion_ok": true,
+    "lines_added": 8,
+    "lines_deleted": 7,
+    "symbols_affected": [
+      "done"
+    ],
+    "errors": []
+  },
+  "telemetry": {
+    "task_id": "pytest-dev__pytest-7220",
+    "total_wall_s": 335.13,
+    "llm_time_s": 0.0,
+    "test_time_s": 85.38,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 57.922,
+    "retrieval_diagnosis_time_s": 118.069,
+    "probing_time_s": null,
+    "generation_time_s": 65.73,
+    "reconstruction_time_s": 7.291,
+    "static_validation_time_s": 0.046,
+    "replanning_time_s": 0.0,
+    "runtime_s": 335.13
+  },
+  "test_summary": {
+    "instance_id": "pytest-dev__pytest-7220",
+    "resolved": false,
+    "patch_applied": false,
+    "fail_to_pass": {
+      "passed": 0,
+      "total": 0
+    },
+    "pass_to_pass": {
+      "passed": 0,
+      "total": 0
+    },
+    "fail_to_pass_success": [],
+    "fail_to_pass_failure": [],
+    "pass_to_pass_success": [],
+    "pass_to_pass_failure": [],
+    "infra_failure": false,
+    "error": "",
+    "run_id": "eval_1791754099"
+  },
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "done",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed.",
+      "Ensure binary vs text stream compatibility matching parameter specification."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "At line 560 (`return CaptureResult(out, err)`), implement required transition: Must intercept this condition and produce the expected state transformation.",
+        "category": "ALGORITHMIC_TRANSITION",
+        "source": "EXECUTION_PATH",
+        "affected_symbols": [
+          "readouterr"
+        ],
+        "expected_state": "",
+        "expected_transition": "Must intercept this condition and produce the expected state transformation.",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [
+          "return",
+          "CaptureResult"
+        ],
+        "satisfied": true
+      },
+      {
+        "id": "R2",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

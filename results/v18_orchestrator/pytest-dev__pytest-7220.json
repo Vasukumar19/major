@@ -1,0 +1,551 @@
+{
+  "instance_id": "pytest-dev__pytest-7220",
+  "repo": "pytest-dev/pytest",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "4e8292e9434efb2f",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "0abd7d93da49beb0",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "00c58176c092b44a",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "c6576310d2f24640",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": false,
+  "patch_tier": null,
+  "patch_text": "",
+  "test_executed": false,
+  "failure_class": "UNRESOLVED",
+  "runtime_s": 335.64,
+  "f2p_passed": 0,
+  "f2p_total": 0,
+  "p2p_passed": 0,
+  "p2p_total": 0,
+  "refinement_cycles": 3,
+  "target_file": "src/_pytest/capture.py",
+  "target_symbol": "readouterr",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "src/_pytest/capture.py:readouterr"
+    ],
+    "selected_target": "src/_pytest/capture.py:readouterr",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'src/_pytest/capture.py:readouterr'.",
+    "target_unjustified": true,
+    "target_changes": []
+  },
+  "generation_attempted": true,
+  "structurally_valid": false,
+  "submitted_to_harness": false,
+  "test_time_s": 0.0,
+  "generation_time_s": 109.149,
+  "reconstruction_time_s": 0.0,
+  "indexing_time_s": 47.118,
+  "retrieval_diagnosis_time_s": 178.925,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.0,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "00c58176c092b44a",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "exemplars_included_in_prompt": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "prompt_included_episode_ids": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pytest-dev__pytest-7220",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The `readouterr` method in `src/_pytest/capture.py` does not satisfy the required postconditions at line 552, leading to a state transition failure.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Modify the `readouterr` method to ensure that the state transition at line 552 satisfies the required postconditions.",
+    "affected_sites": [
+      "src/_pytest/capture.py:readouterr"
+    ],
+    "defect_confidence": 0.75,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 0,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The `readouterr` method in `src/_pytest/capture.py` does not satisfy the required postconditions at line 552, leading to a state transition failure.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "if self.out:",
+          "expected_mutations": [
+            "out = self.out.snap()",
+            "err = self.err.snap()"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "state transition failure"
+          ],
+          "discriminating_variable": "self.out",
+          "support_count": 1,
+          "contradiction_count": 0
+        },
+        "support_count": 1,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Modify the `readouterr` method to ensure that the state transition at line 552 satisfies the required postconditions.",
+        "affected_sites": [
+          "src/_pytest/capture.py:readouterr"
+        ],
+        "supporting_evidence": [
+          "E1 | CODE_GRAPH: `readouterr` is GLOBAL_INFRASTRUCTURE with 23 callers (19 cross-module). Mutating it risks high regression.",
+          "E2 | STATE_FLOW: `readouterr` overwrites state variables: err, out.",
+          "E3 | CODE_GRAPH: `done` is GLOBAL_INFRASTRUCTURE with 10 callers (8 cross-module). Mutating it risks high regression.",
+          "E4 | STATE_FLOW: `done` mutates attributes/containers: self._state.",
+          "E5 | CODE_GRAPH: `start` is GLOBAL_INFRASTRUCTURE with 11 callers (7 cross-module). Mutating it risks high regression.",
+          "E6 | STATE_FLOW: `start` mutates attributes/containers: self._state.",
+          "E7 | STATE_FLOW: `resume` mutates attributes/containers: self._state.",
+          "E8 | CODE_GRAPH: `toterminal` is GLOBAL_INFRASTRUCTURE with 29 callers (24 cross-module). Mutating it risks high regression.",
+          "E9 | TEMPORAL: `toterminal` has a history of 20 bug fixes (churn score: 1.00).",
+          "Causal Support: Predicted branch matches observed divergence transition."
+        ],
+        "contradicting_evidence": [
+          "Target 'src/_pytest/capture.py:readouterr' is GLOBAL_INFRASTRUCTURE with 19 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "E1 | CODE_GRAPH: `readouterr` is GLOBAL_INFRASTRUCTURE with 23 callers (19 cross-module). Mutating it risks high regression.",
+          "E2 | STATE_FLOW: `readouterr` overwrites state variables: err, out.",
+          "E3 | CODE_GRAPH: `done` is GLOBAL_INFRASTRUCTURE with 10 callers (8 cross-module). Mutating it risks high regression.",
+          "E4 | STATE_FLOW: `done` mutates attributes/containers: self._state.",
+          "E5 | CODE_GRAPH: `start` is GLOBAL_INFRASTRUCTURE with 11 callers (7 cross-module). Mutating it risks high regression.",
+          "E6 | STATE_FLOW: `start` mutates attributes/containers: self._state.",
+          "E7 | STATE_FLOW: `resume` mutates attributes/containers: self._state.",
+          "E8 | CODE_GRAPH: `toterminal` is GLOBAL_INFRASTRUCTURE with 29 callers (24 cross-module). Mutating it risks high regression.",
+          "E9 | TEMPORAL: `toterminal` has a history of 20 bug fixes (churn score: 1.00)."
+        ],
+        "contradicting_facts": [],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 65.0
+      },
+      {
+        "id": "B",
+        "cause": "The `done` method in `src/_pytest/capture.py` does not satisfy the required postconditions, leading to a state transition failure.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "if self.out:",
+          "expected_mutations": [
+            "out = self.out.snap()",
+            "err = self.err.snap()"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "state transition failure"
+          ],
+          "discriminating_variable": "self.out",
+          "support_count": 1,
+          "contradiction_count": 0
+        },
+        "support_count": 1,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Modify the `done` method to ensure that the state transition satisfies the required postconditions.",
+        "affected_sites": [
+          "src/_pytest/capture.py:done"
+        ],
+        "supporting_evidence": [
+          "E1 | CODE_GRAPH: `readouterr` is GLOBAL_INFRASTRUCTURE with 23 callers (19 cross-module). Mutating it risks high regression.",
+          "E2 | STATE_FLOW: `readouterr` overwrites state variables: err, out.",
+          "E3 | CODE_GRAPH: `done` is GLOBAL_INFRASTRUCTURE with 10 callers (8 cross-module). Mutating it risks high regression.",
+          "E4 | STATE_FLOW: `done` mutates attributes/containers: self._state.",
+          "E5 | CODE_GRAPH: `start` is GLOBAL_INFRASTRUCTURE with 11 callers (7 cross-module). Mutating it risks high regression.",
+          "E6 | STATE_FLOW: `start` mutates attributes/containers: self._state.",
+          "E7 | STATE_FLOW: `resume` mutates attributes/containers: self._state.",
+          "E8 | CODE_GRAPH: `toterminal` is GLOBAL_INFRASTRUCTURE with 29 callers (24 cross-module). Mutating it risks high regression.",
+          "E9 | TEMPORAL: `toterminal` has a history of 20 bug fixes (churn score: 1.00).",
+          "Causal Support: Predicted branch matches observed divergence transition."
+        ],
+        "contradicting_evidence": [
+          "Target 'src/_pytest/capture.py:done' is GLOBAL_INFRASTRUCTURE with 8 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "E1 | CODE_GRAPH: `readouterr` is GLOBAL_INFRASTRUCTURE with 23 callers (19 cross-module). Mutating it risks high regression.",
+          "E2 | STATE_FLOW: `readouterr` overwrites state variables: err, out.",
+          "E3 | CODE_GRAPH: `done` is GLOBAL_INFRASTRUCTURE with 10 callers (8 cross-module). Mutating it risks high regression.",
+          "E4 | STATE_FLOW: `done` mutates attributes/containers: self._state.",
+          "E5 | CODE_GRAPH: `start` is GLOBAL_INFRASTRUCTURE with 11 callers (7 cross-module). Mutating it risks high regression.",
+          "E6 | STATE_FLOW: `start` mutates attributes/containers: self._state.",
+          "E7 | STATE_FLOW: `resume` mutates attributes/containers: self._state.",
+          "E8 | CODE_GRAPH: `toterminal` is GLOBAL_INFRASTRUCTURE with 29 callers (24 cross-module). Mutating it risks high regression.",
+          "E9 | TEMPORAL: `toterminal` has a history of 20 bug fixes (churn score: 1.00)."
+        ],
+        "contradicting_facts": [],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 65.0
+      }
+    ],
+    "repair_sites": [
+      "src/_pytest/capture.py:readouterr"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "hypothesis_id": "A",
+      "strategy": "strict_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 2,
+      "hypothesis_id": "A",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 3,
+      "hypothesis_id": "A",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    }
+  ],
+  "repair_unit": {
+    "id": "src/_pytest/capture.py::readouterr::METHOD::551-560",
+    "file_path": "src/_pytest/capture.py",
+    "symbol": "readouterr",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 551,
+    "end_line": 560,
+    "start_col": 4,
+    "end_col": 38,
+    "source_text": "    def readouterr(self) -> CaptureResult:\n        if self.out:\n            out = self.out.snap()\n        else:\n            out = \"\"\n        if self.err:\n            err = self.err.snap()\n        else:\n            err = \"\"\n        return CaptureResult(out, err)\n",
+    "parent_symbol": "MultiCapture",
+    "indentation": "    ",
+    "role": "PRIMARY",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "src/_pytest/capture.py",
+      "symbol": "readouterr",
+      "role": "PRIMARY",
+      "score": 105.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'readouterr' (+80)",
+        "High regression risk: symbol has 19 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (10 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 1993 test(s) (+15)"
+      ],
+      "line_start": 551,
+      "line_end": 560,
+      "unrelated_callers_count": 19,
+      "in_failing_traceback": false,
+      "semantic_radius": 10,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/capture.py",
+      "symbol": "writeorg",
+      "role": "PRIMARY",
+      "score": 25.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Located in primary localized file (+15)",
+        "Compact code span (5 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 109 test(s) (+15)"
+      ],
+      "line_start": 321,
+      "line_end": 325,
+      "unrelated_callers_count": 1,
+      "in_failing_traceback": false,
+      "semantic_radius": 5,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/capture.py",
+      "symbol": "resume",
+      "role": "PRIMARY",
+      "score": 25.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Located in primary localized file (+15)",
+        "Compact code span (6 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 327 test(s) (+15)"
+      ],
+      "line_start": 314,
+      "line_end": 319,
+      "unrelated_callers_count": 3,
+      "in_failing_traceback": false,
+      "semantic_radius": 6,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/capture.py",
+      "symbol": "start",
+      "role": "PRIMARY",
+      "score": -33.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['start'] (+10)",
+        "High regression risk: symbol has 7 cross-module callers (-28)",
+        "Located in primary localized file (+15)",
+        "Compact code span (4 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 921 test(s) (+15)"
+      ],
+      "line_start": 287,
+      "line_end": 290,
+      "unrelated_callers_count": 7,
+      "in_failing_traceback": false,
+      "semantic_radius": 4,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/capture.py",
+      "symbol": "done",
+      "role": "PRIMARY",
+      "score": -47.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 8 cross-module callers (-32)",
+        "Located in primary localized file (+15)",
+        "Compact code span (8 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 872 test(s) (+15)"
+      ],
+      "line_start": 300,
+      "line_end": 307,
+      "unrelated_callers_count": 8,
+      "in_failing_traceback": false,
+      "semantic_radius": 8,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/_code/code.py",
+      "symbol": "toterminal",
+      "role": "PRIMARY",
+      "score": -70.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 24 cross-module callers (-40)",
+        "Compact code span (2 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 1448 test(s) (+15)"
+      ],
+      "line_start": 926,
+      "line_end": 927,
+      "unrelated_callers_count": 24,
+      "in_failing_traceback": false,
+      "semantic_radius": 2,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {},
+  "telemetry": {
+    "task_id": "pytest-dev__pytest-7220",
+    "total_wall_s": 335.64,
+    "llm_time_s": 0.0,
+    "test_time_s": 0.0,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 47.118,
+    "retrieval_diagnosis_time_s": 178.925,
+    "probing_time_s": null,
+    "generation_time_s": 109.149,
+    "reconstruction_time_s": 0.0,
+    "static_validation_time_s": 0.0,
+    "replanning_time_s": 0.0,
+    "runtime_s": 335.64
+  },
+  "test_summary": {},
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "readouterr",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed.",
+      "Ensure binary vs text stream compatibility matching parameter specification."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "At line 560 (`return CaptureResult(out, err)`), implement required transition: Must intercept this condition and produce the expected state transformation.",
+        "category": "ALGORITHMIC_TRANSITION",
+        "source": "EXECUTION_PATH",
+        "affected_symbols": [
+          "readouterr"
+        ],
+        "expected_state": "",
+        "expected_transition": "Must intercept this condition and produce the expected state transformation.",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [
+          "return",
+          "CaptureResult"
+        ],
+        "satisfied": false
+      },
+      {
+        "id": "R2",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

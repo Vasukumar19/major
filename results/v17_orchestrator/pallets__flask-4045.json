@@ -1,0 +1,649 @@
+{
+  "instance_id": "pallets__flask-4045",
+  "repo": "pallets/flask",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "2ad20c8826cd40eb",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "fd93b90085410112",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "256217bb2bc62feb",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "b6687cafe3958613",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": true,
+  "patch_tier": "AST_GROUNDED",
+  "patch_text": "diff --git a/src/flask/app.py b/src/flask/app.py\nindex f0f31486..bbf79d30 100644\n--- a/src/flask/app.py\n+++ b/src/flask/app.py\n@@ -1002,24 +1002,8 @@ class Flask(Scaffold):\n \n     @setupmethod\n     def register_blueprint(self, blueprint: \"Blueprint\", **options: t.Any) -> None:\n-        \"\"\"Register a :class:`~flask.Blueprint` on the application. Keyword\n-        arguments passed to this method will override the defaults set on the\n-        blueprint.\n-\n-        Calls the blueprint's :meth:`~flask.Blueprint.register` method after\n-        recording the blueprint in the application's :attr:`blueprints`.\n-\n-        :param blueprint: The blueprint to register.\n-        :param url_prefix: Blueprint routes will be prefixed with this.\n-        :param subdomain: Blueprint routes will match on this subdomain.\n-        :param url_defaults: Blueprint routes will use these default values for\n-            view arguments.\n-        :param options: Additional keyword arguments are passed to\n-            :class:`~flask.blueprints.BlueprintSetupState`. They can be\n-            accessed in :meth:`~flask.Blueprint.record` callbacks.\n-\n-        .. versionadded:: 0.7\n-        \"\"\"\n+        if '.' in blueprint.name:\n+            raise ValueError(f'Blueprint name cannot contain a dot: {blueprint.name}')\n         blueprint.register(self, options)\n \n     def iter_blueprints(self) -> t.ValuesView[\"Blueprint\"]:\n",
+  "test_executed": true,
+  "failure_class": "UNRESOLVED",
+  "runtime_s": 789.35,
+  "f2p_passed": 0,
+  "f2p_total": 2,
+  "p2p_passed": 50,
+  "p2p_total": 50,
+  "refinement_cycles": 3,
+  "target_file": "src/flask/helpers.py",
+  "target_symbol": "url_for",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "src/flask/app.py:register_blueprint"
+    ],
+    "selected_target": "src/flask/app.py:register_blueprint",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'src/flask/app.py:register_blueprint'.",
+    "target_unjustified": true,
+    "target_changes": [
+      {
+        "switched_to_hypothesis": "B",
+        "target": "src/flask/helpers.py:url_for",
+        "justification": "Target 'url_for' in 'src/flask/helpers.py' contradicts diagnosed affected sites ['src/flask/app.py:register_blueprint'] without structural justification."
+      }
+    ]
+  },
+  "generation_attempted": true,
+  "structurally_valid": true,
+  "submitted_to_harness": true,
+  "test_time_s": 36.254,
+  "generation_time_s": 605.458,
+  "reconstruction_time_s": 5.979,
+  "indexing_time_s": 10.476,
+  "retrieval_diagnosis_time_s": 130.639,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.022,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "256217bb2bc62feb",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "exemplars_included_in_prompt": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "prompt_included_episode_ids": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pallets__flask-4045",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The `url_for` method in `src/flask/helpers.py` is not being called with the correct arguments, leading to incorrect URL generation.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Ensure that the `url_for` method is called with the correct arguments, including the endpoint name and any required variables.",
+    "affected_sites": [
+      "src/flask/app.py:register_blueprint"
+    ],
+    "defect_confidence": 0.75,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 1,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The `register_blueprint` method in `src/flask/app.py` is not being called with the correct arguments, leading to the blueprint not being registered properly.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "register_blueprint -> register -> register",
+          "expected_mutations": [
+            "register_blueprint"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "register_blueprint fails"
+          ],
+          "discriminating_variable": "correct arguments",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Ensure that the `register_blueprint` method is called with the correct arguments, including the blueprint instance and the URL prefix.",
+        "affected_sites": [
+          "src/flask/app.py:register_blueprint"
+        ],
+        "supporting_evidence": [
+          "E1 | CODE_GRAPH",
+          "E2 | TEMPORAL"
+        ],
+        "contradicting_evidence": [
+          "No runtime tracebacks or failing test assertions observed",
+          "Target 'src/flask/app.py:register_blueprint' is GLOBAL_INFRASTRUCTURE with 47 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "E1 | CODE_GRAPH",
+          "E2 | TEMPORAL"
+        ],
+        "contradicting_facts": [
+          "No runtime tracebacks or failing test assertions observed"
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 50.0
+      },
+      {
+        "id": "B",
+        "cause": "The `url_for` method in `src/flask/helpers.py` is not being called with the correct arguments, leading to incorrect URL generation.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "url_for -> pop -> pop",
+          "expected_mutations": [
+            "url_for"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "url_for fails"
+          ],
+          "discriminating_variable": "correct arguments",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Ensure that the `url_for` method is called with the correct arguments, including the endpoint name and any required variables.",
+        "affected_sites": [
+          "src/flask/helpers.py:url_for"
+        ],
+        "supporting_evidence": [
+          "E3 | CODE_GRAPH",
+          "E4 | STATE_FLOW",
+          "E5 | STATE_FLOW"
+        ],
+        "contradicting_evidence": [
+          "No runtime tracebacks or failing test assertions observed",
+          "Target 'src/flask/helpers.py:url_for' is GLOBAL_INFRASTRUCTURE with 45 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "E3 | CODE_GRAPH",
+          "E4 | STATE_FLOW",
+          "E5 | STATE_FLOW"
+        ],
+        "contradicting_facts": [
+          "No runtime tracebacks or failing test assertions observed"
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 50.0
+      },
+      {
+        "id": "C",
+        "cause": "The `add_url_rule` method in `src/flask/blueprints.py` is not being called with the correct arguments, leading to the URL rule not being added properly.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "add_url_rule -> add_url_rule -> add_url_rule",
+          "expected_mutations": [
+            "add_url_rule"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "add_url_rule fails"
+          ],
+          "discriminating_variable": "correct arguments",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Ensure that the `add_url_rule` method is called with the correct arguments, including the endpoint, the URL rule, and the view function.",
+        "affected_sites": [
+          "src/flask/blueprints.py:add_url_rule"
+        ],
+        "supporting_evidence": [
+          "E6 | CODE_GRAPH",
+          "E7 | STATE_FLOW"
+        ],
+        "contradicting_evidence": [
+          "No runtime tracebacks or failing test assertions observed",
+          "Target 'src/flask/blueprints.py:add_url_rule' is GLOBAL_INFRASTRUCTURE with 21 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "E6 | CODE_GRAPH",
+          "E7 | STATE_FLOW"
+        ],
+        "contradicting_facts": [
+          "No runtime tracebacks or failing test assertions observed"
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 50.0
+      }
+    ],
+    "repair_sites": [
+      "src/flask/app.py:register_blueprint"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "strategy": "strict_structured_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "WRONG_HYPOTHESIS",
+      "error_message": "FAILED tests/test_blueprints.py::test_app_request_processing - DeprecationWar...; FAILED tests/test_blueprints.py::test_app_url_processors - DeprecationWarning...; FAILED tests/test_blueprints.py::test_nested_blueprint - DeprecationWarning: ...",
+      "patch_text": "diff --git a/src/flask/app.py b/src/flask/app.py\nindex f0f31486..bbf79d30 100644\n--- a/src/flask/app.py\n+++ b/src/flask/app.py\n@@ -1002,24 +1002,8 @@ class Flask(Scaffold):\n \n     @setupmethod\n     def register_blueprint(self, blueprint: \"Blueprint\", **options: t.Any) -> None:\n-        \"\"\"Register a :class:`~flask.Blueprint` on the application. Keyword\n-        arguments passed to this method will override the defaults set on the\n-        blueprint.\n-\n-        Calls the blueprint's :meth:`~flask.Blueprint.register` method after\n-        recording the blueprint in the application's :attr:`blueprints`.\n-\n-        :param blueprint: The blueprint to register.\n-        :param url_prefix: Blueprint routes will be prefixed with this.\n-        :param subdomain: Blueprint routes will match on this subdomain.\n-        :param url_defaults: Blueprint routes will use these default values for\n-            view arguments.\n-        :param options: Additional keyword arguments are passed to\n-            :class:`~flask.blueprints.BlueprintSetupState`. They can be\n-            accessed in :meth:`~flask.Blueprint.record` callbacks.\n-\n-        .. versionadded:: 0.7\n-        \"\"\"\n+        if '.' in blueprint.name:\n+            raise ValueError(f'Blueprint name cannot contain a dot: {blueprint.name}')\n         blueprint.register(self, options)\n \n     def iter_blueprints(self) -> t.ValuesView[\"Blueprint\"]:\n"
+    },
+    {
+      "attempt": 2,
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 3,
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    }
+  ],
+  "repair_unit": {
+    "id": "src/flask/helpers.py::url_for::FUNCTION::191-339",
+    "file_path": "src/flask/helpers.py",
+    "symbol": "url_for",
+    "unit_type": "FUNCTION",
+    "node_type": "FunctionDef",
+    "start_line": 191,
+    "end_line": 339,
+    "start_col": 0,
+    "end_col": 13,
+    "source_text": "def url_for(endpoint: str, **values: t.Any) -> str:\n    \"\"\"Generates a URL to the given endpoint with the method provided.\n\n    Variable arguments that are unknown to the target endpoint are appended\n    to the generated URL as query arguments.  If the value of a query argument\n    is ``None``, the whole pair is skipped.  In case blueprints are active\n    you can shortcut references to the same blueprint by prefixing the\n    local endpoint with a dot (``.``).\n\n    This will reference the index function local to the current blueprint::\n\n        url_for('.index')\n\n    See :ref:`url-building`.\n\n    Configuration values ``APPLICATION_ROOT`` and ``SERVER_NAME`` are only used when\n    generating URLs outside of a request context.\n\n    To integrate applications, :class:`Flask` has a hook to intercept URL build\n    errors through :attr:`Flask.url_build_error_handlers`.  The `url_for`\n    function results in a :exc:`~werkzeug.routing.BuildError` when the current\n    app does not have a URL for the given endpoint and values.  When it does, the\n    :data:`~flask.current_app` calls its :attr:`~Flask.url_build_error_handlers` if\n    it is not ``None``, which can return a string to use as the result of\n    `url_for` (instead of `url_for`'s default to raise the\n    :exc:`~werkzeug.routing.BuildError` exception) or re-raise the exception.\n    An example::\n\n        def external_url_handler(error, endpoint, values):\n            \"Looks up an external URL when `url_for` cannot build a URL.\"\n            # This is an example of hooking the build_error_handler.\n            # Here, lookup_url is some utility function you've built\n            # which looks up the endpoint in some external URL registry.\n            url = lookup_url(endpoint, **values)\n            if url is None:\n                # External lookup did not have a URL.\n                # Re-raise the BuildError, in context of original traceback.\n                exc_type, exc_value, tb = sys.exc_info()\n                if exc_value is error:\n                    raise exc_type(exc_value).with_traceback(tb)\n                else:\n                    raise error\n            # url_for will use this result, instead of raising BuildError.\n            return url\n\n        app.url_build_error_handlers.append(external_url_handler)\n\n    Here, `error` is the instance of :exc:`~werkzeug.routing.BuildError`, and\n    `endpoint` and `values` are the arguments passed into `url_for`.  Note\n    that this is for building URLs outside the current application, and not for\n    handling 404 NotFound errors.\n\n    .. versionadded:: 0.10\n       The `_scheme` parameter was added.\n\n    .. versionadded:: 0.9\n       The `_anchor` and `_method` parameters were added.\n\n    .. versionadded:: 0.9\n       Calls :meth:`Flask.handle_build_error` on\n       :exc:`~werkzeug.routing.BuildError`.\n\n    :param endpoint: the endpoint of the URL (name of the function)\n    :param values: the variable arguments of the URL rule\n    :param _external: if set to ``True``, an absolute URL is generated. Server\n      address can be changed via ``SERVER_NAME`` configuration variable which\n      falls back to the `Host` header, then to the IP and port of the request.\n    :param _scheme: a string specifying the desired URL scheme. The `_external`\n      parameter must be set to ``True`` or a :exc:`ValueError` is raised. The default\n      behavior uses the same scheme as the current request, or\n      :data:`PREFERRED_URL_SCHEME` if no request context is available.\n      This also can be set to an empty string to build protocol-relative\n      URLs.\n    :param _anchor: if provided this is added as anchor to the URL.\n    :param _method: if provided this explicitly specifies an HTTP method.\n    \"\"\"\n    appctx = _app_ctx_stack.top\n    reqctx = _request_ctx_stack.top\n\n    if appctx is None:\n        raise RuntimeError(\n            \"Attempted to generate a URL without the application context being\"\n            \" pushed. This has to be executed when application context is\"\n            \" available.\"\n        )\n\n    # If request specific information is available we have some extra\n    # features that support \"relative\" URLs.\n    if reqctx is not None:\n        url_adapter = reqctx.url_adapter\n        blueprint_name = request.blueprint\n\n        if endpoint[:1] == \".\":\n            if blueprint_name is not None:\n                endpoint = f\"{blueprint_name}{endpoint}\"\n            else:\n                endpoint = endpoint[1:]\n\n        external = values.pop(\"_external\", False)\n\n    # Otherwise go with the url adapter from the appctx and make\n    # the URLs external by default.\n    else:\n        url_adapter = appctx.url_adapter\n\n        if url_adapter is None:\n            raise RuntimeError(\n                \"Application was not able to create a URL adapter for request\"\n                \" independent URL generation. You might be able to fix this by\"\n                \" setting the SERVER_NAME config variable.\"\n            )\n\n        external = values.pop(\"_external\", True)\n\n    anchor = values.pop(\"_anchor\", None)\n    method = values.pop(\"_method\", None)\n    scheme = values.pop(\"_scheme\", None)\n    appctx.app.inject_url_defaults(endpoint, values)\n\n    # This is not the best way to deal with this but currently the\n    # underlying Werkzeug router does not support overriding the scheme on\n    # a per build call basis.\n    old_scheme = None\n    if scheme is not None:\n        if not external:\n            raise ValueError(\"When specifying _scheme, _external must be True\")\n        old_scheme = url_adapter.url_scheme\n        url_adapter.url_scheme = scheme\n\n    try:\n        try:\n            rv = url_adapter.build(\n                endpoint, values, method=method, force_external=external\n            )\n        finally:\n            if old_scheme is not None:\n                url_adapter.url_scheme = old_scheme\n    except BuildError as error:\n        # We need to inject the values again so that the app callback can\n        # deal with that sort of stuff.\n        values[\"_external\"] = external\n        values[\"_anchor\"] = anchor\n        values[\"_method\"] = method\n        values[\"_scheme\"] = scheme\n        return appctx.app.handle_url_build_error(error, endpoint, values)\n\n    if anchor is not None:\n        rv += f\"#{url_quote(anchor)}\"\n    return rv\n",
+    "parent_symbol": "",
+    "indentation": "",
+    "role": "HYPOTHESIS_TARGET",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "src/flask/wrappers.py",
+      "symbol": "blueprint",
+      "role": "PRIMARY",
+      "score": 180.0,
+      "reasons": [
+        "Symbol 'blueprint' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['blueprint'] (+10)",
+        "Compact code span (6 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_LOCAL with bounded impact (+25)",
+        "Direct tests available: 116 test(s) (+15)"
+      ],
+      "line_start": 73,
+      "line_end": 78,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 6,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/flask/app.py",
+      "symbol": "register_blueprint",
+      "role": "PRIMARY",
+      "score": 150.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'register_blueprint' (+80)",
+        "Symbol matches issue keywords ['blueprint'] (+10)",
+        "High regression risk: symbol has 47 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (20 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 4117 test(s) (+15)"
+      ],
+      "line_start": 1004,
+      "line_end": 1023,
+      "unrelated_callers_count": 47,
+      "in_failing_traceback": false,
+      "semantic_radius": 20,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/flask/app.py",
+      "symbol": "name",
+      "role": "PRIMARY",
+      "score": 85.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['name'] (+10)",
+        "Located in primary localized file (+15)",
+        "Compact code span (15 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_LOCAL with bounded impact (+25)",
+        "Direct tests available: 9 test(s) (+15)"
+      ],
+      "line_start": 528,
+      "line_end": 542,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 15,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/flask/blueprints.py",
+      "symbol": "Blueprint",
+      "role": "PRIMARY",
+      "score": 75.0,
+      "reasons": [
+        "Symbol 'Blueprint' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['blueprint'] (+10)",
+        "High regression risk: symbol has 45 cross-module callers (-40)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 4020 test(s) (+15)"
+      ],
+      "line_start": 171,
+      "line_end": 201,
+      "unrelated_callers_count": 45,
+      "in_failing_traceback": false,
+      "semantic_radius": 31,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/flask/blueprints.py",
+      "symbol": "add_url_rule",
+      "role": "PRIMARY",
+      "score": -25.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['add'] (+10)",
+        "High regression risk: symbol has 21 cross-module callers (-40)",
+        "Compact code span (29 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 1396 test(s) (+15)"
+      ],
+      "line_start": 77,
+      "line_end": 105,
+      "unrelated_callers_count": 21,
+      "in_failing_traceback": false,
+      "semantic_radius": 29,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/flask/helpers.py",
+      "symbol": "url_for",
+      "role": "PRIMARY",
+      "score": -35.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['for'] (+10)",
+        "High regression risk: symbol has 45 cross-module callers (-40)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 3000 test(s) (+15)"
+      ],
+      "line_start": 191,
+      "line_end": 339,
+      "unrelated_callers_count": 45,
+      "in_failing_traceback": false,
+      "semantic_radius": 149,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {
+    "valid": true,
+    "syntax_ok": true,
+    "ast_ok": true,
+    "target_changed": true,
+    "unrelated_targets_preserved": true,
+    "no_markdown_leakage": true,
+    "line_expansion_ok": true,
+    "lines_added": 2,
+    "lines_deleted": 18,
+    "symbols_affected": [
+      "register_blueprint"
+    ],
+    "errors": []
+  },
+  "telemetry": {
+    "task_id": "pallets__flask-4045",
+    "total_wall_s": 789.35,
+    "llm_time_s": 0.0,
+    "test_time_s": 36.254,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 10.476,
+    "retrieval_diagnosis_time_s": 130.639,
+    "probing_time_s": null,
+    "generation_time_s": 605.458,
+    "reconstruction_time_s": 5.979,
+    "static_validation_time_s": 0.022,
+    "replanning_time_s": 0.0,
+    "runtime_s": 789.35
+  },
+  "test_summary": {
+    "instance_id": "pallets__flask-4045",
+    "resolved": false,
+    "patch_applied": true,
+    "fail_to_pass": {
+      "passed": 0,
+      "total": 2
+    },
+    "pass_to_pass": {
+      "passed": 50,
+      "total": 50
+    },
+    "fail_to_pass_success": [],
+    "fail_to_pass_failure": [
+      "tests/test_blueprints.py::test_dotted_name_not_allowed",
+      "tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots"
+    ],
+    "pass_to_pass_success": [
+      "tests/test_basic.py::test_method_route_no_methods",
+      "tests/test_basic.py::test_disallow_string_for_allowed_methods",
+      "tests/test_basic.py::test_error_handler_unknown_code",
+      "tests/test_basic.py::test_request_locals",
+      "tests/test_basic.py::test_exception_propagation",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-True-True]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-True-False]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-False-True]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-False-False]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-True-True]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-True-False]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-False-True]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-False-False]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-True-True]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-True-False]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-False-True]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-False-False]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-True-True]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-True-False]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-False-True]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-False-False]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-True-True]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-True-False]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-False-True]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-False-False]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-True-True]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-True-False]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-False-True]",
+      "tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-False-False]",
+      "tests/test_basic.py::test_get_method_on_g",
+      "tests/test_basic.py::test_g_iteration_protocol",
+      "tests/test_basic.py::test_run_defaults",
+      "tests/test_basic.py::test_run_server_port",
+      "tests/test_basic.py::test_run_from_config[None-None-pocoo.org:8080-pocoo.org-8080]",
+      "tests/test_basic.py::test_run_from_config[localhost-None-pocoo.org:8080-localhost-8080]",
+      "tests/test_basic.py::test_run_from_config[None-80-pocoo.org:8080-pocoo.org-80]",
+      "tests/test_basic.py::test_run_from_config[localhost-80-pocoo.org:8080-localhost-80]",
+      "tests/test_basic.py::test_run_from_config[localhost-0-localhost:8080-localhost-0]",
+      "tests/test_basic.py::test_run_from_config[None-None-localhost:8080-localhost-8080]",
+      "tests/test_basic.py::test_run_from_config[None-None-localhost:0-localhost-0]",
+      "tests/test_basic.py::test_app_freed_on_zero_refcount",
+      "tests/test_blueprints.py::test_template_filter",
+      "tests/test_blueprints.py::test_add_template_filter",
+      "tests/test_blueprints.py::test_template_filter_with_name",
+      "tests/test_blueprints.py::test_add_template_filter_with_name",
+      "tests/test_blueprints.py::test_template_test",
+      "tests/test_blueprints.py::test_add_template_test",
+      "tests/test_blueprints.py::test_template_test_with_name",
+      "tests/test_blueprints.py::test_add_template_test_with_name",
+      "tests/test_blueprints.py::test_template_global"
+    ],
+    "pass_to_pass_failure": [],
+    "infra_failure": false,
+    "error": "",
+    "run_id": "eval_1791747666"
+  },
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "url_for",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,523 @@
+{
+  "instance_id": "psf__requests-1963",
+  "repo": "psf/requests",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "4e8292e9434efb2f",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "0abd7d93da49beb0",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "00c58176c092b44a",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "c6576310d2f24640",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": false,
+  "patch_tier": null,
+  "patch_text": "",
+  "test_executed": false,
+  "failure_class": "UNRESOLVED",
+  "runtime_s": 654.97,
+  "f2p_passed": 0,
+  "f2p_total": 0,
+  "p2p_passed": 0,
+  "p2p_total": 0,
+  "refinement_cycles": 3,
+  "target_file": "requests/sessions.py",
+  "target_symbol": "request",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "requests/sessions.py:request"
+    ],
+    "selected_target": "requests/sessions.py:request",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'requests/sessions.py:request'.",
+    "target_unjustified": true,
+    "target_changes": []
+  },
+  "generation_attempted": true,
+  "structurally_valid": false,
+  "submitted_to_harness": false,
+  "test_time_s": 0.0,
+  "generation_time_s": 533.829,
+  "reconstruction_time_s": 0.0,
+  "indexing_time_s": 2.969,
+  "retrieval_diagnosis_time_s": 117.762,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.0,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "00c58176c092b44a",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "psf__requests-863",
+      "psf__requests-2148"
+    ],
+    "exemplars_included_in_prompt": [
+      "psf__requests-863",
+      "psf__requests-2148"
+    ],
+    "prompt_included_episode_ids": [
+      "psf__requests-863",
+      "psf__requests-2148"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "psf__requests-1963",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The `request` method in `requests/sessions.py` is overwriting the `proxies` and `verify` state variables, which might lead to unexpected behavior in redirects or other requests.",
+    "invariant": "Preserve the original behavior of the `request` method by ensuring that `proxies` and `verify` are not overwritten unless explicitly provided.",
+    "repair_strategy": "Modify the `request` method to only overwrite `proxies` and `verify` if they are explicitly provided, otherwise retain the existing values.",
+    "affected_sites": [
+      "requests/sessions.py:request"
+    ],
+    "defect_confidence": 0.8,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 0,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The `request` method in `requests/sessions.py` is overwriting the `proxies` and `verify` state variables, which might lead to unexpected behavior in redirects or other requests.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "Preserve original method across 307/308 redirects.",
+          "expected_mutations": [
+            "Check if `proxies` and `verify` are provided before overwriting them"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Unexpected behavior in redirects or other requests"
+          ],
+          "discriminating_variable": "Whether `proxies` and `verify` are explicitly provided",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve the original behavior of the `request` method by ensuring that `proxies` and `verify` are not overwritten unless explicitly provided.",
+        "repair_strategy": "Modify the `request` method to only overwrite `proxies` and `verify` if they are explicitly provided, otherwise retain the existing values.",
+        "affected_sites": [
+          "requests/sessions.py:request"
+        ],
+        "supporting_evidence": [
+          "The `request` method overwrites state variables: proxies, verify.",
+          "Preserve backward compatibility: existing callers with default arguments must succeed."
+        ],
+        "contradicting_evidence": [
+          "No runtime tracebacks or failing test assertions observed.",
+          "Target 'requests/sessions.py:request' is GLOBAL_INFRASTRUCTURE with 2 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The `request` method overwrites state variables: proxies, verify.",
+          "Preserve backward compatibility: existing callers with default arguments must succeed."
+        ],
+        "contradicting_facts": [
+          "No runtime tracebacks or failing test assertions observed."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.8,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 50.0
+      },
+      {
+        "id": "B",
+        "cause": "The `prepare_request` method in `requests/sessions.py` is overwriting the `auth` and `cookies` state variables, which might lead to unexpected behavior in redirects or other requests.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "Preserve original method across 307/308 redirects.",
+          "expected_mutations": [
+            "Check if `auth` and `cookies` are provided before overwriting them"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Unexpected behavior in redirects or other requests"
+          ],
+          "discriminating_variable": "Whether `auth` and `cookies` are explicitly provided",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve the original behavior of the `prepare_request` method by ensuring that `auth` and `cookies` are not overwritten unless explicitly provided.",
+        "repair_strategy": "Modify the `prepare_request` method to only overwrite `auth` and `cookies` if they are explicitly provided, otherwise retain the existing values.",
+        "affected_sites": [
+          "requests/sessions.py:prepare_request"
+        ],
+        "supporting_evidence": [
+          "The `prepare_request` method overwrites state variables: auth, cookies.",
+          "Preserve backward compatibility: existing callers with default arguments must succeed."
+        ],
+        "contradicting_evidence": [
+          "No runtime tracebacks or failing test assertions observed."
+        ],
+        "supporting_facts": [
+          "The `prepare_request` method overwrites state variables: auth, cookies.",
+          "Preserve backward compatibility: existing callers with default arguments must succeed."
+        ],
+        "contradicting_facts": [
+          "No runtime tracebacks or failing test assertions observed."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 70.0
+      }
+    ],
+    "repair_sites": [
+      "requests/sessions.py:request"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "hypothesis_id": "A",
+      "strategy": "strict_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 2,
+      "hypothesis_id": "A",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 3,
+      "hypothesis_id": "A",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    }
+  ],
+  "repair_unit": {
+    "id": "requests/sessions.py::request::METHOD::301-395",
+    "file_path": "requests/sessions.py",
+    "symbol": "request",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 301,
+    "end_line": 395,
+    "start_col": 4,
+    "end_col": 19,
+    "source_text": "    def request(self, method, url,\n        params=None,\n        data=None,\n        headers=None,\n        cookies=None,\n        files=None,\n        auth=None,\n        timeout=None,\n        allow_redirects=True,\n        proxies=None,\n        hooks=None,\n        stream=None,\n        verify=None,\n        cert=None):\n        \"\"\"Constructs a :class:`Request <Request>`, prepares it and sends it.\n        Returns :class:`Response <Response>` object.\n\n        :param method: method for the new :class:`Request` object.\n        :param url: URL for the new :class:`Request` object.\n        :param params: (optional) Dictionary or bytes to be sent in the query\n            string for the :class:`Request`.\n        :param data: (optional) Dictionary or bytes to send in the body of the\n            :class:`Request`.\n        :param headers: (optional) Dictionary of HTTP Headers to send with the\n            :class:`Request`.\n        :param cookies: (optional) Dict or CookieJar object to send with the\n            :class:`Request`.\n        :param files: (optional) Dictionary of 'filename': file-like-objects\n            for multipart encoding upload.\n        :param auth: (optional) Auth tuple or callable to enable\n            Basic/Digest/Custom HTTP Auth.\n        :param timeout: (optional) Float describing the timeout of the\n            request in seconds.\n        :param allow_redirects: (optional) Boolean. Set to True by default.\n        :param proxies: (optional) Dictionary mapping protocol to the URL of\n            the proxy.\n        :param stream: (optional) whether to immediately download the response\n            content. Defaults to ``False``.\n        :param verify: (optional) if ``True``, the SSL cert will be verified.\n            A CA_BUNDLE path can also be provided.\n        :param cert: (optional) if String, path to ssl client cert file (.pem).\n            If Tuple, ('cert', 'key') pair.\n        \"\"\"\n\n        method = builtin_str(method)\n\n        # Create the Request.\n        req = Request(\n            method = method.upper(),\n            url = url,\n            headers = headers,\n            files = files,\n            data = data or {},\n            params = params or {},\n            auth = auth,\n            cookies = cookies,\n            hooks = hooks,\n        )\n        prep = self.prepare_request(req)\n\n        proxies = proxies or {}\n\n        # Gather clues from the surrounding environment.\n        if self.trust_env:\n            # Set environment's proxies.\n            env_proxies = get_environ_proxies(url) or {}\n            for (k, v) in env_proxies.items():\n                proxies.setdefault(k, v)\n\n            # Look for configuration.\n            if not verify and verify is not False:\n                verify = os.environ.get('REQUESTS_CA_BUNDLE')\n\n            # Curl compatibility.\n            if not verify and verify is not False:\n                verify = os.environ.get('CURL_CA_BUNDLE')\n\n        # Merge all the kwargs.\n        proxies = merge_setting(proxies, self.proxies)\n        stream = merge_setting(stream, self.stream)\n        verify = merge_setting(verify, self.verify)\n        cert = merge_setting(cert, self.cert)\n\n        # Send the request.\n        send_kwargs = {\n            'stream': stream,\n            'timeout': timeout,\n            'verify': verify,\n            'cert': cert,\n            'proxies': proxies,\n            'allow_redirects': allow_redirects,\n        }\n        resp = self.send(prep, **send_kwargs)\n\n        return resp\n",
+    "parent_symbol": "Session",
+    "indentation": "    ",
+    "role": "PRIMARY",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "requests/sessions.py",
+      "symbol": "request",
+      "role": "PRIMARY",
+      "score": 180.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'request' (+80)",
+        "Symbol matches issue keywords ['request'] (+10)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 411 test(s) (+15)"
+      ],
+      "line_start": 301,
+      "line_end": 395,
+      "unrelated_callers_count": 1,
+      "in_failing_traceback": false,
+      "semantic_radius": 95,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/sessions.py",
+      "symbol": "Session",
+      "role": "PRIMARY",
+      "score": 100.0,
+      "reasons": [
+        "Symbol 'Session' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['session'] (+10)",
+        "High regression risk: symbol has 14 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (4 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 1918 test(s) (+15)"
+      ],
+      "line_start": 568,
+      "line_end": 571,
+      "unrelated_callers_count": 14,
+      "in_failing_traceback": false,
+      "semantic_radius": 4,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/sessions.py",
+      "symbol": "put",
+      "role": "PRIMARY",
+      "score": 60.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Located in primary localized file (+15)",
+        "Compact code span (9 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 274 test(s) (+15)"
+      ],
+      "line_start": 437,
+      "line_end": 445,
+      "unrelated_callers_count": 2,
+      "in_failing_traceback": false,
+      "semantic_radius": 9,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/sessions.py",
+      "symbol": "post",
+      "role": "PRIMARY",
+      "score": 50.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['post'] (+10)",
+        "High regression risk: symbol has 5 cross-module callers (-20)",
+        "Located in primary localized file (+15)",
+        "Compact code span (9 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 685 test(s) (+15)"
+      ],
+      "line_start": 427,
+      "line_end": 435,
+      "unrelated_callers_count": 5,
+      "in_failing_traceback": false,
+      "semantic_radius": 9,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/sessions.py",
+      "symbol": "prepare_request",
+      "role": "PRIMARY",
+      "score": 44.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['request'] (+10)",
+        "High regression risk: symbol has 4 cross-module callers (-16)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 548 test(s) (+15)"
+      ],
+      "line_start": 262,
+      "line_end": 299,
+      "unrelated_callers_count": 4,
+      "in_failing_traceback": false,
+      "semantic_radius": 38,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/models.py",
+      "symbol": "prepare",
+      "role": "PRIMARY",
+      "score": -35.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 14 cross-module callers (-40)",
+        "Compact code span (15 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 1918 test(s) (+15)"
+      ],
+      "line_start": 238,
+      "line_end": 252,
+      "unrelated_callers_count": 14,
+      "in_failing_traceback": false,
+      "semantic_radius": 15,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {},
+  "telemetry": {
+    "task_id": "psf__requests-1963",
+    "total_wall_s": 654.97,
+    "llm_time_s": 0.0,
+    "test_time_s": 0.0,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 2.969,
+    "retrieval_diagnosis_time_s": 117.762,
+    "probing_time_s": null,
+    "generation_time_s": 533.829,
+    "reconstruction_time_s": 0.0,
+    "static_validation_time_s": 0.0,
+    "replanning_time_s": 0.0,
+    "runtime_s": 654.97
+  },
+  "test_summary": {},
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "request",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Preserve original method across 307/308 redirects.",
+        "category": "LOGICAL_BRANCH",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [
+          "307",
+          "308",
+          "method"
+        ],
+        "satisfied": false
+      },
+      {
+        "id": "R2",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

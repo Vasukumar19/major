@@ -6,6 +6,7 @@ to explicit API contracts, test call semantics, and behavioral requirements.
 from __future__ import annotations
 
 import logging
+import math
 import re
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -212,6 +213,11 @@ class HypothesisContractGate:
         if not diagnosis.hypotheses:
             return diagnosis
 
+        upstream_selected = diagnosis.selected_hypothesis
+        if upstream_selected is None and diagnosis.hypotheses:
+            if 0 <= diagnosis.selected_hypothesis_idx < len(diagnosis.hypotheses):
+                upstream_selected = diagnosis.hypotheses[diagnosis.selected_hypothesis_idx]
+
         required_param_names = [
             p.name for p in contract.parameters if p.origin in ("TEST_OBSERVED", "HINTS_TEXT", "ISSUE_EXPLICIT")
         ]
@@ -296,17 +302,47 @@ class HypothesisContractGate:
                 diagnosis.hypotheses[0].eliminated = False
                 surviving = [diagnosis.hypotheses[0]]
 
-        # Sort surviving by confidence descending
-        surviving.sort(key=lambda h: h.confidence, reverse=True)
-        best_survivor = surviving[0]
+        def _safe_float(val: Any, default: float = 0.0) -> float:
+            if val is None:
+                return default
+            try:
+                f = float(val)
+                if math.isnan(f) or math.isinf(f):
+                    return default
+                return f
+            except (TypeError, ValueError):
+                return default
 
-        # Update selected index
+        def _sort_key(h: DiagnosisHypothesis) -> tuple[bool, float, float]:
+            return (
+                not getattr(h, "eliminated", False),
+                _safe_float(getattr(h, "counterfactual_score", 0.0), 0.0),
+                _safe_float(getattr(h, "confidence", 0.0), 0.0),
+            )
+
+        # Sort surviving by counterfactual score descending, with confidence as tie-breaker
+        surviving.sort(key=_sort_key, reverse=True)
+
+        # Respect upstream selection if it remains eligible and was not eliminated
+        if (
+            upstream_selected is not None
+            and not getattr(upstream_selected, "eliminated", False)
+            and any(h.id == upstream_selected.id for h in surviving)
+        ):
+            best_survivor = upstream_selected
+        else:
+            best_survivor = surviving[0]
+
+        # Update selected index and ensure internal consistency
+        best_idx = 0
         for idx, h in enumerate(diagnosis.hypotheses):
             if h.id == best_survivor.id:
-                diagnosis.selected_hypothesis_idx = idx
-                diagnosis.selected_hypothesis = h
-                diagnosis.defect_confidence = h.confidence
-                diagnosis.repair_sites = h.affected_sites
+                best_idx = idx
                 break
+
+        diagnosis.selected_hypothesis_idx = best_idx
+        diagnosis.selected_hypothesis = best_survivor
+        diagnosis.defect_confidence = _safe_float(getattr(best_survivor, "confidence", 0.8), 0.8)
+        diagnosis.repair_sites = list(getattr(best_survivor, "affected_sites", []) or [])
 
         return diagnosis

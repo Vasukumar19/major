@@ -37,7 +37,15 @@ class GraphContext:
 class RepoGraphAdapter:
     def __init__(self, config: PatchForgeConfig | None = None, third_party: str = "third_party"):
         self.config = config or PatchForgeConfig()
-        self.repograph = str((Path(third_party) / "RepoGraph").resolve())
+        candidates = [
+            Path(third_party) / "repograph_upstream",
+            Path(third_party) / "RepoGraph",
+        ]
+        self.repograph = str(candidates[0].resolve())
+        for cand in candidates:
+            if (cand / "repograph" / "construct_graph.py").exists():
+                self.repograph = str(cand.resolve())
+                break
         self.available = Path(self.repograph, "repograph", "construct_graph.py").exists()
         if self.available:
             import sys

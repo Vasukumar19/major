@@ -5,6 +5,7 @@ import ast
 import logging
 import re
 from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -15,6 +16,146 @@ from patchforge.repository_intelligence.graph import RepositoryGraph
 from patchforge.repository_intelligence.test_graph import TestCaseEntity, TestGraphIndex
 
 logger = logging.getLogger(__name__)
+
+
+class EvidenceKind(str, Enum):
+    """Classification of evidence veracity and source type."""
+    OBSERVED_FACT = "OBSERVED_FACT"
+    STATIC_CODE_EVIDENCE = "STATIC_CODE_EVIDENCE"
+    HYPOTHESIS = "HYPOTHESIS"
+    CONTRADICTORY_EVIDENCE = "CONTRADICTORY_EVIDENCE"
+    UNKNOWN_OR_UNAVAILABLE = "UNKNOWN_OR_UNAVAILABLE"
+
+
+@dataclass
+class EvidenceItem:
+    """A distinct, provenance-tracked piece of evidence for diagnosis."""
+    kind: EvidenceKind
+    category: str
+    content: str
+    provenance: str = ""
+    target_symbol: str = ""
+    is_falsifiable: bool = False
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "kind": self.kind.value if hasattr(self.kind, "value") else str(self.kind),
+            "category": self.category,
+            "content": self.content,
+            "provenance": self.provenance,
+            "target_symbol": self.target_symbol,
+            "is_falsifiable": self.is_falsifiable,
+        }
+
+
+@dataclass
+class EvidencePackage:
+    """Assembles all available evidence with clear provenance and category separation."""
+    instance_id: str = ""
+    problem_statement: str = ""
+    expected_behavior: str = ""
+    items: List[EvidenceItem] = field(default_factory=list)
+    failing_assertions: List[str] = field(default_factory=list)
+    runtime_tracebacks: List[str] = field(default_factory=list)
+    candidate_symbols: List[str] = field(default_factory=list)
+    caller_callee_relations: List[str] = field(default_factory=list)
+    associated_tests: List[str] = field(default_factory=list)
+    contract_invariants: List[str] = field(default_factory=list)
+    prior_attempt_outcomes: List[Dict[str, Any]] = field(default_factory=list)
+
+    def add_item(
+        self,
+        kind: EvidenceKind,
+        category: str,
+        content: str,
+        provenance: str = "",
+        target_symbol: str = "",
+        is_falsifiable: bool = False,
+    ):
+        self.items.append(
+            EvidenceItem(
+                kind=kind,
+                category=category,
+                content=content,
+                provenance=provenance,
+                target_symbol=target_symbol,
+                is_falsifiable=is_falsifiable,
+            )
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "instance_id": self.instance_id,
+            "item_count": len(self.items),
+            "items": [it.to_dict() for it in self.items],
+            "failing_assertions": self.failing_assertions,
+            "runtime_tracebacks": self.runtime_tracebacks,
+            "candidate_symbols": self.candidate_symbols,
+            "caller_callee_relations": self.caller_callee_relations,
+            "associated_tests": self.associated_tests,
+            "contract_invariants": self.contract_invariants,
+            "prior_attempt_outcomes": self.prior_attempt_outcomes,
+        }
+
+    def format_for_prompt(self) -> str:
+        """Formats the evidence package into structured, categorized sections."""
+        lines = ["### ASSEMBLED EVIDENCE PACKAGE:"]
+
+        # 1. Observed Facts
+        observed = [it for it in self.items if it.kind == EvidenceKind.OBSERVED_FACT]
+        lines.append("#### 1. OBSERVED FACTS (Verified Runtime and Test Evidence):")
+        if observed or self.failing_assertions or self.runtime_tracebacks:
+            for it in observed:
+                prov_str = f" [Provenance: {it.provenance}]" if it.provenance else ""
+                lines.append(f"  - [{it.category}] {it.content}{prov_str}")
+            for a in self.failing_assertions:
+                lines.append(f"  - [FAILING_ASSERTION] {a}")
+            for tb in self.runtime_tracebacks:
+                lines.append(f"  - [VERIFIED_TRACEBACK] {tb}")
+        else:
+            lines.append("  - (No runtime tracebacks or failing test assertions observed)")
+
+        # 2. Static Code Evidence
+        static_ev = [it for it in self.items if it.kind == EvidenceKind.STATIC_CODE_EVIDENCE]
+        lines.append("#### 2. STATIC CODE EVIDENCE (AST, Graph, and Contract Structure):")
+        if static_ev or self.candidate_symbols or self.caller_callee_relations:
+            for it in static_ev:
+                prov_str = f" [Provenance: {it.provenance}]" if it.provenance else ""
+                lines.append(f"  - [{it.category}] {it.content}{prov_str}")
+            for sym in self.candidate_symbols:
+                lines.append(f"  - [CANDIDATE_SYMBOL] {sym}")
+            for rel in self.caller_callee_relations:
+                lines.append(f"  - [CALL_GRAPH] {rel}")
+            for cinv in self.contract_invariants:
+                lines.append(f"  - [CONTRACT_INVARIANT] {cinv}")
+        else:
+            lines.append("  - (None)")
+
+        # 3. Contradictory Evidence & Regression Risks
+        contra = [it for it in self.items if it.kind == EvidenceKind.CONTRADICTORY_EVIDENCE]
+        lines.append("#### 3. CONTRADICTORY EVIDENCE & REGRESSION RISKS:")
+        if contra:
+            for it in contra:
+                lines.append(f"  - [{it.category}] {it.content}")
+        else:
+            lines.append("  - (No severe contradictions detected)")
+
+        # 4. Unknown / Unavailable Information
+        unknowns = [it for it in self.items if it.kind == EvidenceKind.UNKNOWN_OR_UNAVAILABLE]
+        lines.append("#### 4. UNKNOWN / UNAVAILABLE INFORMATION (Do NOT assume or fabricate):")
+        if unknowns:
+            for it in unknowns:
+                lines.append(f"  - [{it.category}] {it.content}")
+        else:
+            lines.append("  - Dynamic execution probes: None executed")
+
+        # 5. Prior Repair Attempt Outcomes (if attempt > 1)
+        if self.prior_attempt_outcomes:
+            lines.append("#### 5. PRIOR REPAIR ATTEMPT OUTCOMES:")
+            for prev in self.prior_attempt_outcomes:
+                lines.append(f"  - Attempt {prev.get('attempt')}: {prev.get('summary', '')}")
+
+        return "\n".join(lines)
 
 
 @dataclass

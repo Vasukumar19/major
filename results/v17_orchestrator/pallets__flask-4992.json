@@ -1,0 +1,595 @@
+{
+  "instance_id": "pallets__flask-4992",
+  "repo": "pallets/flask",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "2ad20c8826cd40eb",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "fd93b90085410112",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "256217bb2bc62feb",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "b6687cafe3958613",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": true,
+  "patch_applied": true,
+  "patch_valid": true,
+  "patch_tier": "AST_GROUNDED",
+  "patch_text": "diff --git a/src/flask/config.py b/src/flask/config.py\nindex d4fc310f..94017fca 100644\n--- a/src/flask/config.py\n+++ b/src/flask/config.py\n@@ -234,6 +234,7 @@ class Config(dict):\n         filename: str,\n         load: t.Callable[[t.IO[t.Any]], t.Mapping],\n         silent: bool = False,\n+        text: bool = True,\n     ) -> bool:\n         \"\"\"Update the values in the config from a file that is loaded\n         using the ``load`` parameter. The loaded data is passed to the\n@@ -254,6 +255,7 @@ class Config(dict):\n         :type load: ``Callable[[Reader], Mapping]`` where ``Reader``\n             implements a ``read`` method.\n         :param silent: Ignore the file if it doesn't exist.\n+        :param text: Open the file in text mode if True, binary mode if False.\n         :return: ``True`` if the file was loaded successfully.\n \n         .. versionadded:: 2.0\n@@ -261,7 +263,8 @@ class Config(dict):\n         filename = os.path.join(self.root_path, filename)\n \n         try:\n-            with open(filename) as f:\n+            mode = 'r' if text else 'rb'\n+            with open(filename, mode) as f:\n                 obj = load(f)\n         except OSError as e:\n             if silent and e.errno in (errno.ENOENT, errno.EISDIR):\n",
+  "test_executed": true,
+  "failure_class": "RESOLVED",
+  "runtime_s": 266.85,
+  "f2p_passed": 1,
+  "f2p_total": 1,
+  "p2p_passed": 18,
+  "p2p_total": 18,
+  "refinement_cycles": 1,
+  "target_file": "src/flask/config.py",
+  "target_symbol": "from_file",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "src/flask/config.py:from_file"
+    ],
+    "selected_target": "src/flask/config.py:from_file",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'src/flask/config.py:from_file'.",
+    "target_unjustified": true,
+    "target_changes": []
+  },
+  "generation_attempted": true,
+  "structurally_valid": true,
+  "submitted_to_harness": true,
+  "test_time_s": 34.524,
+  "generation_time_s": 106.257,
+  "reconstruction_time_s": 0.313,
+  "indexing_time_s": 13.077,
+  "retrieval_diagnosis_time_s": 112.495,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.006,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "256217bb2bc62feb",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "psf__requests-863",
+      "psf__requests-2674"
+    ],
+    "exemplars_included_in_prompt": [
+      "psf__requests-863",
+      "psf__requests-2674"
+    ],
+    "prompt_included_episode_ids": [
+      "psf__requests-863",
+      "psf__requests-2674"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pallets__flask-4992",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The `from_file` method in `src/flask/config.py` is not correctly handling the `text` parameter, leading to incorrect file opening modes.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Modify the `from_file` method to correctly handle the `text` parameter and open files in the appropriate mode.",
+    "affected_sites": [
+      "src/flask/config.py:from_file"
+    ],
+    "defect_confidence": 0.85,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 0,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The `from_file` method in `src/flask/config.py` is not correctly handling the `text` parameter, leading to incorrect file opening modes.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "At line 261, `filename = os.path.join(self.root_path, filename)` should correctly handle the `text` parameter.",
+          "expected_mutations": [
+            "Ensure `text` parameter is correctly handled in file opening logic."
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "File opening in incorrect mode ('rb' instead of 'r' or vice versa)."
+          ],
+          "discriminating_variable": "text",
+          "support_count": 1,
+          "contradiction_count": 0
+        },
+        "support_count": 1,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Modify the `from_file` method to correctly handle the `text` parameter and open files in the appropriate mode.",
+        "affected_sites": [
+          "src/flask/config.py:from_file"
+        ],
+        "supporting_evidence": [
+          "E1 | STATE_FLOW: `from_file` mutates attributes/containers: e.strerror.",
+          "E2 | CODE_GRAPH: `Config` is FEATURE_LOCAL with bounded callers (0). Safe for targeted repair.",
+          "Causal Support: Predicted branch matches observed divergence transition."
+        ],
+        "contradicting_evidence": [],
+        "supporting_facts": [
+          "E1 | STATE_FLOW: `from_file` mutates attributes/containers: e.strerror.",
+          "E2 | CODE_GRAPH: `Config` is FEATURE_LOCAL with bounded callers (0). Safe for targeted repair."
+        ],
+        "contradicting_facts": [],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.85,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 90.0
+      },
+      {
+        "id": "B",
+        "cause": "The `from_pyfile` method in `src/flask/config.py` is not correctly handling the `text` parameter, leading to incorrect file opening modes.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "At line 175, `filename = os.path.join(self.root_path, filename)` should correctly handle the `text` parameter.",
+          "expected_mutations": [
+            "Ensure `text` parameter is correctly handled in file opening logic."
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "File opening in incorrect mode ('rb' instead of 'r' or vice versa)."
+          ],
+          "discriminating_variable": "text",
+          "support_count": 1,
+          "contradiction_count": 0
+        },
+        "support_count": 1,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Modify the `from_pyfile` method to correctly handle the `text` parameter and open files in the appropriate mode.",
+        "affected_sites": [
+          "src/flask/config.py:from_pyfile"
+        ],
+        "supporting_evidence": [
+          "E6 | STATE_FLOW: `from_pyfile` mutates attributes/containers: d.__file__, e.strerror.",
+          "E2 | CODE_GRAPH: `Config` is FEATURE_LOCAL with bounded callers (0). Safe for targeted repair.",
+          "Causal Support: Predicted branch matches observed divergence transition."
+        ],
+        "contradicting_evidence": [
+          "Target 'src/flask/config.py:from_pyfile' is GLOBAL_INFRASTRUCTURE with 4 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "E6 | STATE_FLOW: `from_pyfile` mutates attributes/containers: d.__file__, e.strerror.",
+          "E2 | CODE_GRAPH: `Config` is FEATURE_LOCAL with bounded callers (0). Safe for targeted repair."
+        ],
+        "contradicting_facts": [],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.7999999999999999,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 60.0
+      }
+    ],
+    "repair_sites": [
+      "src/flask/config.py:from_file"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "strategy": "strict_structured_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": true,
+      "failure_class": "RESOLVED",
+      "error_message": "except OSError as e:",
+      "patch_text": "diff --git a/src/flask/config.py b/src/flask/config.py\nindex d4fc310f..94017fca 100644\n--- a/src/flask/config.py\n+++ b/src/flask/config.py\n@@ -234,6 +234,7 @@ class Config(dict):\n         filename: str,\n         load: t.Callable[[t.IO[t.Any]], t.Mapping],\n         silent: bool = False,\n+        text: bool = True,\n     ) -> bool:\n         \"\"\"Update the values in the config from a file that is loaded\n         using the ``load`` parameter. The loaded data is passed to the\n@@ -254,6 +255,7 @@ class Config(dict):\n         :type load: ``Callable[[Reader], Mapping]`` where ``Reader``\n             implements a ``read`` method.\n         :param silent: Ignore the file if it doesn't exist.\n+        :param text: Open the file in text mode if True, binary mode if False.\n         :return: ``True`` if the file was loaded successfully.\n \n         .. versionadded:: 2.0\n@@ -261,7 +263,8 @@ class Config(dict):\n         filename = os.path.join(self.root_path, filename)\n \n         try:\n-            with open(filename) as f:\n+            mode = 'r' if text else 'rb'\n+            with open(filename, mode) as f:\n                 obj = load(f)\n         except OSError as e:\n             if silent and e.errno in (errno.ENOENT, errno.EISDIR):\n"
+    }
+  ],
+  "repair_unit": {
+    "id": "src/flask/config.py::from_file::METHOD::232-273",
+    "file_path": "src/flask/config.py",
+    "symbol": "from_file",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 232,
+    "end_line": 273,
+    "start_col": 4,
+    "end_col": 37,
+    "source_text": "    def from_file(\n        self,\n        filename: str,\n        load: t.Callable[[t.IO[t.Any]], t.Mapping],\n        silent: bool = False,\n    ) -> bool:\n        \"\"\"Update the values in the config from a file that is loaded\n        using the ``load`` parameter. The loaded data is passed to the\n        :meth:`from_mapping` method.\n\n        .. code-block:: python\n\n            import json\n            app.config.from_file(\"config.json\", load=json.load)\n\n            import toml\n            app.config.from_file(\"config.toml\", load=toml.load)\n\n        :param filename: The path to the data file. This can be an\n            absolute path or relative to the config root path.\n        :param load: A callable that takes a file handle and returns a\n            mapping of loaded data from the file.\n        :type load: ``Callable[[Reader], Mapping]`` where ``Reader``\n            implements a ``read`` method.\n        :param silent: Ignore the file if it doesn't exist.\n        :return: ``True`` if the file was loaded successfully.\n\n        .. versionadded:: 2.0\n        \"\"\"\n        filename = os.path.join(self.root_path, filename)\n\n        try:\n            with open(filename) as f:\n                obj = load(f)\n        except OSError as e:\n            if silent and e.errno in (errno.ENOENT, errno.EISDIR):\n                return False\n\n            e.strerror = f\"Unable to load configuration file ({e.strerror})\"\n            raise\n\n        return self.from_mapping(obj)\n",
+    "parent_symbol": "Config",
+    "indentation": "    ",
+    "role": "PRIMARY",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "src/flask/config.py",
+      "symbol": "from_file",
+      "role": "PRIMARY",
+      "score": 230.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'from_file' (+80)",
+        "Symbol matches issue keywords ['from', 'file'] (+20)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 44 test(s) (+15)"
+      ],
+      "line_start": 232,
+      "line_end": 273,
+      "unrelated_callers_count": 2,
+      "in_failing_traceback": false,
+      "semantic_radius": 42,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/flask/config.py",
+      "symbol": "Config",
+      "role": "PRIMARY",
+      "score": 160.0,
+      "reasons": [
+        "Symbol 'Config' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['config'] (+10)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: FEATURE_LOCAL with bounded impact (+25)",
+        "Direct tests available: 22 test(s) (+15)"
+      ],
+      "line_start": 232,
+      "line_end": 273,
+      "unrelated_callers_count": 0,
+      "in_failing_traceback": false,
+      "semantic_radius": 42,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/flask/app.py",
+      "symbol": "Flask",
+      "role": "PRIMARY",
+      "score": 50.0,
+      "reasons": [
+        "Symbol 'Flask' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['flask'] (+10)",
+        "High regression risk: symbol has 69 cross-module callers (-40)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 4526 test(s) (+15)"
+      ],
+      "line_start": 367,
+      "line_end": 520,
+      "unrelated_callers_count": 69,
+      "in_failing_traceback": false,
+      "semantic_radius": 154,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/flask/helpers.py",
+      "symbol": "send_from_directory",
+      "role": "PRIMARY",
+      "score": 20.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['from'] (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 59 test(s) (+15)"
+      ],
+      "line_start": 519,
+      "line_end": 559,
+      "unrelated_callers_count": 1,
+      "in_failing_traceback": false,
+      "semantic_radius": 41,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/flask/config.py",
+      "symbol": "from_pyfile",
+      "role": "PRIMARY",
+      "score": 14.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['from'] (+10)",
+        "High regression risk: symbol has 4 cross-module callers (-16)",
+        "Located in primary localized file (+15)",
+        "Compact code span (28 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 66 test(s) (+15)"
+      ],
+      "line_start": 165,
+      "line_end": 192,
+      "unrelated_callers_count": 4,
+      "in_failing_traceback": false,
+      "semantic_radius": 28,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/flask/scaffold.py",
+      "symbol": "open_resource",
+      "role": "PRIMARY",
+      "score": -1.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['open'] (+10)",
+        "High regression risk: symbol has 4 cross-module callers (-16)",
+        "Compact code span (22 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 177 test(s) (+15)"
+      ],
+      "line_start": 333,
+      "line_end": 354,
+      "unrelated_callers_count": 4,
+      "in_failing_traceback": false,
+      "semantic_radius": 22,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {
+    "valid": true,
+    "syntax_ok": true,
+    "ast_ok": true,
+    "target_changed": true,
+    "unrelated_targets_preserved": true,
+    "no_markdown_leakage": true,
+    "line_expansion_ok": true,
+    "lines_added": 4,
+    "lines_deleted": 1,
+    "symbols_affected": [
+      "from_file"
+    ],
+    "errors": []
+  },
+  "telemetry": {
+    "task_id": "pallets__flask-4992",
+    "total_wall_s": 266.85,
+    "llm_time_s": 0.0,
+    "test_time_s": 34.524,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 1,
+    "indexing_time_s": 13.077,
+    "retrieval_diagnosis_time_s": 112.495,
+    "probing_time_s": null,
+    "generation_time_s": 106.257,
+    "reconstruction_time_s": 0.313,
+    "static_validation_time_s": 0.006,
+    "replanning_time_s": 0.0,
+    "runtime_s": 266.85
+  },
+  "test_summary": {
+    "instance_id": "pallets__flask-4992",
+    "resolved": true,
+    "patch_applied": true,
+    "fail_to_pass": {
+      "passed": 1,
+      "total": 1
+    },
+    "pass_to_pass": {
+      "passed": 18,
+      "total": 18
+    },
+    "fail_to_pass_success": [
+      "tests/test_config.py::test_config_from_file_toml"
+    ],
+    "fail_to_pass_failure": [],
+    "pass_to_pass_success": [
+      "tests/test_config.py::test_config_from_pyfile",
+      "tests/test_config.py::test_config_from_object",
+      "tests/test_config.py::test_config_from_file_json",
+      "tests/test_config.py::test_from_prefixed_env",
+      "tests/test_config.py::test_from_prefixed_env_custom_prefix",
+      "tests/test_config.py::test_from_prefixed_env_nested",
+      "tests/test_config.py::test_config_from_mapping",
+      "tests/test_config.py::test_config_from_class",
+      "tests/test_config.py::test_config_from_envvar",
+      "tests/test_config.py::test_config_from_envvar_missing",
+      "tests/test_config.py::test_config_missing",
+      "tests/test_config.py::test_config_missing_file",
+      "tests/test_config.py::test_custom_config_class",
+      "tests/test_config.py::test_session_lifetime",
+      "tests/test_config.py::test_get_namespace",
+      "tests/test_config.py::test_from_pyfile_weird_encoding[utf-8]",
+      "tests/test_config.py::test_from_pyfile_weird_encoding[iso-8859-15]",
+      "tests/test_config.py::test_from_pyfile_weird_encoding[latin-1]"
+    ],
+    "pass_to_pass_failure": [],
+    "infra_failure": false,
+    "error": "",
+    "run_id": "eval_1791750887"
+  },
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "from_file",
+    "category": "API_SIGNATURE",
+    "confidence": 0.95,
+    "is_signature_contract": true,
+    "parameters": [
+      {
+        "name": "text",
+        "type_annotation": "bool",
+        "default_value": "True",
+        "is_kwarg_only": false,
+        "origin": "HINTS_TEXT"
+      }
+    ],
+    "forbidden_parameters": [
+      "mode"
+    ],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed.",
+      "When `text` is True (or omitted/default), open file in text mode ('r'). When `text` is False, open file in binary mode ('rb')."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Accept `text` parameter with default `True` without breaking existing callers.",
+        "category": "API_SIGNATURE",
+        "source": "CONTRACT",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [
+          "text"
+        ],
+        "satisfied": true
+      },
+      {
+        "id": "R2",
+        "description": "At line 273 (`return self.from_mapping(obj)`), implement required transition: Must intercept this condition and produce the expected state transformation.",
+        "category": "ALGORITHMIC_TRANSITION",
+        "source": "EXECUTION_PATH",
+        "affected_symbols": [
+          "from_file"
+        ],
+        "expected_state": "",
+        "expected_transition": "Must intercept this condition and produce the expected state transformation.",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [
+          "return",
+          "self",
+          "from_mapping"
+        ],
+        "satisfied": true
+      },
+      {
+        "id": "R3",
+        "description": "Open file in binary mode ('rb') when text mode is disabled or binary flag is passed.",
+        "category": "LOGICAL_BRANCH",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [
+          "'rb'",
+          "\"rb\"",
+          "mode",
+          "text",
+          "binary"
+        ],
+        "satisfied": true
+      },
+      {
+        "id": "R4",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

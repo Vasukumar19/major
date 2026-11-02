@@ -54,30 +54,43 @@ class HybridRepositoryRetriever:
         self.weights = weights or {
             "lexical": 0.25,
             "dense": 0.15,
-            "graph": 0.25,
+            "graph": 0.20,
             "traceback": 0.20,
-            "temporal": 0.15,
+            "temporal": 0.10,
+            "test": 0.10,
         }
 
     def _tokenize(self, text: str) -> List[str]:
         return [w.lower() for w in re.findall(r"[a-zA-Z_][a-zA-Z0-9_]*", text) if len(w) > 2]
 
-    def _compute_bm25_score(self, query_tokens: List[str], doc_tokens: List[str], avg_len: float = 100.0) -> float:
+    def _compute_bm25_score(
+        self,
+        query_tokens: List[str],
+        doc_tokens: List[str],
+        avg_len: float = 100.0,
+        idf_map: Optional[Dict[str, float]] = None,
+    ) -> float:
+        """Standard Okapi BM25 scoring with term frequency saturation and inverse document frequency."""
         if not query_tokens or not doc_tokens:
             return 0.0
         score = 0.0
         doc_len = len(doc_tokens)
         k1 = 1.5
         b = 0.75
+        max_possible = 0.0
         for q in set(query_tokens):
+            idf = idf_map.get(q, 1.0) if idf_map else 1.0
+            max_possible += idf * (k1 + 1.0)
             f = doc_tokens.count(q)
             if f > 0:
-                tf = (f * (k1 + 1.0)) / (f + k1 * (1.0 - b + b * (doc_len / avg_len)))
-                score += tf
-        return min(1.0, score / (len(query_tokens) * 1.5 + 1e-5))
+                tf = (f * (k1 + 1.0)) / (f + k1 * (1.0 - b + b * (doc_len / max(1.0, avg_len))))
+                score += idf * tf
+        if max_possible <= 0.0:
+            return 0.0
+        return min(1.0, max(0.0, score / max_possible))
 
-    def _compute_dense_score(self, query_tokens: List[str], doc_tokens: List[str]) -> float:
-        """Character 3-gram vector cosine similarity across token vocabulary."""
+    def _compute_ngram_similarity(self, query_tokens: List[str], doc_tokens: List[str]) -> float:
+        """Character 3-gram fuzzy lexical similarity across token vocabulary (lightweight character n-gram cosine matching)."""
         if not query_tokens or not doc_tokens:
             return 0.0
 
@@ -102,104 +115,149 @@ class HybridRepositoryRetriever:
             return 0.0
         return min(1.0, dot / (norm_q * norm_d))
 
+    def _compute_dense_score(self, query_tokens: List[str], doc_tokens: List[str]) -> float:
+        """Backward-compatible alias for character 3-gram fuzzy similarity."""
+        return self._compute_ngram_similarity(query_tokens, doc_tokens)
+
     def retrieve(
         self,
         query: str,
         traceback_text: Optional[str] = None,
+        hints_text: Optional[str] = None,
         top_k: int = 10,
         filter_file: Optional[str] = None,
     ) -> List[RetrievedCandidate]:
         """Performs multi-channel scoring and returns normalized, fused candidates."""
         query_tokens = self._tokenize(query)
         tb_tokens = self._tokenize(traceback_text or "")
+        hints_tokens = self._tokenize(hints_text or "")
         candidates_map: Dict[str, RetrievedCandidate] = {}
 
-        # 1. Collect candidate symbols from code graph
-        if self.code_graph:
-            for nid, node in self.code_graph.nodes.items():
-                if node.kind not in (NodeKind.FUNCTION, NodeKind.METHOD, NodeKind.CLASS):
-                    continue
-                if filter_file and node.file_path != filter_file:
-                    continue
-                # Exclude test and documentation files from repair candidates
-                if any(part in ("tests", "testing", "test", "docs", ".git", "venv", ".venv", "build", "dist") for part in Path(node.file_path).parts):
-                    continue
+        if not self.code_graph:
+            return []
 
-                cand_key = f"{node.file_path}:{node.name}"
-                doc_text = f"{node.name} {node.docstring or ''}"
-                doc_tokens = self._tokenize(doc_text)
+        # Pre-pass: collect valid candidate nodes and compute corpus statistics for BM25 IDF
+        eligible_nodes: List[Tuple[str, Any, List[str]]] = []
+        doc_lens = []
+        for nid, node in self.code_graph.nodes.items():
+            if node.kind not in (NodeKind.FUNCTION, NodeKind.METHOD, NodeKind.CLASS):
+                continue
+            if filter_file and node.file_path != filter_file:
+                continue
+            if any(part in ("tests", "testing", "test", "docs", ".git", "venv", ".venv", "build", "dist") for part in Path(node.file_path).parts):
+                continue
 
-                # Channel A: Lexical
-                lex_score = self._compute_bm25_score(query_tokens, doc_tokens)
+            doc_text = f"{node.name} {node.docstring or ''}"
+            d_toks = self._tokenize(doc_text)
+            eligible_nodes.append((f"{node.file_path}:{node.name}", node, d_toks))
+            doc_lens.append(len(d_toks))
 
-                # Channel B: Dense / Semantic
-                dense_score = self._compute_dense_score(query_tokens, doc_tokens)
+        N = len(eligible_nodes)
+        avg_len = sum(doc_lens) / max(1, N) if doc_lens else 100.0
 
-                # Channel C: Graph structure
-                graph_score = 0.0
-                prov = []
-                callers_count = len(node.callers) if hasattr(node, "callers") else 0
-                callees_count = len(node.callees) if hasattr(node, "callees") else 0
-                if callers_count > 0 or callees_count > 0:
-                    graph_score += min(1.0, (callers_count + callees_count) / 10.0)
-                    prov.append(f"connected to {callers_count} callers, {callees_count} callees")
+        # Calculate IDF map for query tokens across eligible candidates
+        idf_map: Dict[str, float] = {}
+        for q in set(query_tokens):
+            n_q = sum(1 for _, _, d_toks in eligible_nodes if q in d_toks)
+            idf = math.log((N - n_q + 0.5) / (n_q + 0.5) + 1.0)
+            idf_map[q] = max(0.1, idf)
 
-                # Channel D: Traceback relevance
-                tb_score = 0.0
-                if tb_tokens:
-                    sym_parts = [node.name.lower(), node.name.split(".")[-1].lower()]
-                    if any(sp in tb_tokens for sp in sym_parts):
-                        tb_score = 1.0
-                        prov.append("name matched directly in failing traceback")
-                    elif Path(node.file_path).name.lower() in tb_tokens:
-                        tb_score = 0.6
-                        prov.append("file matched in failing traceback")
+        for cand_key, node, doc_tokens in eligible_nodes:
+            # Channel A: Lexical (Okapi BM25 with IDF)
+            lex_score = self._compute_bm25_score(query_tokens, doc_tokens, avg_len=avg_len, idf_map=idf_map)
 
-                # Channel E: Temporal Graph relevance
-                temp_score = 0.0
-                if self.temporal_graph:
-                    t_prof = self.temporal_graph.get_symbol_profile(node.file_path, node.name)
-                    temp_score = t_prof.churn_score
-                    if t_prof.bug_fix_commits > 0:
-                        prov.append(f"historically involved in {t_prof.bug_fix_commits} bug fixes")
+            # Channel B: Character n-gram fuzzy similarity
+            ngram_score = self._compute_ngram_similarity(query_tokens, doc_tokens)
 
-                # Channel F: Explicit File Mention in Issue Description
-                file_mention_bonus = 0.0
-                node_fp_lower = node.file_path.lower().replace("\\", "/")
-                node_fn_lower = Path(node.file_path).name.lower()
-                for q_word in query_tokens:
-                    if q_word.endswith(".py") and (q_word in node_fp_lower or q_word == node_fn_lower):
-                        file_mention_bonus = 1.0
-                        prov.append(f"file explicitly mentioned in issue description ({q_word})")
-                        break
+            # Channel C: Graph structure
+            graph_score = 0.0
+            prov = []
+            callers_count = len(node.callers) if hasattr(node, "callers") else 0
+            callees_count = len(node.callees) if hasattr(node, "callees") else 0
+            if callers_count > 0 or callees_count > 0:
+                graph_score += min(1.0, (callers_count + callees_count) / 10.0)
+                prov.append(f"connected to {callers_count} callers, {callees_count} callees")
 
-                # Fuse Scores
-                total_score = (
-                    self.weights.get("lexical", 0.25) * lex_score
-                    + self.weights.get("dense", 0.15) * dense_score
-                    + self.weights.get("graph", 0.20) * graph_score
-                    + self.weights.get("traceback", 0.20) * tb_score
-                    + self.weights.get("temporal", 0.10) * temp_score
-                    + 0.10 * file_mention_bonus
-                )
+            # Channel D: Traceback relevance (strictly verified stack trace)
+            tb_score = 0.0
+            if tb_tokens:
+                sym_parts = [node.name.lower(), node.name.split(".")[-1].lower()]
+                if any(sp in tb_tokens for sp in sym_parts):
+                    tb_score = 1.0
+                    prov.append("name matched directly in failing traceback")
+                elif Path(node.file_path).name.lower() in tb_tokens:
+                    tb_score = 0.6
+                    prov.append("file matched in failing traceback")
 
-                candidates_map[cand_key] = RetrievedCandidate(
-                    file_path=node.file_path,
-                    symbol=node.name,
-                    kind=node.kind.value if hasattr(node.kind, "value") else str(node.kind),
-                    line_start=node.start_line,
-                    line_end=node.end_line,
-                    score=round(total_score, 4),
-                    scores_by_channel={
-                        "lexical": round(lex_score, 3),
-                        "dense": round(dense_score, 3),
-                        "graph": round(graph_score, 3),
-                        "traceback": round(tb_score, 3),
-                        "temporal": round(temp_score, 3),
-                    },
-                    provenance=prov,
-                    docstring=node.docstring or "",
-                )
+            # Channel E: Temporal Graph relevance
+            temp_score = 0.0
+            if self.temporal_graph:
+                t_prof = self.temporal_graph.get_symbol_profile(node.file_path, node.name)
+                temp_score = t_prof.churn_score
+                if t_prof.bug_fix_commits > 0:
+                    prov.append(f"historically involved in {t_prof.bug_fix_commits} bug fixes")
+
+            # Channel F: Explicit File Mention or Issue Hints
+            file_mention_bonus = 0.0
+            node_fp_lower = node.file_path.lower().replace("\\", "/")
+            node_fn_lower = Path(node.file_path).name.lower()
+            for q_word in query_tokens:
+                if q_word.endswith(".py") and (q_word in node_fp_lower or q_word == node_fn_lower):
+                    file_mention_bonus = 1.0
+                    prov.append(f"file explicitly mentioned in issue description ({q_word})")
+                    break
+
+            if hints_tokens and any(ht in node.name.lower() for ht in hints_tokens):
+                file_mention_bonus = max(file_mention_bonus, 0.5)
+                prov.append("name referenced in issue discussion hints")
+
+            # Test index integration
+            test_score = 0.0
+            if self.test_index:
+                try:
+                    associated_tests = []
+                    if hasattr(self.test_index, "tests_for_symbol"):
+                        associated_tests = self.test_index.tests_for_symbol(node.name)
+                        if not associated_tests and "." in node.name:
+                            associated_tests = self.test_index.tests_for_symbol(node.name.split(".")[-1])
+                    elif hasattr(self.test_index, "get_tests_for_symbol"):
+                        associated_tests = self.test_index.get_tests_for_symbol(node.name)
+
+                    if associated_tests:
+                        test_score = min(1.0, len(associated_tests) / 5.0)
+                        prov.append(f"associated with {len(associated_tests)} test(s)")
+                except Exception:
+                    pass
+
+            # Fuse Scores
+            total_score = (
+                self.weights.get("lexical", 0.25) * lex_score
+                + self.weights.get("dense", 0.15) * ngram_score
+                + self.weights.get("graph", 0.20) * graph_score
+                + self.weights.get("traceback", 0.20) * tb_score
+                + self.weights.get("temporal", 0.10) * temp_score
+                + self.weights.get("test", 0.10) * test_score
+                + 0.10 * file_mention_bonus
+            )
+
+            candidates_map[cand_key] = RetrievedCandidate(
+                file_path=node.file_path,
+                symbol=node.name,
+                kind=node.kind.value if hasattr(node.kind, "value") else str(node.kind),
+                line_start=node.start_line,
+                line_end=node.end_line,
+                score=round(total_score, 4),
+                scores_by_channel={
+                    "lexical": round(lex_score, 3),
+                    "dense": round(ngram_score, 3),
+                    "graph": round(graph_score, 3),
+                    "traceback": round(tb_score, 3),
+                    "temporal": round(temp_score, 3),
+                    "test": round(test_score, 3),
+                },
+                provenance=prov,
+                docstring=node.docstring or "",
+            )
 
         ranked = sorted(candidates_map.values(), key=lambda c: c.score, reverse=True)
         return ranked[:top_k]

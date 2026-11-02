@@ -1,5 +1,6 @@
 """Test Graph Index linking tests, assertions, symbols, and failure tracebacks."""
 import ast
+import json
 import logging
 import os
 import re
@@ -11,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class TestAssertion:
+    __test__ = False
     line: int
     assertion_code: str
     symbols_tested: List[str]
@@ -18,6 +20,7 @@ class TestAssertion:
 
 @dataclass
 class TestCaseEntity:
+    __test__ = False
     name: str
     file_path: str
     class_name: Optional[str]
@@ -61,42 +64,54 @@ class TestExtractor(ast.NodeVisitor):
         self.generic_visit(node)
         self.current_class = old_class
 
+    def _extract_test_entity(self, node: ast.FunctionDef | ast.AsyncFunctionDef):
+        if not (node.name.startswith("test_") or node.name.endswith("_test")):
+            return
+        end_line = getattr(node, "end_lineno", node.lineno)
+        docstring = ast.get_docstring(node)
+        
+        assertions: List[TestAssertion] = []
+        symbols_ref: Set[str] = set()
+        fixtures: List[str] = [a.arg for a in node.args.args if a.arg != "self"]
+        
+        # Traverse function body without descending into nested functions or classes
+        queue = list(node.body)
+        while queue:
+            curr = queue.pop(0)
+            if isinstance(curr, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                continue  # skip inner helpers
+            if isinstance(curr, ast.Assert):
+                code_str = ast.unparse(curr.test)
+                syms = [s.id for s in ast.walk(curr.test) if isinstance(s, ast.Name)]
+                assertions.append(TestAssertion(line=curr.lineno, assertion_code=code_str, symbols_tested=syms))
+            elif isinstance(curr, ast.Call):
+                if isinstance(curr.func, ast.Name):
+                    symbols_ref.add(curr.func.id)
+                elif isinstance(curr.func, ast.Attribute):
+                    symbols_ref.add(curr.func.attr)
+            elif isinstance(curr, ast.Name):
+                symbols_ref.add(curr.id)
+            queue.extend(ast.iter_child_nodes(curr))
+
+        test_case = TestCaseEntity(
+            name=node.name,
+            file_path=self.file_path,
+            class_name=self.current_class,
+            start_line=node.lineno,
+            end_line=end_line,
+            docstring=docstring,
+            assertions=assertions,
+            symbols_referenced=list(symbols_ref),
+            fixtures=fixtures,
+        )
+        self.tests.append(test_case)
+
     def visit_FunctionDef(self, node: ast.FunctionDef):
-        if node.name.startswith("test_") or node.name.endswith("_test"):
-            end_line = getattr(node, "end_lineno", node.lineno)
-            docstring = ast.get_docstring(node)
-            
-            assertions: List[TestAssertion] = []
-            symbols_ref: Set[str] = set()
-            fixtures: List[str] = [a.arg for a in node.args.args if a.arg != "self"]
-            
-            # Walk function body
-            for child in ast.walk(node):
-                if isinstance(child, ast.Assert):
-                    code_str = ast.unparse(child.test)
-                    syms = [s.id for s in ast.walk(child.test) if isinstance(s, ast.Name)]
-                    assertions.append(TestAssertion(line=child.lineno, assertion_code=code_str, symbols_tested=syms))
-                elif isinstance(child, ast.Call):
-                    if isinstance(child.func, ast.Name):
-                        symbols_ref.add(child.func.id)
-                    elif isinstance(child.func, ast.Attribute):
-                        symbols_ref.add(child.func.attr)
-                elif isinstance(child, ast.Name):
-                    symbols_ref.add(child.id)
+        self._extract_test_entity(node)
+        self.generic_visit(node)
 
-            test_case = TestCaseEntity(
-                name=node.name,
-                file_path=self.file_path,
-                class_name=self.current_class,
-                start_line=node.lineno,
-                end_line=end_line,
-                docstring=docstring,
-                assertions=assertions,
-                symbols_referenced=list(symbols_ref),
-                fixtures=fixtures,
-            )
-            self.tests.append(test_case)
-
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
+        self._extract_test_entity(node)
         self.generic_visit(node)
 
 
@@ -135,6 +150,9 @@ class TestGraphIndex:
     def tests_for_symbol(self, symbol: str) -> List[TestCaseEntity]:
         """Returns all test cases that reference or assert on the symbol."""
         return self.symbol_to_tests.get(symbol, [])
+
+    # Backward-compatible alias for retriever callers
+    get_tests_for_symbol = tests_for_symbol
 
     def link_execution_traceback(self, traceback_text: str) -> Dict[str, Any]:
         """Parses a failure traceback and correlates it with test entities and source files."""
@@ -179,3 +197,53 @@ class TestGraphIndex:
             result["error_message"] = err_match.group(2).strip()
 
         return result
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Serializes the test index to a dictionary."""
+        return {
+            "tests": {k: t.to_dict() for k, t in self.tests.items()}
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "TestGraphIndex":
+        """Restores a TestGraphIndex instance from serialized dictionary data."""
+        index = cls()
+        tests_data = data.get("tests", {})
+        for key, td in tests_data.items():
+            assertions = [
+                TestAssertion(line=a.get("line", 1), assertion_code=a.get("code", ""), symbols_tested=a.get("symbols", []))
+                for a in td.get("assertions", [])
+            ]
+            entity = TestCaseEntity(
+                name=td.get("name", ""),
+                file_path=td.get("file_path", ""),
+                class_name=td.get("class_name"),
+                start_line=td.get("start_line", 1),
+                end_line=td.get("end_line", 1),
+                docstring=td.get("docstring"),
+                assertions=assertions,
+                symbols_referenced=td.get("symbols_referenced", []),
+                fixtures=td.get("fixtures", []),
+            )
+            index.tests[key] = entity
+            if entity.name not in index.name_to_tests:
+                index.name_to_tests[entity.name] = []
+            index.name_to_tests[entity.name].append(entity)
+            for sym in entity.symbols_referenced:
+                if sym not in index.symbol_to_tests:
+                    index.symbol_to_tests[sym] = []
+                index.symbol_to_tests[sym].append(entity)
+        return index
+
+    def save(self, file_path: str) -> None:
+        """Saves serialized test index to disk as JSON."""
+        os.makedirs(os.path.dirname(os.path.abspath(file_path)), exist_ok=True)
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(self.to_dict(), f, indent=2)
+
+    @classmethod
+    def load(cls, file_path: str) -> "TestGraphIndex":
+        """Loads serialized test index from disk JSON file."""
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return cls.from_dict(data)

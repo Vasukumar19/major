@@ -186,7 +186,7 @@ def test_git_diff_tool():
 
 
 def test_run_reproduction_tool(tmp_path):
-    tool = RunReproductionTool()
+    tool = RunReproductionTool(allow_host_execution=True)
     from patchforge.agent.state import AgentState
     from patchforge.issue.problem import Problem
     prob = Problem("test-1", "issue", "repo", "abc")
@@ -196,6 +196,19 @@ def test_run_reproduction_tool(tmp_path):
     assert res.status == "SUCCESS"
     assert res.data["exit_code"] == 1
     assert res.data["reproduced"] is True
+
+
+def test_run_reproduction_tool_default_denial(tmp_path):
+    tool = RunReproductionTool()
+    from patchforge.agent.state import AgentState
+    from patchforge.issue.problem import Problem
+    prob = Problem("test-1", "issue", "repo", "abc")
+    state = AgentState("test-1", prob, repo_dir=str(tmp_path))
+    state.allow_host_execution = True
+    res = tool.execute({"repro_code": "print('blocked')\n"}, state=state)
+    assert res.status == "ERROR"
+    assert "SECURITY_POLICY" in res.error
+    assert res.data["isolation"] == "BLOCKED"
 
 
 def test_repograph_fallback_mode(tmp_path):

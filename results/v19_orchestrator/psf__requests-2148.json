@@ -1,0 +1,673 @@
+{
+  "instance_id": "psf__requests-2148",
+  "repo": "psf/requests",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "48e0408bb74599c3",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "e2008182d3ff683a",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "d60390742cfb49db",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "c6576310d2f24640",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": true,
+  "patch_tier": "AST_GROUNDED",
+  "patch_text": "diff --git a/requests/adapters.py b/requests/adapters.py\nindex 1ce54470..22f7d5f6 100644\n--- a/requests/adapters.py\n+++ b/requests/adapters.py\n@@ -39,8 +39,11 @@ class BaseAdapter(object):\n     def __init__(self):\n         super(BaseAdapter, self).__init__()\n \n-    def send(self):\n-        raise NotImplementedError\n+    def send(self, *args, **kwargs):\n+        try:\n+            return super(HTTPAdapter, self).send(*args, **kwargs)\n+        except socket.error as e:\n+            raise ConnectionError(e)\n \n     def close(self):\n         raise NotImplementedError\n",
+  "test_executed": true,
+  "failure_class": "UNRESOLVED",
+  "runtime_s": 317.16,
+  "f2p_passed": 8,
+  "f2p_total": 10,
+  "p2p_passed": 118,
+  "p2p_total": 118,
+  "refinement_cycles": 3,
+  "target_file": "requests/sessions.py",
+  "target_symbol": "Session",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "requests/adapters.py:send"
+    ],
+    "selected_target": "requests/adapters.py:send",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'requests/adapters.py:send'.",
+    "target_unjustified": true,
+    "target_changes": [
+      {
+        "switched_to_hypothesis": "B",
+        "target": "requests/sessions.py:Session",
+        "justification": "Target matches hypothesized affected site 'requests/sessions.py:Session'."
+      }
+    ]
+  },
+  "generation_attempted": true,
+  "structurally_valid": true,
+  "submitted_to_harness": true,
+  "test_time_s": 117.212,
+  "generation_time_s": 85.946,
+  "reconstruction_time_s": 0.498,
+  "indexing_time_s": 0.383,
+  "retrieval_diagnosis_time_s": 112.584,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.007,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "d60390742cfb49db",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "psf__requests-2674",
+      "psf__requests-863"
+    ],
+    "exemplars_included_in_prompt": [
+      "psf__requests-2674",
+      "psf__requests-863"
+    ],
+    "prompt_included_episode_ids": [
+      "psf__requests-2674",
+      "psf__requests-863"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "psf__requests-2148",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The `Session` class in `requests/sessions.py` has a bug in handling redirects, causing unexpected behavior in certain scenarios.",
+    "invariant": "Preserve backward compatibility for existing callers with default arguments.",
+    "repair_strategy": "Fix the redirect handling logic in the `Session` class to ensure it behaves as expected.",
+    "affected_sites": [
+      "requests/sessions.py:Session"
+    ],
+    "defect_confidence": 0.7,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 1,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The `send` method in `requests/adapters.py` does not handle socket errors properly, leading to potential issues when using `iter_content`.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The `send` method should now handle socket errors and allow `iter_content` to process them correctly.",
+          "expected_mutations": [
+            "Add error handling for socket errors in the `send` method"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "`iter_content` raises an exception due to unhandled socket errors"
+          ],
+          "discriminating_variable": "Socket error handling in `send` method",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility for existing callers with default arguments.",
+        "repair_strategy": "Modify the `send` method to handle socket errors gracefully, ensuring `iter_content` can process them without issues.",
+        "affected_sites": [
+          "requests/adapters.py:send"
+        ],
+        "supporting_evidence": [
+          "Problem hint: `iter_content` doesn't seem to expect any socket errors, but it should. We need to fix this.",
+          "Causal path: test_mixed_case_scheme_acceptable -> send -> build_response -> build_response"
+        ],
+        "contradicting_evidence": [
+          "No runtime tracebacks or failing test assertions observed."
+        ],
+        "supporting_facts": [
+          "Problem hint: `iter_content` doesn't seem to expect any socket errors, but it should. We need to fix this.",
+          "Causal path: test_mixed_case_scheme_acceptable -> send -> build_response -> build_response"
+        ],
+        "contradicting_facts": [
+          "No runtime tracebacks or failing test assertions observed."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 75.0
+      },
+      {
+        "id": "B",
+        "cause": "The `Session` class in `requests/sessions.py` has a bug in handling redirects, causing unexpected behavior in certain scenarios.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The `Session` class should now handle redirects correctly, resolving unexpected behavior.",
+          "expected_mutations": [
+            "Fix the redirect handling logic in the `Session` class"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Unexpected behavior in redirect handling"
+          ],
+          "discriminating_variable": "Redirect handling logic in `Session` class",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility for existing callers with default arguments.",
+        "repair_strategy": "Fix the redirect handling logic in the `Session` class to ensure it behaves as expected.",
+        "affected_sites": [
+          "requests/sessions.py:Session"
+        ],
+        "supporting_evidence": [
+          "Causal path: test_entry_points -> session -> Session"
+        ],
+        "contradicting_evidence": [
+          "No runtime tracebacks or failing test assertions observed.",
+          "Target 'requests/sessions.py:Session' is GLOBAL_INFRASTRUCTURE with 0 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "Causal path: test_entry_points -> session -> Session"
+        ],
+        "contradicting_facts": [
+          "No runtime tracebacks or failing test assertions observed."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.7,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 45.0
+      }
+    ],
+    "repair_sites": [
+      "requests/sessions.py:Session"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "hypothesis_id": "A",
+      "strategy": "strict_structured_json",
+      "static_valid": true,
+      "tests_executed": true,
+      "resolved": false,
+      "failure_class": "PATCH_SEMANTICS",
+      "error_message": "FAILED test_requests.py::RequestsTestCase::test_auth_is_stripped_on_redirect_off_host; FAILED test_requests.py::RequestsTestCase::test_conflicting_post_params - Typ...; FAILED test_requests.py::RequestsTestCase::test_iter_content_handles_socket_error",
+      "patch_text": "diff --git a/requests/adapters.py b/requests/adapters.py\nindex 1ce54470..22f7d5f6 100644\n--- a/requests/adapters.py\n+++ b/requests/adapters.py\n@@ -39,8 +39,11 @@ class BaseAdapter(object):\n     def __init__(self):\n         super(BaseAdapter, self).__init__()\n \n-    def send(self):\n-        raise NotImplementedError\n+    def send(self, *args, **kwargs):\n+        try:\n+            return super(HTTPAdapter, self).send(*args, **kwargs)\n+        except socket.error as e:\n+            raise ConnectionError(e)\n \n     def close(self):\n         raise NotImplementedError\n"
+    },
+    {
+      "attempt": 2,
+      "hypothesis_id": "B",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "PATCH_SYNTAX",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Function/Method syntax error: unexpected character after line continuation character",
+      "patch_text": ""
+    },
+    {
+      "attempt": 3,
+      "hypothesis_id": "B",
+      "strategy": "minimal_target_bound_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    }
+  ],
+  "repair_unit": {
+    "id": "requests/sessions.py::session::FUNCTION::642-645",
+    "file_path": "requests/sessions.py",
+    "symbol": "session",
+    "unit_type": "FUNCTION",
+    "node_type": "FunctionDef",
+    "start_line": 642,
+    "end_line": 645,
+    "start_col": 0,
+    "end_col": 20,
+    "source_text": "def session():\n    \"\"\"Returns a :class:`Session` for context-management.\"\"\"\n\n    return Session()\n",
+    "parent_symbol": "",
+    "indentation": "",
+    "role": "HYPOTHESIS_TARGET",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "requests/adapters.py",
+      "symbol": "send",
+      "role": "PRIMARY",
+      "score": 152.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'send' (+80)",
+        "High regression risk: symbol has 7 cross-module callers (-28)",
+        "Compact code span (2 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 7 test(s) (+15)"
+      ],
+      "line_start": 42,
+      "line_end": 43,
+      "unrelated_callers_count": 7,
+      "in_failing_traceback": false,
+      "semantic_radius": 2,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/sessions.py",
+      "symbol": "post",
+      "role": "PRIMARY",
+      "score": 40.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 5 cross-module callers (-20)",
+        "Located in primary localized file (+15)",
+        "Compact code span (9 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 5 test(s) (+15)"
+      ],
+      "line_start": 495,
+      "line_end": 503,
+      "unrelated_callers_count": 5,
+      "in_failing_traceback": false,
+      "semantic_radius": 9,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/api.py",
+      "symbol": "post",
+      "role": "PRIMARY",
+      "score": 25.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 5 cross-module callers (-20)",
+        "Compact code span (9 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 5 test(s) (+15)"
+      ],
+      "line_start": 80,
+      "line_end": 88,
+      "unrelated_callers_count": 5,
+      "in_failing_traceback": false,
+      "semantic_radius": 9,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/sessions.py",
+      "symbol": "get",
+      "role": "PRIMARY",
+      "score": -20.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 42 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (9 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Covers all observed issue symptoms (+15)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 42 test(s) (+15)"
+      ],
+      "line_start": 465,
+      "line_end": 473,
+      "unrelated_callers_count": 42,
+      "in_failing_traceback": false,
+      "semantic_radius": 9,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/sessions.py",
+      "symbol": "Session",
+      "role": "PRIMARY",
+      "score": -45.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 16 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (4 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 16 test(s) (+15)"
+      ],
+      "line_start": 642,
+      "line_end": 645,
+      "unrelated_callers_count": 16,
+      "in_failing_traceback": false,
+      "semantic_radius": 4,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "requests/sessions.py",
+      "symbol": "session",
+      "role": "PRIMARY",
+      "score": -45.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 14 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (4 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 1 issue symptoms (-10)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 15 test(s) (+15)"
+      ],
+      "line_start": 642,
+      "line_end": 645,
+      "unrelated_callers_count": 14,
+      "in_failing_traceback": false,
+      "semantic_radius": 4,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {
+    "valid": true,
+    "syntax_ok": true,
+    "ast_ok": true,
+    "target_changed": true,
+    "unrelated_targets_preserved": true,
+    "no_markdown_leakage": true,
+    "line_expansion_ok": true,
+    "lines_added": 5,
+    "lines_deleted": 2,
+    "symbols_affected": [
+      "send"
+    ],
+    "errors": []
+  },
+  "telemetry": {
+    "task_id": "psf__requests-2148",
+    "total_wall_s": 317.16,
+    "llm_time_s": 0.0,
+    "test_time_s": 117.212,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 0.383,
+    "retrieval_diagnosis_time_s": 112.584,
+    "probing_time_s": null,
+    "generation_time_s": 85.946,
+    "reconstruction_time_s": 0.498,
+    "static_validation_time_s": 0.007,
+    "replanning_time_s": 0.0,
+    "runtime_s": 317.16
+  },
+  "test_summary": {
+    "instance_id": "psf__requests-2148",
+    "resolved": false,
+    "patch_applied": true,
+    "fail_to_pass": {
+      "passed": 8,
+      "total": 10
+    },
+    "pass_to_pass": {
+      "passed": 118,
+      "total": 118
+    },
+    "fail_to_pass_success": [
+      "test_requests.py::RequestsTestCase::test_DIGEST_AUTH_RETURNS_COOKIE",
+      "test_requests.py::RequestsTestCase::test_HTTP_200_OK_GET_ALTERNATIVE",
+      "test_requests.py::RequestsTestCase::test_HTTP_200_OK_HEAD",
+      "test_requests.py::RequestsTestCase::test_POSTBIN_GET_POST_FILES",
+      "test_requests.py::RequestsTestCase::test_basicauth_with_netrc",
+      "test_requests.py::RequestsTestCase::test_cookie_quote_wrapped",
+      "test_requests.py::RequestsTestCase::test_generic_cookiejar_works",
+      "test_requests.py::RequestsTestCase::test_unicode_multipart_post"
+    ],
+    "fail_to_pass_failure": [
+      "test_requests.py::RequestsTestCase::test_auth_is_stripped_on_redirect_off_host",
+      "test_requests.py::RequestsTestCase::test_iter_content_handles_socket_error"
+    ],
+    "pass_to_pass_success": [
+      "test_requests.py::RequestsTestCase::test_BASICAUTH_TUPLE_HTTP_200_OK_GET",
+      "test_requests.py::RequestsTestCase::test_DIGESTAUTH_QUOTES_QOP_VALUE",
+      "test_requests.py::RequestsTestCase::test_DIGESTAUTH_WRONG_HTTP_401_GET",
+      "test_requests.py::RequestsTestCase::test_DIGEST_AUTH_SETS_SESSION_COOKIES",
+      "test_requests.py::RequestsTestCase::test_DIGEST_STREAM",
+      "test_requests.py::RequestsTestCase::test_HTTP_200_OK_GET_WITH_MIXED_PARAMS",
+      "test_requests.py::RequestsTestCase::test_HTTP_200_OK_GET_WITH_PARAMS",
+      "test_requests.py::RequestsTestCase::test_HTTP_200_OK_PUT",
+      "test_requests.py::RequestsTestCase::test_HTTP_302_ALLOW_REDIRECT_GET",
+      "test_requests.py::RequestsTestCase::test_auth_is_retained_for_redirect_on_host",
+      "test_requests.py::RequestsTestCase::test_autoset_header_values_are_native",
+      "test_requests.py::RequestsTestCase::test_basic_auth_str_is_always_native",
+      "test_requests.py::RequestsTestCase::test_basic_building",
+      "test_requests.py::RequestsTestCase::test_can_send_nonstring_objects_with_files",
+      "test_requests.py::RequestsTestCase::test_cannot_send_unprepared_requests",
+      "test_requests.py::RequestsTestCase::test_cookie_as_dict_items",
+      "test_requests.py::RequestsTestCase::test_cookie_as_dict_keeps_items",
+      "test_requests.py::RequestsTestCase::test_cookie_as_dict_keeps_len",
+      "test_requests.py::RequestsTestCase::test_cookie_as_dict_keys",
+      "test_requests.py::RequestsTestCase::test_cookie_as_dict_values",
+      "test_requests.py::RequestsTestCase::test_cookie_parameters",
+      "test_requests.py::RequestsTestCase::test_cookie_persists_via_api",
+      "test_requests.py::RequestsTestCase::test_cookie_removed_on_expire",
+      "test_requests.py::RequestsTestCase::test_cookie_sent_on_redirect",
+      "test_requests.py::RequestsTestCase::test_custom_content_type",
+      "test_requests.py::RequestsTestCase::test_decompress_gzip",
+      "test_requests.py::RequestsTestCase::test_different_encodings_dont_break_post",
+      "test_requests.py::RequestsTestCase::test_entry_points",
+      "test_requests.py::RequestsTestCase::test_fixes_1329",
+      "test_requests.py::RequestsTestCase::test_get_auth_from_url",
+      "test_requests.py::RequestsTestCase::test_get_auth_from_url_encoded_hashes",
+      "test_requests.py::RequestsTestCase::test_get_auth_from_url_encoded_spaces",
+      "test_requests.py::RequestsTestCase::test_get_auth_from_url_not_encoded_spaces",
+      "test_requests.py::RequestsTestCase::test_get_auth_from_url_percent_chars",
+      "test_requests.py::RequestsTestCase::test_header_keys_are_native",
+      "test_requests.py::RequestsTestCase::test_header_remove_is_case_insensitive",
+      "test_requests.py::RequestsTestCase::test_headers_on_session_with_None_are_not_sent",
+      "test_requests.py::RequestsTestCase::test_history_is_always_a_list",
+      "test_requests.py::RequestsTestCase::test_hook_receives_request_arguments",
+      "test_requests.py::RequestsTestCase::test_http_error",
+      "test_requests.py::RequestsTestCase::test_invalid_url",
+      "test_requests.py::RequestsTestCase::test_links",
+      "test_requests.py::RequestsTestCase::test_long_authinfo_in_url",
+      "test_requests.py::RequestsTestCase::test_manual_redirect_with_partial_body_read",
+      "test_requests.py::RequestsTestCase::test_mixed_case_scheme_acceptable",
+      "test_requests.py::RequestsTestCase::test_no_content_length",
+      "test_requests.py::RequestsTestCase::test_oddball_schemes_dont_check_URLs",
+      "test_requests.py::RequestsTestCase::test_param_cookiejar_works",
+      "test_requests.py::RequestsTestCase::test_params_are_added_before_fragment",
+      "test_requests.py::RequestsTestCase::test_params_are_merged_case_sensitive",
+      "test_requests.py::RequestsTestCase::test_path_is_not_double_encoded",
+      "test_requests.py::RequestsTestCase::test_prepared_from_session",
+      "test_requests.py::RequestsTestCase::test_prepared_request_hook",
+      "test_requests.py::RequestsTestCase::test_pyopenssl_redirect",
+      "test_requests.py::RequestsTestCase::test_redirect_with_wrong_gzipped_header",
+      "test_requests.py::RequestsTestCase::test_request_and_response_are_pickleable",
+      "test_requests.py::RequestsTestCase::test_request_cookies_not_persisted",
+      "test_requests.py::RequestsTestCase::test_request_ok_set",
+      "test_requests.py::RequestsTestCase::test_requests_in_history_are_not_overridden",
+      "test_requests.py::RequestsTestCase::test_response_decode_unicode",
+      "test_requests.py::RequestsTestCase::test_response_is_iterable",
+      "test_requests.py::RequestsTestCase::test_session_hooks_are_overriden_by_request_hooks",
+      "test_requests.py::RequestsTestCase::test_session_hooks_are_used_with_no_request_hooks",
+      "test_requests.py::RequestsTestCase::test_session_pickling",
+      "test_requests.py::RequestsTestCase::test_set_cookie_on_301",
+      "test_requests.py::RequestsTestCase::test_status_raising",
+      "test_requests.py::RequestsTestCase::test_time_elapsed_blank",
+      "test_requests.py::RequestsTestCase::test_transport_adapter_ordering",
+      "test_requests.py::RequestsTestCase::test_unicode_get",
+      "test_requests.py::RequestsTestCase::test_unicode_header_name",
+      "test_requests.py::RequestsTestCase::test_unicode_multipart_post_fieldnames",
+      "test_requests.py::RequestsTestCase::test_uppercase_scheme_redirect",
+      "test_requests.py::RequestsTestCase::test_urlencoded_get_query_multivalued_param",
+      "test_requests.py::RequestsTestCase::test_user_agent_transfers",
+      "test_requests.py::TestContentEncodingDetection::test_html4_pragma",
+      "test_requests.py::TestContentEncodingDetection::test_html_charset",
+      "test_requests.py::TestContentEncodingDetection::test_none",
+      "test_requests.py::TestContentEncodingDetection::test_precedence",
+      "test_requests.py::TestContentEncodingDetection::test_xhtml_pragma",
+      "test_requests.py::TestContentEncodingDetection::test_xml",
+      "test_requests.py::TestCaseInsensitiveDict::test_contains",
+      "test_requests.py::TestCaseInsensitiveDict::test_delitem",
+      "test_requests.py::TestCaseInsensitiveDict::test_docstring_example",
+      "test_requests.py::TestCaseInsensitiveDict::test_equality",
+      "test_requests.py::TestCaseInsensitiveDict::test_fixes_649",
+      "test_requests.py::TestCaseInsensitiveDict::test_get",
+      "test_requests.py::TestCaseInsensitiveDict::test_getitem",
+      "test_requests.py::TestCaseInsensitiveDict::test_iter",
+      "test_requests.py::TestCaseInsensitiveDict::test_iterable_init",
+      "test_requests.py::TestCaseInsensitiveDict::test_kwargs_init",
+      "test_requests.py::TestCaseInsensitiveDict::test_len",
+      "test_requests.py::TestCaseInsensitiveDict::test_lower_items",
+      "test_requests.py::TestCaseInsensitiveDict::test_mapping_init",
+      "test_requests.py::TestCaseInsensitiveDict::test_preserve_key_case",
+      "test_requests.py::TestCaseInsensitiveDict::test_preserve_last_key_case",
+      "test_requests.py::TestCaseInsensitiveDict::test_setdefault",
+      "test_requests.py::TestCaseInsensitiveDict::test_update",
+      "test_requests.py::TestCaseInsensitiveDict::test_update_retains_unchanged",
+      "test_requests.py::UtilsTestCase::test_address_in_network",
+      "test_requests.py::UtilsTestCase::test_dotted_netmask",
+      "test_requests.py::UtilsTestCase::test_get_auth_from_url",
+      "test_requests.py::UtilsTestCase::test_get_environ_proxies",
+      "test_requests.py::UtilsTestCase::test_get_environ_proxies_ip_ranges",
+      "test_requests.py::UtilsTestCase::test_is_ipv4_address",
+      "test_requests.py::UtilsTestCase::test_is_valid_cidr",
+      "test_requests.py::UtilsTestCase::test_super_len_io_streams",
+      "test_requests.py::TestMorselToCookieExpires::test_expires_invalid_int",
+      "test_requests.py::TestMorselToCookieExpires::test_expires_invalid_str",
+      "test_requests.py::TestMorselToCookieExpires::test_expires_none",
+      "test_requests.py::TestMorselToCookieExpires::test_expires_valid_str",
+      "test_requests.py::TestMorselToCookieMaxAge::test_max_age_invalid_str",
+      "test_requests.py::TestMorselToCookieMaxAge::test_max_age_valid_int",
+      "test_requests.py::TestTimeout::test_stream_timeout",
+      "test_requests.py::TestRedirects::test_requests_are_updated_each_time",
+      "test_requests.py::test_data_argument_accepts_tuples",
+      "test_requests.py::test_prepared_request_empty_copy",
+      "test_requests.py::test_prepared_request_no_cookies_copy",
+      "test_requests.py::test_prepared_request_complete_copy"
+    ],
+    "pass_to_pass_failure": [],
+    "infra_failure": false,
+    "error": "",
+    "run_id": "eval_1793627242"
+  },
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "Session",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed.",
+      "Ensure binary vs text stream compatibility matching parameter specification."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

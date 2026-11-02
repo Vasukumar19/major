@@ -287,11 +287,16 @@ class CandidateBehaviorAnalyzer:
             elif file_lower.split("/")[-1] in tb_lower:
                 explains_failure = True
                 reasons.append(f"Candidate file '{file_path}' is on failure stack.")
+            else:
+                explains_failure = False
+                reasons.append(f"Symbol '{symbol}' not observed on execution failure stack.")
         else:
-            explains_failure = True
+            explains_failure = False
+            reasons.append("No execution failure stack available to verify failure presence.")
 
         # Check symptoms coverage (Section 8 & 9)
-        if behavior_map and behavior_map.symptoms:
+        has_symptoms = bool(behavior_map and behavior_map.symptoms)
+        if has_symptoms:
             for s in behavior_map.symptoms:
                 s_lower = s.lower()
                 # Check if this symptom relates to this symbol or file or its callers
@@ -302,17 +307,22 @@ class CandidateBehaviorAnalyzer:
                 reasons.append("Covers all observed symptoms in issue.")
             else:
                 reasons.append(f"Does not directly cover {len(unexplained)} symptom(s).")
+        else:
+            reasons.append("No explicit symptom specifications available.")
 
         # Check expected behavior explanation
         if behavior_map and behavior_map.expected_behavior:
             exp_lower = behavior_map.expected_behavior.lower()
-            if sym_lower in exp_lower or any(kw in exp_lower for kw in sym_lower.split("_")):
+            tokens = [kw for kw in sym_lower.split("_") if len(kw) > 2]
+            if sym_lower in exp_lower or (tokens and any(kw in exp_lower for kw in tokens)):
                 explains_expected = True
                 reasons.append("Symbol semantics directly align with expected behavior description.")
             else:
-                explains_expected = True  # Plausible scope
+                explains_expected = False
+                reasons.append("Symbol semantics do not explicitly align with expected behavior description.")
         else:
-            explains_expected = True
+            explains_expected = False
+            reasons.append("No expected behavior specification available.")
 
         # Check scope (Section 6: call-site vs global helper)
         if blast.classification == HelperClassification.GLOBAL_INFRASTRUCTURE:
@@ -322,10 +332,14 @@ class CandidateBehaviorAnalyzer:
             explains_scope = True
             reasons.append(f"Candidate has targeted {blast.classification.value} scope.")
 
-        # Overall verdict
-        if explains_failure and explains_expected and explains_scope and len(unexplained) <= 1:
-            verdict = "HIGHLY_PLAUSIBLE"
-        elif explains_failure and explains_scope:
+        # Overall verdict: requires affirmative evidence for HIGHLY_PLAUSIBLE
+        affirmative_evidence = (explains_failure or explains_expected)
+        if affirmative_evidence and explains_scope and len(unexplained) == 0:
+            if explains_failure and explains_expected:
+                verdict = "HIGHLY_PLAUSIBLE"
+            else:
+                verdict = "PLAUSIBLE"
+        elif affirmative_evidence and explains_scope and len(unexplained) <= 1:
             verdict = "PLAUSIBLE"
         elif not explains_scope:
             verdict = "INSUFFICIENT_SCOPE"

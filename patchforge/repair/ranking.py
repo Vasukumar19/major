@@ -21,6 +21,23 @@ from patchforge.repository_intelligence.schema import GraphNode
 logger = logging.getLogger(__name__)
 
 
+def _paths_match(file_a: str, file_b: str) -> bool:
+    """Robust path matching supporting relative paths and suffix matches without cross-directory collisions."""
+    a = file_a.replace("\\", "/").strip("` \t\r\n").lstrip("/").lower()
+    b = file_b.replace("\\", "/").strip("` \t\r\n").lstrip("/").lower()
+    if not a or not b:
+        return False
+    if a == b:
+        return True
+    if a.endswith("/" + b) or b.endswith("/" + a):
+        return True
+    if "/" in a and "/" in b:
+        return False
+    base_a = a.split("/")[-1]
+    base_b = b.split("/")[-1]
+    return base_a == base_b
+
+
 class RepairSiteRanker:
     """Ranks candidate repair sites based on repository structural evidence and risk analysis."""
 
@@ -103,8 +120,52 @@ class RepairSiteRanker:
                 in_traceback = True
                 reasons.append(f"File '{clean_file}' appears in failing test traceback (+20)")
 
-            # 2. Diagnosis Evidence (+40 pts)
-            if diagnosis:
+            # 2. Diagnosis Evidence & Coherent Target Alignment
+            is_direct_diagnosis_site = False
+            is_structurally_related = False
+            has_affected_sites = bool(diagnosis and getattr(diagnosis, "affected_sites", None))
+
+            if has_affected_sites:
+                for aff in diagnosis.affected_sites:
+                    if ":" in aff:
+                        af_f, af_s = aff.split(":", 1)
+                        af_s_clean = af_s.strip("` \t\r\n()[]").lower()
+                        if _paths_match(file_path, af_f) and (clean_sym == af_s_clean or clean_sym == af_s_clean.split(".")[-1]):
+                            is_direct_diagnosis_site = True
+                            break
+                    elif clean_sym and clean_sym == aff.strip("` \t\r\n()[]").lower():
+                        is_direct_diagnosis_site = True
+                        break
+
+                if is_direct_diagnosis_site:
+                    score += 80.0
+                    reasons.append(f"Direct match with diagnosed root-cause site '{symbol}' (+80)")
+                elif self.graph and symbol:
+                    for aff in diagnosis.affected_sites:
+                        aff_sym = aff.split(":", 1)[1] if ":" in aff else aff
+                        try:
+                            if symbol in self.graph.callers(aff_sym):
+                                is_structurally_related = True
+                                score += 30.0
+                                reasons.append(f"Candidate is a direct caller of diagnosed site '{aff_sym}' (+30)")
+                                break
+                            elif symbol in self.graph.callees(aff_sym):
+                                is_structurally_related = True
+                                score += 25.0
+                                reasons.append(f"Candidate is a callee/helper of diagnosed site '{aff_sym}' (+25)")
+                                break
+                        except Exception:
+                            pass
+
+                if not is_direct_diagnosis_site and not is_structurally_related:
+                    if clean_sym and clean_sym in diag_sites_text:
+                        score += 30.0
+                        reasons.append(f"Symbol '{symbol}' mentioned in diagnosis rationale (+30)")
+                    elif not in_traceback:
+                        # Candidate is neither diagnosed, nor structurally connected, nor in traceback
+                        score -= 80.0
+                        reasons.append("Unexplained divergence from diagnosed defect location (-80)")
+            elif diagnosis:
                 if clean_sym and clean_sym in diag_sites_text:
                     score += 40.0
                     reasons.append(f"Symbol '{symbol}' identified in behavioral diagnosis (+40)")
@@ -165,7 +226,15 @@ class RepairSiteRanker:
 
             # 8. Behavioral Evidence & Counterfactual Integration (v0.7)
             if candidate_profiles:
-                c_prof = candidate_profiles.get(symbol) or candidate_profiles.get(clean_sym)
+                norm_f = file_path.replace("\\", "/") if file_path else ""
+                base_f = norm_f.split("/")[-1] if norm_f else ""
+                c_prof = None
+                if norm_f:
+                    c_prof = candidate_profiles.get(f"{norm_f}:{symbol}") or candidate_profiles.get(f"{base_f}:{symbol}")
+                if not c_prof and norm_f:
+                    c_prof = candidate_profiles.get(f"{norm_f}:{clean_sym}") or candidate_profiles.get(f"{base_f}:{clean_sym}")
+                if not c_prof:
+                    c_prof = candidate_profiles.get(symbol) or candidate_profiles.get(clean_sym)
                 if c_prof:
                     cf = getattr(c_prof, "counterfactual", None)
                     if cf:
@@ -225,3 +294,50 @@ class RepairSiteRanker:
         # Sort descending by score
         ranked.sort(key=lambda s: s.score, reverse=True)
         return ranked
+
+    @classmethod
+    def reconcile_target(
+        cls,
+        candidate_site: Any,
+        diagnosis: Optional[Any] = None,
+        graph: Optional[RepositoryGraph] = None,
+    ) -> Tuple[bool, str]:
+        """Validates coherence between candidate edit site and diagnosed root cause."""
+        if not diagnosis or not getattr(diagnosis, "affected_sites", None):
+            return True, "No specific affected sites declared in diagnosis."
+
+        cand_sym = getattr(candidate_site, "symbol", "") or ""
+        cand_file = getattr(candidate_site, "file_path", "") or ""
+        clean_sym = cand_sym.split(".")[-1].lower()
+
+        # 1. Exact match with diagnosed affected site
+        for aff in diagnosis.affected_sites:
+            if ":" in aff:
+                af_f, af_s = aff.split(":", 1)
+                af_s_clean = af_s.strip("` \t\r\n()[]").lower()
+                if _paths_match(cand_file, af_f) and (clean_sym == af_s_clean or clean_sym == af_s_clean.split(".")[-1]):
+                    return True, f"Target matches hypothesized affected site '{aff}'."
+            elif clean_sym and clean_sym == aff.strip("` \t\r\n()[]").lower():
+                return True, f"Target symbol matches hypothesized affected site '{aff}'."
+
+        # 2. Structural caller / callee relationship
+        if graph and cand_sym:
+            for aff in diagnosis.affected_sites:
+                aff_sym = aff.split(":", 1)[1] if ":" in aff else aff
+                try:
+                    if cand_sym in graph.callers(aff_sym):
+                        return True, f"Target '{cand_sym}' is a direct caller of diagnosed site '{aff_sym}'."
+                    if cand_sym in graph.callees(aff_sym):
+                        return True, f"Target '{cand_sym}' is a callee/helper of diagnosed site '{aff_sym}'."
+                except Exception:
+                    pass
+
+        # 3. Same file and symbol mentioned in diagnosis cause / rationale
+        diag_text = (getattr(diagnosis, "cause", "") + " " + getattr(diagnosis, "repair_strategy", "")).lower()
+        for aff in diagnosis.affected_sites:
+            if ":" in aff:
+                af_f = aff.split(":", 1)[0]
+                if _paths_match(cand_file, af_f) and clean_sym in diag_text:
+                    return True, f"Target '{cand_sym}' is in diagnosed file '{af_f}' and supported by diagnosis rationale."
+
+        return False, f"Target '{cand_sym}' in '{cand_file}' contradicts diagnosed affected sites {diagnosis.affected_sites} without structural justification."

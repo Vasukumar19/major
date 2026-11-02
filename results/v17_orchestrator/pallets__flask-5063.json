@@ -1,0 +1,502 @@
+{
+  "instance_id": "pallets__flask-5063",
+  "repo": "pallets/flask",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "2ad20c8826cd40eb",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "fd93b90085410112",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "256217bb2bc62feb",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "b6687cafe3958613",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": false,
+  "patch_tier": null,
+  "patch_text": "",
+  "test_executed": false,
+  "failure_class": "UNRESOLVED",
+  "runtime_s": 834.17,
+  "f2p_passed": 0,
+  "f2p_total": 0,
+  "p2p_passed": 0,
+  "p2p_total": 0,
+  "refinement_cycles": 3,
+  "target_file": "src/flask/blueprints.py",
+  "target_symbol": "register",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "src/flask/blueprints.py:register"
+    ],
+    "selected_target": "src/flask/blueprints.py:register",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'src/flask/blueprints.py:register'.",
+    "target_unjustified": true,
+    "target_changes": []
+  },
+  "generation_attempted": true,
+  "structurally_valid": false,
+  "submitted_to_harness": false,
+  "test_time_s": 0.0,
+  "generation_time_s": 701.3489999999999,
+  "reconstruction_time_s": 0.0,
+  "indexing_time_s": 12.571,
+  "retrieval_diagnosis_time_s": 119.814,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.0,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "256217bb2bc62feb",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "exemplars_included_in_prompt": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "prompt_included_episode_ids": [
+      "pallets__flask-4992",
+      "psf__requests-863"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pallets__flask-5063",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The `register` method in `Blueprint` class is not correctly handling the `subdomain` and `url_prefix` options, leading to unexpected behavior when registering blueprints.",
+    "invariant": "Preserve the existing behavior of the `register` method by ensuring that the `subdomain` and `url_prefix` options are correctly applied.",
+    "repair_strategy": "Modify the `register` method to correctly handle the `subdomain` and `url_prefix` options by ensuring they are applied correctly to the blueprint registration.",
+    "affected_sites": [
+      "src/flask/blueprints.py:register"
+    ],
+    "defect_confidence": 0.75,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 0,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The `register` method in `Blueprint` class is not correctly handling the `subdomain` and `url_prefix` options, leading to unexpected behavior when registering blueprints.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The `register` method should correctly apply the `subdomain` and `url_prefix` options.",
+          "expected_mutations": [
+            "Correctly apply `subdomain` and `url_prefix` options in the `register` method."
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Incorrect application of `subdomain` and `url_prefix` options leading to unexpected behavior."
+          ],
+          "discriminating_variable": "Correct application of `subdomain` and `url_prefix` options.",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve the existing behavior of the `register` method by ensuring that the `subdomain` and `url_prefix` options are correctly applied.",
+        "repair_strategy": "Modify the `register` method to correctly handle the `subdomain` and `url_prefix` options by ensuring they are applied correctly to the blueprint registration.",
+        "affected_sites": [
+          "src/flask/blueprints.py:register"
+        ],
+        "supporting_evidence": [
+          "The `register` method is responsible for registering blueprints and should correctly handle the `subdomain` and `url_prefix` options."
+        ],
+        "contradicting_evidence": [
+          "No severe contradictions detected.",
+          "Target 'src/flask/blueprints.py:register' is GLOBAL_INFRASTRUCTURE with 5 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The `register` method is responsible for registering blueprints and should correctly handle the `subdomain` and `url_prefix` options."
+        ],
+        "contradicting_facts": [
+          "No severe contradictions detected."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 50.0
+      },
+      {
+        "id": "B",
+        "cause": "The `add_url_rule` method in `Blueprint` class is not correctly handling the `defaults` and `rule` options, leading to unexpected behavior when registering blueprints.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The `add_url_rule` method should correctly apply the `defaults` and `rule` options.",
+          "expected_mutations": [
+            "Correctly apply `defaults` and `rule` options in the `add_url_rule` method."
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Incorrect application of `defaults` and `rule` options leading to unexpected behavior."
+          ],
+          "discriminating_variable": "Correct application of `defaults` and `rule` options.",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve the existing behavior of the `add_url_rule` method by ensuring that the `defaults` and `rule` options are correctly applied.",
+        "repair_strategy": "Modify the `add_url_rule` method to correctly handle the `defaults` and `rule` options by ensuring they are applied correctly to the blueprint registration.",
+        "affected_sites": [
+          "src/flask/blueprints.py:add_url_rule"
+        ],
+        "supporting_evidence": [
+          "The `add_url_rule` method is responsible for adding URL rules to blueprints and should correctly handle the `defaults` and `rule` options."
+        ],
+        "contradicting_evidence": [
+          "No severe contradictions detected.",
+          "Target 'src/flask/blueprints.py:add_url_rule' is GLOBAL_INFRASTRUCTURE with 26 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The `add_url_rule` method is responsible for adding URL rules to blueprints and should correctly handle the `defaults` and `rule` options."
+        ],
+        "contradicting_facts": [
+          "No severe contradictions detected."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.7,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 45.0
+      }
+    ],
+    "repair_sites": [
+      "src/flask/blueprints.py:register"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "strategy": "strict_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 2,
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 3,
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    }
+  ],
+  "repair_unit": {
+    "id": "src/flask/blueprints.py::register::METHOD::271-405",
+    "file_path": "src/flask/blueprints.py",
+    "symbol": "register",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 271,
+    "end_line": 405,
+    "start_col": 4,
+    "end_col": 47,
+    "source_text": "    def register(self, app: \"Flask\", options: dict) -> None:\n        \"\"\"Called by :meth:`Flask.register_blueprint` to register all\n        views and callbacks registered on the blueprint with the\n        application. Creates a :class:`.BlueprintSetupState` and calls\n        each :meth:`record` callback with it.\n\n        :param app: The application this blueprint is being registered\n            with.\n        :param options: Keyword arguments forwarded from\n            :meth:`~Flask.register_blueprint`.\n\n        .. versionchanged:: 2.3\n            Nested blueprints now correctly apply subdomains.\n\n        .. versionchanged:: 2.1\n            Registering the same blueprint with the same name multiple\n            times is an error.\n\n        .. versionchanged:: 2.0.1\n            Nested blueprints are registered with their dotted name.\n            This allows different blueprints with the same name to be\n            nested at different locations.\n\n        .. versionchanged:: 2.0.1\n            The ``name`` option can be used to change the (pre-dotted)\n            name the blueprint is registered with. This allows the same\n            blueprint to be registered multiple times with unique names\n            for ``url_for``.\n        \"\"\"\n        name_prefix = options.get(\"name_prefix\", \"\")\n        self_name = options.get(\"name\", self.name)\n        name = f\"{name_prefix}.{self_name}\".lstrip(\".\")\n\n        if name in app.blueprints:\n            bp_desc = \"this\" if app.blueprints[name] is self else \"a different\"\n            existing_at = f\" '{name}'\" if self_name != name else \"\"\n\n            raise ValueError(\n                f\"The name '{self_name}' is already registered for\"\n                f\" {bp_desc} blueprint{existing_at}. Use 'name=' to\"\n                f\" provide a unique name.\"\n            )\n\n        first_bp_registration = not any(bp is self for bp in app.blueprints.values())\n        first_name_registration = name not in app.blueprints\n\n        app.blueprints[name] = self\n        self._got_registered_once = True\n        state = self.make_setup_state(app, options, first_bp_registration)\n\n        if self.has_static_folder:\n            state.add_url_rule(\n                f\"{self.static_url_path}/<path:filename>\",\n                view_func=self.send_static_file,\n                endpoint=\"static\",\n            )\n\n        # Merge blueprint data into parent.\n        if first_bp_registration or first_name_registration:\n\n            def extend(bp_dict, parent_dict):\n                for key, values in bp_dict.items():\n                    key = name if key is None else f\"{name}.{key}\"\n                    parent_dict[key].extend(values)\n\n            for key, value in self.error_handler_spec.items():\n                key = name if key is None else f\"{name}.{key}\"\n                value = defaultdict(\n                    dict,\n                    {\n                        code: {\n                            exc_class: func for exc_class, func in code_values.items()\n                        }\n                        for code, code_values in value.items()\n                    },\n                )\n                app.error_handler_spec[key] = value\n\n            for endpoint, func in self.view_functions.items():\n                app.view_functions[endpoint] = func\n\n            extend(self.before_request_funcs, app.before_request_funcs)\n            extend(self.after_request_funcs, app.after_request_funcs)\n            extend(\n                self.teardown_request_funcs,\n                app.teardown_request_funcs,\n            )\n            extend(self.url_default_functions, app.url_default_functions)\n            extend(self.url_value_preprocessors, app.url_value_preprocessors)\n            extend(self.template_context_processors, app.template_context_processors)\n\n        for deferred in self.deferred_functions:\n            deferred(state)\n\n        cli_resolved_group = options.get(\"cli_group\", self.cli_group)\n\n        if self.cli.commands:\n            if cli_resolved_group is None:\n                app.cli.commands.update(self.cli.commands)\n            elif cli_resolved_group is _sentinel:\n                self.cli.name = name\n                app.cli.add_command(self.cli)\n            else:\n                self.cli.name = cli_resolved_group\n                app.cli.add_command(self.cli)\n\n        for blueprint, bp_options in self._blueprints:\n            bp_options = bp_options.copy()\n            bp_url_prefix = bp_options.get(\"url_prefix\")\n            bp_subdomain = bp_options.get(\"subdomain\")\n\n            if bp_subdomain is None:\n                bp_subdomain = blueprint.subdomain\n\n            if state.subdomain is not None and bp_subdomain is not None:\n                bp_options[\"subdomain\"] = bp_subdomain + \".\" + state.subdomain\n            elif bp_subdomain is not None:\n                bp_options[\"subdomain\"] = bp_subdomain\n            elif state.subdomain is not None:\n                bp_options[\"subdomain\"] = state.subdomain\n\n            if bp_url_prefix is None:\n                bp_url_prefix = blueprint.url_prefix\n\n            if state.url_prefix is not None and bp_url_prefix is not None:\n                bp_options[\"url_prefix\"] = (\n                    state.url_prefix.rstrip(\"/\") + \"/\" + bp_url_prefix.lstrip(\"/\")\n                )\n            elif bp_url_prefix is not None:\n                bp_options[\"url_prefix\"] = bp_url_prefix\n            elif state.url_prefix is not None:\n                bp_options[\"url_prefix\"] = state.url_prefix\n\n            bp_options[\"name_prefix\"] = name\n            blueprint.register(app, bp_options)\n",
+    "parent_symbol": "Blueprint",
+    "indentation": "    ",
+    "role": "PRIMARY",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "src/flask/blueprints.py",
+      "symbol": "register",
+      "role": "PRIMARY",
+      "score": 129.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'register' (+80)",
+        "Symbol matches issue keywords ['register'] (+10)",
+        "High regression risk: symbol has 4 cross-module callers (-16)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 5 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 45 test(s) (+15)"
+      ],
+      "line_start": 271,
+      "line_end": 405,
+      "unrelated_callers_count": 4,
+      "in_failing_traceback": false,
+      "semantic_radius": 135,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/flask/blueprints.py",
+      "symbol": "Blueprint",
+      "role": "PRIMARY",
+      "score": 65.0,
+      "reasons": [
+        "Symbol 'Blueprint' mentioned in diagnosis rationale (+30)",
+        "Symbol matches issue keywords ['blueprint'] (+10)",
+        "High regression risk: symbol has 52 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (16 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 5 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 5759 test(s) (+15)"
+      ],
+      "line_start": 254,
+      "line_end": 269,
+      "unrelated_callers_count": 52,
+      "in_failing_traceback": false,
+      "semantic_radius": 16,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/flask/blueprints.py",
+      "symbol": "add_url_rule",
+      "role": "PRIMARY",
+      "score": -25.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['add', 'url', 'rule'] (+30)",
+        "High regression risk: symbol has 26 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (30 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 6 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 1922 test(s) (+15)"
+      ],
+      "line_start": 85,
+      "line_end": 114,
+      "unrelated_callers_count": 26,
+      "in_failing_traceback": false,
+      "semantic_radius": 30,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/flask/blueprints.py",
+      "symbol": "register_blueprint",
+      "role": "PRIMARY",
+      "score": -35.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['register', 'blueprint'] (+20)",
+        "High regression risk: symbol has 52 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Compact code span (16 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 6 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 5519 test(s) (+15)"
+      ],
+      "line_start": 254,
+      "line_end": 269,
+      "unrelated_callers_count": 52,
+      "in_failing_traceback": false,
+      "semantic_radius": 16,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/flask/app.py",
+      "symbol": "register_blueprint",
+      "role": "PRIMARY",
+      "score": -50.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['register', 'blueprint'] (+20)",
+        "High regression risk: symbol has 52 cross-module callers (-40)",
+        "Compact code span (26 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 6 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 5519 test(s) (+15)"
+      ],
+      "line_start": 985,
+      "line_end": 1010,
+      "unrelated_callers_count": 52,
+      "in_failing_traceback": false,
+      "semantic_radius": 26,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/flask/app.py",
+      "symbol": "url_for",
+      "role": "PRIMARY",
+      "score": -60.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['url', 'for'] (+20)",
+        "High regression risk: symbol has 42 cross-module callers (-40)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 5 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 2928 test(s) (+15)"
+      ],
+      "line_start": 1595,
+      "line_end": 1718,
+      "unrelated_callers_count": 42,
+      "in_failing_traceback": false,
+      "semantic_radius": 124,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {},
+  "telemetry": {
+    "task_id": "pallets__flask-5063",
+    "total_wall_s": 834.17,
+    "llm_time_s": 0.0,
+    "test_time_s": 0.0,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 12.571,
+    "retrieval_diagnosis_time_s": 119.814,
+    "probing_time_s": null,
+    "generation_time_s": 701.349,
+    "reconstruction_time_s": 0.0,
+    "static_validation_time_s": 0.0,
+    "replanning_time_s": 0.0,
+    "runtime_s": 834.17
+  },
+  "test_summary": {},
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "register",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,513 @@
+{
+  "instance_id": "pytest-dev__pytest-7373",
+  "repo": "pytest-dev/pytest",
+  "engine_name": "v1",
+  "model": "qwen2.5-coder:14b",
+  "commit_hash": "da203c8",
+  "cache_fingerprint": "4e8292e9434efb2f",
+  "cache_manifest": {
+    "engine_name": "v1",
+    "model": "qwen2.5-coder:14b",
+    "temperature": 0.0,
+    "max_tokens": 2048,
+    "max_retries": 2,
+    "max_refinements": 3,
+    "enable_dynamic_probing": false,
+    "commit_hash": "da203c8",
+    "dirty_diff_hash": "0abd7d93da49beb0",
+    "prompt_template_hash": "d65c3dd92cf51a61",
+    "memory_mode": "FROZEN",
+    "memory_snapshot_fingerprint": "00c58176c092b44a",
+    "cohort_name": "v05_cohort_20",
+    "cohort_size": 20,
+    "cohort_hash": "059fd5aa22b248a2",
+    "dataset_name": "SWE-bench/SWE-bench_Lite",
+    "dataset_revision": "main",
+    "datasets_version": "datasets-5.0.1",
+    "task_definitions_hash": "",
+    "docker_image_tag": "latest",
+    "harness_version": "swebench-5.0.2",
+    "harness_impl_hash": "c6576310d2f24640",
+    "harness_timeout_s": 180,
+    "eval_harness": "swebench.harness.run_evaluation"
+  },
+  "status": "COMPLETED",
+  "resolved": false,
+  "patch_applied": false,
+  "patch_valid": false,
+  "patch_tier": null,
+  "patch_text": "",
+  "test_executed": false,
+  "failure_class": "UNRESOLVED",
+  "runtime_s": 467.33,
+  "f2p_passed": 0,
+  "f2p_total": 0,
+  "p2p_passed": 0,
+  "p2p_total": 0,
+  "refinement_cycles": 3,
+  "target_file": "src/_pytest/config/__init__.py",
+  "target_symbol": "PytestPluginManager",
+  "target_provenance": {
+    "original_diagnosis_sites": [
+      "src/_pytest/config/__init__.py:PytestPluginManager"
+    ],
+    "selected_target": "src/_pytest/config/__init__.py:PytestPluginManager",
+    "matches_hypothesized_site": true,
+    "justification": "Target matches hypothesized affected site 'src/_pytest/config/__init__.py:PytestPluginManager'.",
+    "target_unjustified": true,
+    "target_changes": []
+  },
+  "generation_attempted": true,
+  "structurally_valid": false,
+  "submitted_to_harness": false,
+  "test_time_s": 0.0,
+  "generation_time_s": 292.273,
+  "reconstruction_time_s": 0.0,
+  "indexing_time_s": 48.177,
+  "retrieval_diagnosis_time_s": 126.278,
+  "probing_time_s": null,
+  "static_validation_time_s": 0.0,
+  "replanning_time_s": 0.0,
+  "memory_mode": "FROZEN",
+  "memory_provenance": {
+    "mode": "FROZEN",
+    "memory_mode": "FROZEN",
+    "snapshot_fingerprint": "00c58176c092b44a",
+    "eligible_count": 23,
+    "eligible_snapshot_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "eligible_episode_ids": [
+      "pallets__flask-4045",
+      "pallets__flask-4992",
+      "pallets__flask-5063",
+      "psf__requests-1963",
+      "psf__requests-2148",
+      "psf__requests-2317",
+      "psf__requests-2674",
+      "psf__requests-3362",
+      "psf__requests-863",
+      "pylint-dev__pylint-5859",
+      "pylint-dev__pylint-7114",
+      "pylint-dev__pylint-7228",
+      "pytest-dev__pytest-5103",
+      "pytest-dev__pytest-5221",
+      "pytest-dev__pytest-5227",
+      "pytest-dev__pytest-5495",
+      "pytest-dev__pytest-5692",
+      "pytest-dev__pytest-7220",
+      "pytest-dev__pytest-7373",
+      "pytest-dev__pytest-7490",
+      "test__requests-2317",
+      "test_repo__test-1",
+      "test_task"
+    ],
+    "retrieved_episode_ids": [
+      "psf__requests-2148",
+      "psf__requests-863"
+    ],
+    "exemplars_included_in_prompt": [
+      "psf__requests-2148",
+      "psf__requests-863"
+    ],
+    "prompt_included_episode_ids": [
+      "psf__requests-2148",
+      "psf__requests-863"
+    ],
+    "resolved_only_policy": true,
+    "current_instance_id": "pytest-dev__pytest-7373",
+    "current_instance_excluded": true
+  },
+  "diagnosis": {
+    "cause": "The caching mechanism in the `PytestPluginManager` class is unnecessary and may be causing unexpected behavior.",
+    "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+    "repair_strategy": "Remove the caching mechanism and inline the `cached_eval` into `MarkEvaluator._istrue`.",
+    "affected_sites": [
+      "src/_pytest/config/__init__.py:PytestPluginManager"
+    ],
+    "defect_confidence": 0.75,
+    "classification": "confirmed_code_defect",
+    "selected_hypothesis_idx": 0,
+    "hypotheses": [
+      {
+        "id": "A",
+        "cause": "The caching mechanism in the `PytestPluginManager` class is unnecessary and may be causing unexpected behavior.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The `pytest_configure` method should no longer rely on the caching mechanism.",
+          "expected_mutations": [
+            "Remove caching logic in `PytestPluginManager`",
+            "Inline `cached_eval` into `MarkEvaluator._istrue`"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Caching-related errors",
+            "Performance degradation"
+          ],
+          "discriminating_variable": "Performance impact on large test suites",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Remove the caching mechanism and inline the `cached_eval` into `MarkEvaluator._istrue`.",
+        "affected_sites": [
+          "src/_pytest/config/__init__.py:PytestPluginManager"
+        ],
+        "supporting_evidence": [
+          "The `PytestPluginManager` has a history of 4 bug fixes (churn score: 0.85).",
+          "The `pytest_configure` method mutates attributes/containers: self._configured.",
+          "The `_importconftest` method mutates attributes/containers: self._conftestpath2mod[key].",
+          "The `_getconftestmodules` method overwrites state variables: directory.",
+          "The `_getconftestmodules` method mutates attributes/containers: self._dirpath2confmods[directory]."
+        ],
+        "contradicting_evidence": [
+          "No severe contradictions detected.",
+          "Target 'src/_pytest/config/__init__.py:PytestPluginManager' is GLOBAL_INFRASTRUCTURE with 13 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The `PytestPluginManager` has a history of 4 bug fixes (churn score: 0.85).",
+          "The `pytest_configure` method mutates attributes/containers: self._configured.",
+          "The `_importconftest` method mutates attributes/containers: self._conftestpath2mod[key].",
+          "The `_getconftestmodules` method overwrites state variables: directory.",
+          "The `_getconftestmodules` method mutates attributes/containers: self._dirpath2confmods[directory]."
+        ],
+        "contradicting_facts": [
+          "No severe contradictions detected."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.75,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 50.0
+      },
+      {
+        "id": "B",
+        "cause": "The `pytest_configure` method may have a bug that is causing unexpected behavior.",
+        "divergent_predicate": "",
+        "expected_transition": "",
+        "prediction": {
+          "expected_branch": "The `pytest_configure` method should behave as expected without any regressions.",
+          "expected_mutations": [
+            "Fix any bugs in the `pytest_configure` method"
+          ],
+          "expected_output_state": {},
+          "forbidden_events": [
+            "Configuration errors",
+            "Regression in standard invocations"
+          ],
+          "discriminating_variable": "Behavior of `pytest_configure` method",
+          "support_count": 0,
+          "contradiction_count": 0
+        },
+        "support_count": 0,
+        "contradiction_count": 0,
+        "invariant": "Preserve backward compatibility: existing callers with default arguments must succeed.",
+        "repair_strategy": "Review and fix the logic in the `pytest_configure` method.",
+        "affected_sites": [
+          "src/_pytest/config/__init__.py:pytest_configure"
+        ],
+        "supporting_evidence": [
+          "The `pytest_configure` method has a history of 4 bug fixes (churn score: 0.85).",
+          "The `pytest_configure` method mutates attributes/containers: self._configured."
+        ],
+        "contradicting_evidence": [
+          "No severe contradictions detected.",
+          "Target 'src/_pytest/config/__init__.py:pytest_configure' is GLOBAL_INFRASTRUCTURE with 4 cross-module callers (-25)"
+        ],
+        "supporting_facts": [
+          "The `pytest_configure` method has a history of 4 bug fixes (churn score: 0.85).",
+          "The `pytest_configure` method mutates attributes/containers: self._configured."
+        ],
+        "contradicting_facts": [
+          "No severe contradictions detected."
+        ],
+        "expected_behavior": "",
+        "discriminating_tests": [],
+        "specificity_explanation": "",
+        "distinguishing_evidence": "",
+        "affected_tests": [],
+        "unexplained_symptoms": [],
+        "semantic_radius": "FEATURE_LOCAL",
+        "confidence": 0.7,
+        "eliminated": false,
+        "elimination_reason": "",
+        "counterfactual_score": 45.0
+      }
+    ],
+    "repair_sites": [
+      "src/_pytest/config/__init__.py:PytestPluginManager"
+    ]
+  },
+  "refinement_history": [
+    {
+      "attempt": 1,
+      "hypothesis_id": "A",
+      "strategy": "strict_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 2,
+      "hypothesis_id": "A",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    },
+    {
+      "attempt": 3,
+      "hypothesis_id": "A",
+      "strategy": "refined_structured_json",
+      "static_valid": false,
+      "tests_executed": false,
+      "resolved": false,
+      "failure_class": "UNRESOLVED",
+      "error_message": "SEMANTIC_VALIDATION_FAILURE: Replacement code is identical to original target code (no-op repair).",
+      "patch_text": ""
+    }
+  ],
+  "repair_unit": {
+    "id": "src/_pytest/config/__init__.py::__init__::METHOD::311-344",
+    "file_path": "src/_pytest/config/__init__.py",
+    "symbol": "__init__",
+    "unit_type": "METHOD",
+    "node_type": "FunctionDef",
+    "start_line": 311,
+    "end_line": 344,
+    "start_col": 4,
+    "end_col": 32,
+    "source_text": "    def __init__(self) -> None:\n        import _pytest.assertion\n\n        super().__init__(\"pytest\")\n        # The objects are module objects, only used generically.\n        self._conftest_plugins = set()  # type: Set[object]\n\n        # state related to local conftest plugins\n        # Maps a py.path.local to a list of module objects.\n        self._dirpath2confmods = {}  # type: Dict[Any, List[object]]\n        # Maps a py.path.local to a module object.\n        self._conftestpath2mod = {}  # type: Dict[Any, object]\n        self._confcutdir = None  # type: Optional[py.path.local]\n        self._noconftest = False\n        self._duplicatepaths = set()  # type: Set[py.path.local]\n\n        self.add_hookspecs(_pytest.hookspec)\n        self.register(self)\n        if os.environ.get(\"PYTEST_DEBUG\"):\n            err = sys.stderr  # type: IO[str]\n            encoding = getattr(err, \"encoding\", \"utf8\")\n            try:\n                err = open(\n                    os.dup(err.fileno()), mode=err.mode, buffering=1, encoding=encoding,\n                )\n            except Exception:\n                pass\n            self.trace.root.setwriter(err.write)\n            self.enable_tracing()\n\n        # Config._consider_importhook will set a real object if required.\n        self.rewrite_hook = _pytest.assertion.DummyRewriteHook()\n        # Used to know when we are importing conftests after the pytest_configure stage\n        self._configured = False\n",
+    "parent_symbol": "PytestPluginManager",
+    "indentation": "    ",
+    "role": "PRIMARY",
+    "rank_score": 1.0,
+    "graph_evidence": {}
+  },
+  "ranked_sites": [
+    {
+      "file_path": "src/_pytest/config/__init__.py",
+      "symbol": "PytestPluginManager",
+      "role": "PRIMARY",
+      "score": 95.0,
+      "reasons": [
+        "Direct match with diagnosed root-cause site 'PytestPluginManager' (+80)",
+        "High regression risk: symbol has 13 cross-module callers (-40)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 445 test(s) (+15)"
+      ],
+      "line_start": 301,
+      "line_end": 451,
+      "unrelated_callers_count": 13,
+      "in_failing_traceback": false,
+      "semantic_radius": 151,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/config/__init__.py",
+      "symbol": "_getconftest_pathlist",
+      "role": "PRIMARY",
+      "score": 25.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Located in primary localized file (+15)",
+        "Compact code span (15 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 122 test(s) (+15)"
+      ],
+      "line_start": 1226,
+      "line_end": 1240,
+      "unrelated_callers_count": 2,
+      "in_failing_traceback": false,
+      "semantic_radius": 15,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/config/__init__.py",
+      "symbol": "consider_conftest",
+      "role": "PRIMARY",
+      "score": 25.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Located in primary localized file (+15)",
+        "Compact code span (2 lines) preferred (+10)",
+        "Counterfactual: WEAK causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: FEATURE_SHARED within feature (+10)",
+        "Direct tests available: 36 test(s) (+15)"
+      ],
+      "line_start": 613,
+      "line_end": 614,
+      "unrelated_callers_count": 1,
+      "in_failing_traceback": false,
+      "semantic_radius": 2,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/config/__init__.py",
+      "symbol": "pytest_configure",
+      "role": "PRIMARY",
+      "score": -21.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "Symbol matches issue keywords ['pytest'] (+10)",
+        "High regression risk: symbol has 4 cross-module callers (-16)",
+        "Located in primary localized file (+15)",
+        "Compact code span (14 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 230 test(s) (+15)"
+      ],
+      "line_start": 421,
+      "line_end": 434,
+      "unrelated_callers_count": 4,
+      "in_failing_traceback": false,
+      "semantic_radius": 14,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/config/__init__.py",
+      "symbol": "_getconftestmodules",
+      "role": "PRIMARY",
+      "score": -43.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 7 cross-module callers (-28)",
+        "Located in primary localized file (+15)",
+        "Compact code span (22 lines) preferred (+10)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 393 test(s) (+15)"
+      ],
+      "line_start": 479,
+      "line_end": 500,
+      "unrelated_callers_count": 7,
+      "in_failing_traceback": false,
+      "semantic_radius": 22,
+      "ast_node_type": "FunctionDef"
+    },
+    {
+      "file_path": "src/_pytest/config/__init__.py",
+      "symbol": "_importconftest",
+      "role": "PRIMARY",
+      "score": -45.0,
+      "reasons": [
+        "Unexplained divergence from diagnosed defect location (-80)",
+        "High regression risk: symbol has 5 cross-module callers (-20)",
+        "Located in primary localized file (+15)",
+        "Counterfactual: INSUFFICIENT_SCOPE causal link (-25)",
+        "Fails to cover 3 issue symptoms (-20)",
+        "Blast radius: GLOBAL_INFRASTRUCTURE carrying high regression risk (-30)",
+        "Direct tests available: 147 test(s) (+15)"
+      ],
+      "line_start": 511,
+      "line_end": 543,
+      "unrelated_callers_count": 5,
+      "in_failing_traceback": false,
+      "semantic_radius": 33,
+      "ast_node_type": "FunctionDef"
+    }
+  ],
+  "validation_result": {},
+  "telemetry": {
+    "task_id": "pytest-dev__pytest-7373",
+    "total_wall_s": 467.33,
+    "llm_time_s": 0.0,
+    "test_time_s": 0.0,
+    "tool_time_s": 0.0,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_tokens": 0,
+    "event_count": 4,
+    "indexing_time_s": 48.177,
+    "retrieval_diagnosis_time_s": 126.278,
+    "probing_time_s": null,
+    "generation_time_s": 292.273,
+    "reconstruction_time_s": 0.0,
+    "static_validation_time_s": 0.0,
+    "replanning_time_s": 0.0,
+    "runtime_s": 467.33
+  },
+  "test_summary": {},
+  "experiment_executed": false,
+  "experiment_summary": "Dynamic probing disabled by default (V1.6 reliability configuration).",
+  "memory_exemplars_used": 2,
+  "contract": {
+    "target_symbol": "PytestPluginManager",
+    "category": "ALGORITHMIC_BEHAVIORAL",
+    "confidence": 0.2,
+    "is_signature_contract": false,
+    "parameters": [],
+    "forbidden_parameters": [],
+    "return_type": "",
+    "behavioral_invariants": [
+      "Preserve backward compatibility: existing callers with default arguments must succeed."
+    ],
+    "expected_exceptions": [],
+    "handled_exceptions": [],
+    "forbidden_mutations": [],
+    "raw_call_examples": []
+  },
+  "requirement_matrix": {
+    "requirements": [
+      {
+        "id": "R1",
+        "description": "Preserve behavior for standard invocations without regressions.",
+        "category": "REGRESSION_INVARIANT",
+        "source": "ISSUE_SPECIFICATION",
+        "affected_symbols": [],
+        "expected_state": "",
+        "expected_transition": "",
+        "expected_output": "",
+        "expected_exception": "",
+        "relevant_tests": [],
+        "required_keywords": [],
+        "satisfied": false
+      }
+    ]
+  }
+}

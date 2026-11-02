@@ -28,7 +28,16 @@ class ExecResult:
 class MiniSWEAgentAdapter:
     def __init__(self, config: PatchForgeConfig | None = None, third_party: str = "third_party"):
         self.config = config or PatchForgeConfig()
-        self.mini = str((Path(third_party) / "mini-swe-agent" / "src").resolve())
+        candidates = [
+            Path(third_party) / "mini_swe_agent_upstream" / "src",
+            Path(third_party) / "mini-swe-agent" / "src",
+            Path(third_party) / "mini_swe_agent" / "src",
+        ]
+        self.mini = str(candidates[0].resolve())
+        for cand in candidates:
+            if (cand / "minisweagent" / "agents" / "default.py").exists():
+                self.mini = str(cand.resolve())
+                break
         if not Path(self.mini, "minisweagent", "agents", "default.py").exists():
             raise RuntimeError(f"mini-SWE-agent not found at {self.mini}")
         import sys
@@ -50,20 +59,29 @@ class MiniSWEAgentAdapter:
             return
         import minisweagent.environments.local as local_mod
 
+        orig_run = getattr(local_mod, "_orig_run", local_mod._run)
+        local_mod._orig_run = orig_run
+
         def _wsl_run(command, cwd, env, timeout):
             inner = "cd " + shlex.quote(self._to_wsl(cwd)) + " && " + command
-            process = subprocess.Popen(
-                ["bash.exe", "-c", inner],
-                text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                encoding="utf-8", errors="replace",
-            )
             try:
-                stdout, _ = process.communicate(timeout=timeout)
-            except subprocess.TimeoutExpired:
-                process.kill()
-                stdout, _ = process.communicate()
-                raise subprocess.TimeoutExpired(command, timeout, output=stdout)
-            return subprocess.CompletedProcess(command, process.returncode, stdout=stdout)
+                process = subprocess.Popen(
+                    ["bash.exe", "-c", inner],
+                    text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    encoding="utf-8", errors="replace",
+                )
+                try:
+                    stdout, _ = process.communicate(timeout=timeout)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    stdout, _ = process.communicate()
+                    raise subprocess.TimeoutExpired(command, timeout, output=stdout)
+                clean_out = stdout.replace("\x00", "")
+                if process.returncode != 0 and any(err in clean_out for err in ("E_ACCESSDENIED", "Access is denied", "not recognized")):
+                    return orig_run(command, cwd, env, timeout)
+                return subprocess.CompletedProcess(command, process.returncode, stdout=stdout)
+            except Exception:
+                return orig_run(command, cwd, env, timeout)
 
         local_mod._run = _wsl_run
 

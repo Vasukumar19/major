@@ -51,15 +51,27 @@ class ExperimentRunner:
             # 1. Inject temporary probes
             self.injector.inject_probes(probes)
 
-            # 2. Run targeted test via tester
-            # Tester applies empty patch or current git diff to observe baseline failing test
-            verdict = self.tester.run(instance_id, patch_text="")
+            # 2. Extract unified diff of injected probes so harness/Docker executes instrumented code
+            import subprocess
+            diff_proc = subprocess.run(["git", "diff"], cwd=self.repo_dir, capture_output=True, text=True)
+            probe_patch = diff_proc.stdout or ""
+
+            if not probe_patch.strip():
+                logger.warning("No diff produced by probe instrumentation; skipping dynamic test execution.")
+                return ExperimentResult(
+                    experiment_id="EXP_NO_DIFF",
+                    question="Instrumentation produced empty diff.",
+                    summary="Experiment skipped: probe instrumentation produced no diff.",
+                )
+
+            # 3. Run targeted test via tester with instrumented patch
+            verdict = self.tester.run(instance_id, patch_text=probe_patch)
             raw_output = getattr(verdict, "output", "") or getattr(verdict, "error", "") or str(verdict)
 
-            # 3. Parse sentinel observations
+            # 4. Parse sentinel observations
             observations = ProbeObserver.parse_output(raw_output)
 
-            # 4. Evaluate counterfactuals and update hypotheses
+            # 5. Evaluate counterfactuals and update hypotheses
             result = CounterfactualEngine.evaluate_observations(probes, observations, diagnosis)
             return result
 

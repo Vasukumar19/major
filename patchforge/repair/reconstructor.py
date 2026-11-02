@@ -6,6 +6,7 @@ then emits deterministic unified diffs without LLM diff generation.
 """
 from __future__ import annotations
 
+import ast
 import difflib
 import logging
 from typing import Any, Dict, List, Optional, Tuple
@@ -78,7 +79,8 @@ class SourceReconstructor:
             )
 
         # Auto-heal missing imports introduced by replacement snippets
-        new_code = SourceReconstructor._auto_heal_missing_imports(original_code, new_code)
+        healed_imports: list[str] = []
+        new_code = SourceReconstructor._auto_heal_missing_imports(original_code, new_code, record_healed=healed_imports)
 
         # Build deterministic unified diff
         orig_split = original_code.splitlines(keepends=True)
@@ -106,17 +108,22 @@ class SourceReconstructor:
             modified_contents={rel_path: new_code} if success else {},
             units_applied=[unit] if success else [],
             error=err,
+            healed_imports=healed_imports,
         )
 
     @staticmethod
     def reconstruct_multi(
-        files_source: Dict[str, str],
-        edits: List[Tuple[RepairUnit, StructuredRepairOutput]],
+        files_source: Optional[Dict[str, str]] = None,
+        edits: Optional[List[Tuple[RepairUnit, StructuredRepairOutput]]] = None,
+        original_sources: Optional[Dict[str, str]] = None,
+        **kwargs,
     ) -> ReconstructedPatch:
         """Applies multiple non-overlapping RepairUnits across one or more files."""
+        sources = original_sources if original_sources is not None else (files_source or {})
+        edits_list = edits or []
         # Group edits by file
         by_file: Dict[str, List[Tuple[RepairUnit, StructuredRepairOutput]]] = {}
-        for unit, out in edits:
+        for unit, out in edits_list:
             rel = unit.file_path.replace("\\", "/")
             by_file.setdefault(rel, []).append((unit, out))
 
@@ -127,7 +134,7 @@ class SourceReconstructor:
         units_applied: List[RepairUnit] = []
 
         for rel_path, file_edits in by_file.items():
-            if rel_path not in files_source:
+            if rel_path not in sources:
                 return ReconstructedPatch(
                     success=False,
                     error=f"Source content for file '{rel_path}' not provided.",
@@ -146,7 +153,7 @@ class SourceReconstructor:
                         error=f"Conflicting overlapping repair units in {rel_path}: [{u_next.start_line}-{u_next.end_line}] overlaps [{u_curr.start_line}-{u_curr.end_line}].",
                     )
 
-            curr_source = files_source[rel_path]
+            curr_source = sources[rel_path]
             for unit, out in file_edits:
                 rec = SourceReconstructor.reconstruct_single(curr_source, unit, out, rel_path)
                 if not rec.success:
@@ -157,7 +164,7 @@ class SourceReconstructor:
                     symbols_changed.append(unit.symbol)
 
             # Build full file unified diff
-            orig_split = files_source[rel_path].splitlines(keepends=True)
+            orig_split = sources[rel_path].splitlines(keepends=True)
             new_split = curr_source.splitlines(keepends=True)
             diff = difflib.unified_diff(
                 orig_split,
@@ -173,6 +180,23 @@ class SourceReconstructor:
                 all_patches.append(file_patch)
                 files_changed.append(rel_path)
                 modified_contents[rel_path] = curr_source
+
+        # In-memory AST syntax validation across all modified Python files
+        if all_patches:
+            for rel_p, code in modified_contents.items():
+                if rel_p.endswith(".py"):
+                    try:
+                        ast.parse(code, filename=rel_p)
+                    except SyntaxError as syn_err:
+                        return ReconstructedPatch(
+                            success=False,
+                            files_changed=[],
+                            symbols_changed=[],
+                            patch_text="",
+                            modified_contents={},
+                            units_applied=[],
+                            error=f"AST syntax error in multi-site reconstructed code for {rel_p}: {syn_err}",
+                        )
 
         return ReconstructedPatch(
             success=bool(all_patches),
@@ -235,7 +259,81 @@ class SourceReconstructor:
         return adjusted
 
     @staticmethod
-    def _auto_heal_missing_imports(original_code: str, modified_code: str) -> str:
+    def _is_name_bound_in_scope(target_name: str, node: ast.AST, tree: ast.AST) -> bool:
+        """Determines if target_name is locally bound (parameter, loop var, local var) in any enclosing scope."""
+        import ast
+
+        for parent in ast.walk(tree):
+            for child in ast.iter_child_nodes(parent):
+                setattr(child, "_ast_parent", parent)
+
+        def _get_target_names(t) -> set[str]:
+            names = set()
+            if isinstance(t, ast.Name):
+                names.add(t.id)
+            elif isinstance(t, (ast.Tuple, ast.List)):
+                for elt in t.elts:
+                    names.update(_get_target_names(elt))
+            elif isinstance(t, ast.Starred):
+                names.update(_get_target_names(t.value))
+            return names
+
+        def _get_scope_bound_names(scope_node: ast.AST) -> set[str]:
+            bound = set()
+            if isinstance(scope_node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+                args_obj = scope_node.args
+                for a in getattr(args_obj, "posonlyargs", []) + args_obj.args + getattr(args_obj, "kwonlyargs", []):
+                    bound.add(a.arg)
+                if args_obj.vararg:
+                    bound.add(args_obj.vararg.arg)
+                if args_obj.kwarg:
+                    bound.add(args_obj.kwarg.arg)
+
+            if isinstance(scope_node, ast.comprehension):
+                bound.update(_get_target_names(scope_node.target))
+
+            body = getattr(scope_node, "body", [])
+            if not isinstance(body, list):
+                body = [body]
+            for stmt in body:
+                for sub in ast.walk(stmt):
+                    if sub is not stmt and isinstance(sub, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                        continue
+                    if isinstance(sub, ast.Assign):
+                        for tgt in sub.targets:
+                            bound.update(_get_target_names(tgt))
+                    elif isinstance(sub, (ast.AugAssign, ast.AnnAssign)):
+                        bound.update(_get_target_names(sub.target))
+                    elif isinstance(sub, (ast.For, ast.AsyncFor)):
+                        bound.update(_get_target_names(sub.target))
+                    elif isinstance(sub, (ast.With, ast.AsyncWith)):
+                        for item in sub.items:
+                            if item.optional_vars:
+                                bound.update(_get_target_names(item.optional_vars))
+                    elif isinstance(sub, ast.ExceptHandler):
+                        if sub.name:
+                            bound.add(sub.name)
+                    elif isinstance(sub, ast.NamedExpr):
+                        bound.update(_get_target_names(sub.target))
+                    elif isinstance(sub, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                        bound.add(sub.name)
+            return bound
+
+        curr = getattr(node, "_ast_parent", None)
+        while curr is not None:
+            if isinstance(curr, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.comprehension, ast.Lambda)):
+                if target_name in _get_scope_bound_names(curr):
+                    return True
+            curr = getattr(curr, "_ast_parent", None)
+
+        return False
+
+    @staticmethod
+    def _auto_heal_missing_imports(
+        original_code: str,
+        modified_code: str,
+        record_healed: Optional[list[str]] = None,
+    ) -> str:
         """Heals missing top-level standard library and exception imports introduced by replacement snippets."""
         import ast
         import sys
@@ -260,6 +358,7 @@ class SourceReconstructor:
         mod_imp = get_imported(mod_tree)
 
         # 1. Standard library module attributes (e.g., socket.error without 'import socket')
+        # Scope-aware: Ignore local variables, parameters, loop variables, or shadowed names.
         std_mods = set(sys.stdlib_module_names) if hasattr(sys, 'stdlib_module_names') else {
             'socket', 'sys', 'os', 'json', 're', 'collections', 'datetime', 'io', 'math'
         }
@@ -268,14 +367,33 @@ class SourceReconstructor:
             if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name):
                 mod_name = node.value.id
                 if mod_name in std_mods and mod_name not in mod_imp:
-                    needed_std_imports.add(mod_name)
+                    # Verify name is NOT locally bound in any enclosing scope
+                    if not SourceReconstructor._is_name_bound_in_scope(mod_name, node, mod_tree):
+                        needed_std_imports.add(mod_name)
 
         # 2. Module-level exception imports (e.g., ConnectionError from .exceptions)
+        # Unconditionally ignore Python built-in identifiers
+        import builtins
+        builtin_names = set(dir(builtins)) | {
+            "str", "bytes", "int", "float", "bool", "dict", "list", "set", "tuple",
+            "object", "type", "complex", "bytearray", "memoryview", "frozenset",
+            "range", "slice", "enumerate", "filter", "map", "zip", "sum", "min", "max",
+            "all", "any", "id", "hash", "len", "repr", "print", "open", "super",
+            "isinstance", "issubclass", "callable", "iter", "next", "classmethod",
+            "staticmethod", "property", "vars", "dir", "help", "__import__",
+            "Exception", "BaseException", "ValueError", "TypeError", "KeyError",
+            "AttributeError", "IndexError", "LookupError", "RuntimeError",
+            "StopIteration", "SyntaxError", "ImportError", "ModuleNotFoundError",
+        }
+
         needed_exception_imports = set()
         used_names = set()
         for node in ast.walk(mod_tree):
             if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
-                used_names.add(node.id)
+                if node.id in builtin_names:
+                    continue
+                if not SourceReconstructor._is_name_bound_in_scope(node.id, node, mod_tree):
+                    used_names.add(node.id)
 
         exceptions_node = None
         for node in orig_tree.body:
@@ -298,6 +416,7 @@ class SourceReconstructor:
                     needed_exception_imports.add(exc)
 
         # 3. Project-level compat utilities (e.g. to_native_string, builtin_str)
+        # NEVER guess built-in names (str, bytes) as missing compat imports
         needed_compat_imports = set()
         compat_node = None
         for node in orig_tree.body:
@@ -305,13 +424,17 @@ class SourceReconstructor:
                 compat_node = node
                 break
         if compat_node:
-            common_compat = {'to_native_string', 'builtin_str', 'str', 'bytes', 'is_py2', 'is_py3'}
+            common_compat = {'to_native_string', 'builtin_str', 'is_py2', 'is_py3'}
             for util in common_compat:
                 if util in used_names and util not in mod_imp:
                     needed_compat_imports.add(util)
 
-        if not needed_std_imports and not needed_exception_imports and not needed_compat_imports:
+        all_healed = sorted(needed_std_imports | needed_exception_imports | needed_compat_imports)
+        if not all_healed:
             return modified_code
+
+        if record_healed is not None:
+            record_healed.extend(all_healed)
 
         lines = modified_code.splitlines(keepends=True)
         newline = "\r\n" if "\r\n" in modified_code else "\n"
@@ -416,103 +539,4 @@ class SourceReconstructor:
         after = lines[end_l:]
         return "".join(before + after)
 
-    @staticmethod
-    def reconstruct_multi(
-        original_sources: Dict[str, str],
-        edits: List[Tuple[RepairUnit, StructuredRepairOutput]],
-    ) -> ReconstructedPatch:
-        """Applies multiple coordinated RepairUnits across one or more files deterministically."""
-        if not edits:
-            return ReconstructedPatch(success=False, error="No edits provided for multi-site reconstruction.")
-
-        # Group edits by file
-        by_file: Dict[str, List[Tuple[RepairUnit, StructuredRepairOutput]]] = {}
-        for unit, out in edits:
-            rel_path = unit.file_path.replace("\\", "/")
-            by_file.setdefault(rel_path, []).append((unit, out))
-
-        modified_contents: Dict[str, str] = {}
-        all_diffs: List[str] = []
-        files_changed: List[str] = []
-        symbols_changed: List[str] = []
-        units_applied: List[RepairUnit] = []
-
-        for rel_path, file_edits in by_file.items():
-            orig_code = original_sources.get(rel_path, "")
-            if not orig_code:
-                return ReconstructedPatch(
-                    success=False,
-                    error=f"Original source missing for target file: {rel_path}",
-                )
-
-            current_lines = orig_code.splitlines(keepends=True)
-            newline = "\r\n" if "\r\n" in orig_code else "\n"
-
-            # Check for overlapping edits in the same file
-            for i, (u_a, _) in enumerate(file_edits):
-                for j, (u_b, _) in enumerate(file_edits):
-                    if i != j:
-                        if max(u_a.start_line, u_b.start_line) <= min(u_a.end_line, u_b.end_line):
-                            return ReconstructedPatch(
-                                success=False,
-                                error=f"Overlapping edits detected in file {rel_path} between lines {u_a.start_line}-{u_a.end_line} and {u_b.start_line}-{u_b.end_line}.",
-                            )
-
-            # Sort edits descending by start_line so earlier line spans remain valid
-            sorted_edits = sorted(file_edits, key=lambda x: x[0].start_line, reverse=True)
-
-            for unit, output in sorted_edits:
-                start_l = max(1, min(unit.start_line, len(current_lines)))
-                end_l = max(start_l, min(unit.end_line, len(current_lines)))
-                replacement_text = output.replacement.strip("\r\n")
-
-                if output.repair_action == RepairAction.INSERT_STATEMENT.value:
-                    new_code_str = SourceReconstructor._insert_statement(
-                        current_lines, start_l, unit.indentation, replacement_text, newline
-                    )
-                elif output.repair_action == RepairAction.DELETE_STATEMENT.value:
-                    new_code_str = SourceReconstructor._delete_line_span(current_lines, start_l, end_l)
-                else:
-                    new_code_str = SourceReconstructor._replace_line_span(
-                        current_lines, start_l, end_l, unit.indentation, replacement_text, newline
-                    )
-
-                current_lines = new_code_str.splitlines(keepends=True)
-                units_applied.append(unit)
-                if unit.symbol and unit.symbol not in symbols_changed:
-                    symbols_changed.append(unit.symbol)
-
-            final_file_code = "".join(current_lines)
-            final_file_code = SourceReconstructor._auto_heal_missing_imports(orig_code, final_file_code)
-            modified_contents[rel_path] = final_file_code
-
-            # Compute diff for this file
-            orig_split = orig_code.splitlines(keepends=True)
-            new_split = final_file_code.splitlines(keepends=True)
-            diff = difflib.unified_diff(
-                orig_split,
-                new_split,
-                fromfile=f"a/{rel_path}",
-                tofile=f"b/{rel_path}",
-                lineterm="",
-            )
-            file_diff_text = "".join(diff)
-            if file_diff_text:
-                if not file_diff_text.endswith("\n"):
-                    file_diff_text += "\n"
-                all_diffs.append(file_diff_text)
-                files_changed.append(rel_path)
-
-        combined_patch = "".join(all_diffs)
-        success = bool(combined_patch.strip())
-
-        return ReconstructedPatch(
-            success=success,
-            files_changed=files_changed,
-            symbols_changed=symbols_changed,
-            patch_text=combined_patch,
-            modified_contents=modified_contents,
-            units_applied=units_applied,
-            error="" if success else "No net changes across multi-site targets.",
-        )
 
