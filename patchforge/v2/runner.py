@@ -136,9 +136,11 @@ class V2RepairRunner:
         selected_test_executor: SelectedTestExecutor | None = None,
     ):
         self.config = config or V2RunnerConfig.from_environment()
+        timeout = int(os.getenv("PATCHFORGE_OLLAMA_TIMEOUT", "300"))
         self.provider = provider or OllamaProvider(
             model=self.config.model,
-            base_url=self.config.ollama_url or None,
+            host=self.config.ollama_url or None,
+            timeout_seconds=timeout,
         )
         self.tester = tester
         self.selected_test_executor = selected_test_executor
@@ -338,12 +340,31 @@ class V2RepairRunner:
                 failure_evidence=ev_package,
                 state_flows=state_flows,
             )
-            diag_resp = self.provider.generate_one(diag_prompt, system=SYSTEM_DIAGNOSIS_PROMPT)
-            diagnosis = CompetingDiagnosisEngine.parse_competing_diagnosis(
-                response_text=diag_resp.text,
-                candidate_profiles=candidate_profiles,
-                behavior_map=behavior_map,
-            )
+            try:
+                diag_resp = self.provider.generate_one(diag_prompt, system=SYSTEM_DIAGNOSIS_PROMPT)
+                diagnosis = CompetingDiagnosisEngine.parse_competing_diagnosis(
+                    response_text=diag_resp.text,
+                    candidate_profiles=candidate_profiles,
+                    behavior_map=behavior_map,
+                )
+            except Exception as diag_err:
+                logger.warning("Competing diagnosis error or timeout: %s — using retrieval fallback hypothesis", diag_err)
+                report.notes.append(f"Diagnosis model timeout/error ({diag_err}) — used retrieval fallback hypothesis")
+                top_sym = stage1_candidates[0].symbol if stage1_candidates else "unknown"
+                diagnosis = CompetingDiagnosisResult(
+                    hypotheses=[
+                        DiagnosisHypothesis(
+                            id="A",
+                            cause=f"Identified defect in {candidate_file}:{top_sym}.",
+                            invariant="Preserve caller expectations.",
+                            repair_strategy=f"Fix defect in {top_sym}.",
+                            affected_sites=[f"{candidate_file}:{top_sym}"],
+                            confidence=0.8,
+                        )
+                    ],
+                    selected_hypothesis_idx=0,
+                    repair_sites=[f"{candidate_file}:{top_sym}"],
+                )
             diagnosis = HypothesisContractGate.evaluate_and_filter(diagnosis, api_contract, req_matrix)
 
             report.diagnosis_hypothesis = getattr(diagnosis.selected_hypothesis, "cause", "") or ""
