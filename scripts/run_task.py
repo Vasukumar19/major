@@ -16,10 +16,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv()
 
-docker_bin = r"C:\Program Files\Docker\Docker\resources\bin"
-if os.path.exists(docker_bin) and docker_bin not in os.environ.get("PATH", ""):
-    os.environ["PATH"] = docker_bin + os.pathsep + os.environ.get("PATH", "")
-
 sys.path.insert(0, ".")
 
 from patchforge.agent.controller import AgentController
@@ -66,11 +62,11 @@ def run_baseline_mode(args, problem, repo_dir, tester):
 def run_agent_mode(args, problem, repo_dir, tester):
     t0 = time.time()
     provider = OllamaProvider(model=args.model)
-    tools = create_default_tool_registry(repo_dir=repo_dir)
+    tools = create_default_tool_registry(repo_dir=repo_dir, tester=tester)
     policy = AgentPolicy(max_turns=args.max_turns)
     controller = AgentController(provider=provider, tools=tools, policy=policy)
 
-    patch, trajectory, final_state = controller.run(problem=problem, repo_dir=repo_dir)
+    patch, trajectory, final_state = controller.run(problem=problem, repo_dir=repo_dir, tester=tester)
     runtime_s = round(time.time() - t0, 2)
 
     patch_applied = patch is not None and patch.valid

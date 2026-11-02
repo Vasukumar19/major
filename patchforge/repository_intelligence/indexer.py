@@ -23,6 +23,26 @@ def _get_git_commit(repo_path: str) -> str:
     commit = "unknown_commit"
     dirty_part = ""
     try:
+        # ``git rev-parse HEAD`` walks up through parent directories.  That is
+        # useful for a file inside a repository, but incorrect for a caller
+        # that explicitly supplies a standalone directory nested beneath some
+        # other checkout (as temporary test repos often are).  Only use Git
+        # identity when this directory is the checkout root.
+        root_res = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            cwd=repo_path,
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+        if (
+            root_res.returncode != 0
+            or not root_res.stdout.strip()
+            or os.path.normcase(os.path.abspath(root_res.stdout.strip()))
+            != os.path.normcase(os.path.abspath(repo_path))
+        ):
+            raise RuntimeError("repository path is not a Git checkout root")
         res = subprocess.run(
             ["git", "rev-parse", "HEAD"],
             cwd=repo_path,

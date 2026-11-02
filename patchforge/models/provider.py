@@ -200,12 +200,15 @@ class GeminiProvider(ModelProvider):
 class OllamaProvider(ModelProvider):
     """Local Ollama provider using OpenAI-compatible completions endpoint."""
 
-    def __init__(self, model: str = "qwen3:8b", host: str | None = None, transport=None):
+    def __init__(self, model: str = "qwen3:8b", host: str | None = None, transport=None, timeout_seconds: int | None = None):
         self.model = model.removeprefix("ollama/")
-        self.host = (host or os.getenv("OLLAMA_HOST", "http://localhost:11434")).rstrip("/")
+        self.host = (host or os.getenv("PATCHFORGE_OLLAMA_URL") or os.getenv("OLLAMA_HOST") or "").rstrip("/")
+        self.timeout_seconds = timeout_seconds or int(os.getenv("PATCHFORGE_OLLAMA_TIMEOUT", os.getenv("OLLAMA_TIMEOUT", "120")))
         self._transport = transport or self._default_transport
 
     def _default_transport(self, payload: dict) -> dict:
+        if not self.host:
+            raise OpenRouterError("Ollama endpoint is not configured. Set PATCHFORGE_OLLAMA_URL or pass host explicitly.")
         url = f"{self.host}/v1/chat/completions"
         req = urllib.request.Request(
             url,
@@ -213,7 +216,7 @@ class OllamaProvider(ModelProvider):
             headers={"Content-Type": "application/json"},
         )
         try:
-            with urllib.request.urlopen(req, timeout=300) as resp:
+            with urllib.request.urlopen(req, timeout=self.timeout_seconds) as resp:
                 return json.loads(resp.read().decode("utf-8"))
         except urllib.error.HTTPError as e:
             try:

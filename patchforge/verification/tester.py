@@ -29,6 +29,8 @@ class Tester:
     __test__ = False
 
     def __init__(self, *args, **kwargs):
+        self.selected_test_executor = kwargs.get("selected_test_executor")
+        self.supports_selected_tests = self.selected_test_executor is not None
         if len(args) == 2 and hasattr(args[1], "evaluate"):
             self.config = args[0]
             self.swebench = args[1]
@@ -39,6 +41,18 @@ class Tester:
         else:
             self.swebench = kwargs.get("swebench")
             self.model_name = kwargs.get("model_name", "patchforge")
+
+    def run_selected_tests(self, workspace: str, selectors: list[str], timeout: int = 60):
+        """Run explicit selectors through an injected isolated executor.
+
+        The SWE-bench official harness evaluates its declared suites, not an
+        arbitrary selector. Callers must provide an environment-specific
+        selected-test executor rather than silently substituting full harness
+        execution.
+        """
+        if not self.selected_test_executor:
+            raise NotImplementedError("No isolated selected-test executor is configured")
+        return self.selected_test_executor.run_selected(workspace, selectors, timeout)
 
     def syntax_check(self, patch: Patch) -> tuple[bool, str]:
         if not patch.valid or not patch.patch_text.strip():

@@ -19,10 +19,6 @@ from typing import Any
 from dotenv import load_dotenv
 load_dotenv()
 
-docker_bin = r"C:\Program Files\Docker\Docker\resources\bin"
-if os.path.exists(docker_bin) and docker_bin not in os.environ.get("PATH", ""):
-    os.environ["PATH"] = docker_bin + os.pathsep + os.environ.get("PATH", "")
-
 sys.path.insert(0, ".")
 
 from patchforge.core.config import PatchForgeConfig

@@ -9,6 +9,8 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
+from patchforge.repair.assertion_failures import AssertionFailure, AssertionFailureExtractor
+
 logger = logging.getLogger(__name__)
 
 
@@ -24,6 +26,7 @@ class ResidualFailureRecord:
     p2p_passed_count: int = 0
     p2p_total_count: int = 0
     residual_error_messages: List[str] = field(default_factory=list)
+    failing_assertions: List[AssertionFailure] = field(default_factory=list)
     unsatisfied_requirements: List[str] = field(default_factory=list)
     responsible_patch_text: str = ""
     responsible_target: str = ""
@@ -77,6 +80,11 @@ class ResidualFailureRecord:
                         err_msgs.append(line_s)
                     if len(err_msgs) >= 5:
                         break
+        assertion_output = "\n".join(part for part in (str(output_text or ""), str(raw_err or "")) if part)
+        failing_assertions = AssertionFailureExtractor.extract(
+            assertion_output,
+            fallback_test_ids=[str(t) for t in f2p_fail_list],
+        )
 
         # Check unsatisfied requirements
         unsatisfied_reqs: List[str] = []
@@ -99,6 +107,7 @@ class ResidualFailureRecord:
             p2p_passed_count=p2p_p,
             p2p_total_count=p2p_t,
             residual_error_messages=err_msgs[:5],
+            failing_assertions=failing_assertions,
             unsatisfied_requirements=unsatisfied_reqs[:5],
             responsible_patch_text=patch_text,
             responsible_target=target_str,
@@ -118,6 +127,7 @@ class ResidualFailureRecord:
             "is_partial_progress": self.is_partial_progress,
             "has_regression": self.has_regression,
             "residual_error_messages": self.residual_error_messages,
+            "failing_assertions": [a.__dict__ for a in self.failing_assertions],
             "unsatisfied_requirements": self.unsatisfied_requirements,
             "responsible_target": self.responsible_target,
         }
@@ -147,6 +157,11 @@ class ResidualFailureRecord:
             for err in self.residual_error_messages[:3]:
                 lines.append(f"    * {err}")
 
+        if self.failing_assertions:
+            lines.append("- SMALLEST ACTIONABLE ASSERTION EVIDENCE:")
+            for failure in self.failing_assertions[:2]:
+                lines.append(f"    * {failure.format_for_refinement()}")
+
         if self.unsatisfied_requirements:
             lines.append("- REMAINING UNSATISFIED REQUIREMENTS:")
             for req in self.unsatisfied_requirements[:3]:
@@ -155,6 +170,6 @@ class ResidualFailureRecord:
         lines.append(
             "MANDATORY INSTRUCTION: Do NOT rewrite your implementation from scratch. "
             "Preserve your working logic and make ONLY the minimal targeted edit necessary "
-            "to fulfill the residual failing assertion."
+            "to fulfill the residual failing assertion. Keep all files and symbols outside the observed failure unchanged."
         )
         return "\n".join(lines)

@@ -107,10 +107,6 @@ class SWEBenchAdapter:
 
         env = dict(os.environ)
         env["PYTHONUTF8"] = "1"
-        docker_bin = r"C:\Program Files\Docker\Docker\resources\bin"
-        if os.path.exists(docker_bin) and docker_bin not in env.get("PATH", ""):
-            env["PATH"] = docker_bin + os.pathsep + env.get("PATH", "")
-
         import sys
         try:
             proc = subprocess.run(

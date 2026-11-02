@@ -32,30 +32,40 @@ class RunTargetedTestTool(Tool):
         test_target = args.get("test_target", "")
         timeout = args.get("timeout_seconds", 60)
 
-        # If tester is available on state, use tester container / runner
+        # An official SWE-bench evaluation is not a selected test run. Only
+        # invoke a tester when it explicitly advertises a selector-aware,
+        # isolated executor; otherwise return an actionable configuration error.
         tester = self.tester or (state.tester if state and hasattr(state, "tester") else None)
         if tester and hasattr(state, "instance_id") and state.instance_id and hasattr(state, "active_patch") and state.active_patch:
+            if getattr(tester, "supports_selected_tests", False) is not True:
+                return ToolResult(
+                    self.name,
+                    status="ERROR",
+                    error="SELECTED_TEST_UNAVAILABLE: Configured tester only supports full harness evaluation; an isolated selected-test executor is required.",
+                    data={"isolation": "UNAVAILABLE", "selector": test_target},
+                )
             try:
-                verdict = tester.run(state.instance_id, state.active_patch.patch_text)
+                verdict = tester.run_selected_tests(
+                    str(getattr(state, "repo_dir", "")), [test_target], timeout
+                )
                 return ToolResult(
                     self.name,
                     status="SUCCESS",
                     data={
                         "verdict": verdict.to_dict() if hasattr(verdict, "to_dict") else str(verdict),
-                        "passed": verdict.passed if hasattr(verdict, "passed") else False,
-                        "fail_to_pass_passed": getattr(verdict, "fail_to_pass_passed", 0),
-                        "fail_to_pass_total": getattr(verdict, "fail_to_pass_total", 0),
-                        "isolation": "CONTAINER",
+                        "passed": not bool(getattr(verdict, "failed", ())) and not bool(getattr(verdict, "timed_out", False)),
+                        "selector": test_target,
+                        "isolation": "SELECTED_EXECUTOR",
                     },
-                    message=f"Test executed in container sandbox with classification {getattr(verdict, 'classification', 'UNKNOWN')}.",
-                    raw_output=getattr(verdict, "test_output", "")[:2000],
+                    message=f"Selected test executed through isolated executor: {test_target}.",
+                    raw_output=getattr(verdict, "output", "")[:2000],
                 )
             except Exception as e:
                 return ToolResult(
                     self.name,
                     status="ERROR",
-                    error=f"SANDBOX_EXECUTION_FAILURE: Tester container execution failed: {str(e)}. Host execution fallback is disabled.",
-                    data={"isolation": "CONTAINER_FAILED", "allow_host_execution": False},
+                    error=f"SELECTED_EXECUTION_FAILURE: Selected test executor failed: {str(e)}. Host execution fallback is disabled.",
+                    data={"isolation": "SELECTED_EXECUTOR_FAILED", "allow_host_execution": False},
                 )
 
         # Host execution guard: untrusted tests must not execute on host without explicit opt-in.

@@ -59,22 +59,21 @@ def test_run_targeted_test_tool_fail_closed_by_default(tmp_path):
     assert res.data.get("isolation") == "BLOCKED"
 
 
-def test_run_targeted_test_tool_blocked_on_container_failure():
-    """Tester container execution failure fails closed without falling back to host."""
+def test_run_targeted_test_tool_requires_selector_aware_executor():
+    """A full-harness tester cannot silently satisfy a requested selector."""
     state = MagicMock()
     state.instance_id = "test_inst_1"
     state.active_patch = MagicMock(patch_text="diff --git ...")
     mock_tester = MagicMock()
-    mock_tester.run.side_effect = RuntimeError("Docker daemon unavailable")
+    mock_tester.supports_selected_tests = False
     state.tester = mock_tester
 
     tool = RunTargetedTestTool(allow_host_execution=True)
     res = tool.execute({"test_target": "tests/test_dummy.py"}, state=state)
 
     assert res.status == "ERROR"
-    assert "SANDBOX_EXECUTION_FAILURE" in res.error
-    assert "Host execution fallback is disabled" in res.error
-    assert res.data.get("isolation") == "CONTAINER_FAILED"
+    assert "SELECTED_TEST_UNAVAILABLE" in res.error
+    assert res.data.get("isolation") == "UNAVAILABLE"
 
 
 def test_run_reproduction_tool_fail_closed_by_default(tmp_path):
@@ -889,21 +888,20 @@ def test_host_execution_authorization_boundary_trace(tmp_path):
     assert "SECURITY_POLICY" in res_repro_state.error
     assert res_repro_state.data.get("isolation") == "BLOCKED"
 
-    # 5. Sandbox failure must fail closed and never fall back to host execution
+    # 5. A full-harness tester cannot silently run a selected test or fall back to host execution
     state.instance_id = "task_sandbox_1"
     state.active_patch = MagicMock(patch_text="diff --git a/x.py b/x.py\n")
     mock_tester = MagicMock()
-    mock_tester.run.side_effect = RuntimeError("Docker container engine crashed")
+    mock_tester.supports_selected_tests = False
     state.tester = mock_tester
 
-    # Even if host execution was explicitly authorized, container failure fails closed
+    # Even if host execution was explicitly authorized, missing selector support fails closed
     tool_with_host_opt_in = RunTargetedTestTool(allow_host_execution=True)
     state.allow_host_execution = True
     res_fallback = tool_with_host_opt_in.execute({"test_target": "tests/test_x.py"}, state=state)
 
     assert res_fallback.status == "ERROR"
-    assert "SANDBOX_EXECUTION_FAILURE" in res_fallback.error
-    assert "Host execution fallback is disabled" in res_fallback.error
-    assert res_fallback.data.get("isolation") == "CONTAINER_FAILED"
+    assert "SELECTED_TEST_UNAVAILABLE" in res_fallback.error
+    assert res_fallback.data.get("isolation") == "UNAVAILABLE"
 
 
