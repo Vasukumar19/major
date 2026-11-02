@@ -7,16 +7,31 @@ until a controlled repair pilot validates the new path.
 
 from .candidates import Candidate, CandidateLedger, CandidateStatus, TestObservation
 from .agent_runner import V2AgentRunner, V2AgentRunResult
+from .docker_executor import DockerSelectedTestExecutor, SELECTED_TEST_UNAVAILABLE
+from .execution import CandidateWorkspaceService
+from .report import CandidateRecord, V2RepairReport
+from .runner import V2RepairRunner, V2RunnerConfig
+from .verification import LocalSelectedTestExecutor, SelectedTestExecutor, accepts_residual_candidate
 from .workspaces import OwnedWorkspace, WorkspaceManager, WorkspaceViolation
 
 __all__ = [
     "Candidate",
     "CandidateLedger",
+    "CandidateRecord",
     "CandidateStatus",
+    "CandidateWorkspaceService",
+    "DockerSelectedTestExecutor",
+    "LocalSelectedTestExecutor",
     "OwnedWorkspace",
+    "SELECTED_TEST_UNAVAILABLE",
+    "SelectedTestExecutor",
+    "TestObservation",
     "V2AgentRunResult",
     "V2AgentRunner",
-    "TestObservation",
+    "V2RepairReport",
+    "V2RepairRunner",
+    "V2RunnerConfig",
     "WorkspaceManager",
     "WorkspaceViolation",
+    "accepts_residual_candidate",
 ]
