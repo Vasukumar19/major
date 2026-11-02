@@ -146,7 +146,10 @@ class FailureDrivenReplanner:
                     f"The target unit is correctly localized, but the patch contains an unresolved name or missing import. "
                     f"Ensure all required exceptions, helpers, and types are properly imported or defined within the scope."
                 )
-            elif residual_record and hasattr(residual_record, "format_corrective_guidance") and getattr(residual_record, "is_partial_progress", False):
+            elif residual_record and hasattr(residual_record, "format_corrective_guidance") and (
+                getattr(residual_record, "is_partial_progress", False)
+                or getattr(residual_record, "failing_assertions", None)
+            ):
                 guidance = residual_record.format_corrective_guidance()
             elif f2p_passed > 0:
                 guidance = (

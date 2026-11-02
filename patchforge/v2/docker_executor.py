@@ -5,6 +5,12 @@ untrusted repositories are never executed on the host. All configuration
 comes from environment variables; no Docker path or image name is
 hard-coded here.
 
+Distinguishes:
+- SETUP_FAILURE: Container mount, collection, or syntax setup failure (exit != 0, 1)
+- TIMEOUT: Container execution exceeded allowed deadline
+- TEST_FAILURE: Target tests executed inside container and assertions failed (exit == 1)
+- EXECUTOR_FAILURE: Host docker CLI or daemon execution error
+
 Environment variables
 ---------------------
 PATCHFORGE_DOCKER_COMMAND   Path/name of the Docker CLI (default: shutil.which("docker")).
@@ -13,7 +19,6 @@ SWEBENCH_HARNESS_TIMEOUT    Seconds before a container run is killed (default: 3
 """
 from __future__ import annotations
 
-import json
 import logging
 import os
 import shlex
@@ -26,22 +31,8 @@ from .workspaces import OwnedWorkspace
 
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
-# Sentinel returned instead of raising when Docker is unavailable or when
-# a requested selector is not found in the harness output.
-# ---------------------------------------------------------------------------
 SELECTED_TEST_UNAVAILABLE = "SELECTED_TEST_UNAVAILABLE"
-
 _DEFAULT_TIMEOUT = 300
-
-
-def _resolve_docker_command() -> str | None:
-    """Return the configured or auto-discovered Docker binary, or None."""
-    return os.getenv("PATCHFORGE_DOCKER_COMMAND") or shlex.split(
-        os.getenv("PATCHFORGE_DOCKER_COMMAND", "")
-    )[0] if os.getenv("PATCHFORGE_DOCKER_COMMAND") else (
-        os.getenv("PATCHFORGE_DOCKER_COMMAND") or __import__("shutil").which("docker")
-    )
 
 
 def _docker_binary() -> str | None:
@@ -73,29 +64,20 @@ class DockerSelectedTestExecutor:
     timeout_seconds: int | None = None
     extra_docker_args: list[str] = field(default_factory=list)
 
-    # ------------------------------------------------------------------
-    # SelectedTestExecutor protocol
-    # ------------------------------------------------------------------
-
     def run_selected(
         self,
         workspace: OwnedWorkspace,
         selectors: list[str],
         timeout_seconds: int,
     ) -> TestObservation:
-        """Execute *selectors* inside the Docker harness; return a TestObservation.
-
-        Returns a ``timed_out`` or ``exit_code=-1`` observation (never raises)
-        when Docker is unavailable, the image is unknown, or the process
-        fails in a non-test way. The output field always contains the
-        evidence needed by AssertionFailureExtractor.
-        """
+        """Execute *selectors* inside the Docker harness; return a TestObservation."""
         if not selectors:
             return TestObservation(
                 phase="F2P",
                 selectors=(),
                 output=SELECTED_TEST_UNAVAILABLE + ": no selectors supplied",
                 exit_code=-1,
+                failure_kind="SETUP_FAILURE",
             )
 
         docker_bin = _docker_binary()
@@ -109,6 +91,7 @@ class DockerSelectedTestExecutor:
                 selectors=tuple(selectors),
                 output=SELECTED_TEST_UNAVAILABLE + ": docker not found on PATH or PATCHFORGE_DOCKER_COMMAND",
                 exit_code=-1,
+                failure_kind="EXECUTOR_FAILURE",
             )
 
         image = self.image_tag or os.getenv("PATCHFORGE_DOCKER_IMAGE", "").strip()
@@ -116,9 +99,9 @@ class DockerSelectedTestExecutor:
             return TestObservation(
                 phase="F2P",
                 selectors=tuple(selectors),
-                output=SELECTED_TEST_UNAVAILABLE
-                + ": no Docker image configured (set PATCHFORGE_DOCKER_IMAGE)",
+                output=SELECTED_TEST_UNAVAILABLE + ": no Docker image configured (set PATCHFORGE_DOCKER_IMAGE)",
                 exit_code=-1,
+                failure_kind="SETUP_FAILURE",
             )
 
         effective_timeout = (
@@ -127,12 +110,6 @@ class DockerSelectedTestExecutor:
             else int(os.getenv("SWEBENCH_HARNESS_TIMEOUT", str(_DEFAULT_TIMEOUT)))
         )
 
-        # Build the docker run command:
-        #   docker run --rm
-        #     -v <workspace_root>:/testbed:ro
-        #     [extra_docker_args]
-        #     <image>
-        #     python -m pytest <selectors> -q --tb=short
         workspace_root = str(workspace.root)
         cmd: list[str] = [
             docker_bin,
@@ -168,6 +145,7 @@ class DockerSelectedTestExecutor:
                 selectors=tuple(selectors),
                 output=output,
                 timed_out=True,
+                failure_kind="TIMEOUT",
             )
         except OSError as exc:
             return TestObservation(
@@ -175,18 +153,24 @@ class DockerSelectedTestExecutor:
                 selectors=tuple(selectors),
                 output=f"OSError launching Docker: {exc}",
                 exit_code=-1,
+                failure_kind="EXECUTOR_FAILURE",
             )
 
         output = (proc.stdout + "\n" + proc.stderr)[-4000:].strip()
         passed, failed = _parse_pytest_outcomes(output, selectors)
 
-        # Validate: if none of the requested selectors appear in any outcome,
-        # the harness likely could not collect them.
         all_known = set(passed) | set(failed)
         missing = [s for s in selectors if not any(s in k for k in all_known)]
+
+        # Classify failure kind
+        if proc.returncode == 0:
+            failure_kind = None
+        elif proc.returncode == 1:
+            failure_kind = "TEST_FAILURE"
+        else:
+            failure_kind = "SETUP_FAILURE"
+
         if missing and proc.returncode not in (0, 1):
-            # Non-zero exit that is NOT a test failure exit code — treat as
-            # SELECTED_TEST_UNAVAILABLE so the caller can log and continue.
             unavail_msg = (
                 SELECTED_TEST_UNAVAILABLE
                 + f": selectors {missing!r} not collected; exit={proc.returncode}; "
@@ -197,6 +181,7 @@ class DockerSelectedTestExecutor:
                 selectors=tuple(selectors),
                 output=unavail_msg,
                 exit_code=proc.returncode,
+                failure_kind="SETUP_FAILURE",
             )
 
         return TestObservation(
@@ -206,20 +191,14 @@ class DockerSelectedTestExecutor:
             failed=tuple(failed),
             output=output,
             exit_code=proc.returncode,
+            failure_kind=failure_kind,
         )
 
-
-# ---------------------------------------------------------------------------
-# Internal helpers
-# ---------------------------------------------------------------------------
 
 def _parse_pytest_outcomes(
     output: str, selectors: list[str]
 ) -> tuple[list[str], list[str]]:
-    """Parse pytest -q output into (passed, failed) test-id lists.
-
-    Falls back to selector-level pass/fail based on exit code heuristics.
-    """
+    """Parse pytest -q output into (passed, failed) test-id lists."""
     passed: list[str] = []
     failed: list[str] = []
     for line in output.splitlines():
@@ -228,5 +207,7 @@ def _parse_pytest_outcomes(
             passed.append(line[7:].strip())
         elif line.startswith("FAILED ") or line.startswith("ERROR "):
             prefix_len = 7 if line.startswith("FAILED ") else 6
-            failed.append(line[prefix_len:].strip())
+            entry = line[prefix_len:].strip()
+            test_id = entry.split(" - ")[0].strip()
+            failed.append(test_id)
     return passed, failed

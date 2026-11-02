@@ -5,7 +5,7 @@ observations first-class artifacts.  It intentionally does not replace V1
 until a controlled repair pilot validates the new path.
 """
 
-from .candidates import Candidate, CandidateLedger, CandidateStatus, TestObservation
+from .candidates import Candidate, CandidateLedger, CandidateStatus, TestObservation, compute_candidate_score
 from .agent_runner import V2AgentRunner, V2AgentRunResult
 from .docker_executor import DockerSelectedTestExecutor, SELECTED_TEST_UNAVAILABLE
 from .execution import CandidateWorkspaceService
@@ -34,4 +34,5 @@ __all__ = [
     "WorkspaceManager",
     "WorkspaceViolation",
     "accepts_residual_candidate",
+    "compute_candidate_score",
 ]

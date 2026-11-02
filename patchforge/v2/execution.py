@@ -44,6 +44,8 @@ class CandidateWorkspaceService:
         patch_text: str,
         changed_contents: dict[str, str],
         rationale: str,
+        hypothesis_id: str = "",
+        model_metadata: dict[str, Any] | None = None,
         parent_candidate_id: str | None = None,
     ) -> Candidate:
         workspace = self.manager.create(
@@ -62,6 +64,8 @@ class CandidateWorkspaceService:
             patch_text=patch_text,
             changed_files=list(changed_contents),
             rationale=rationale,
+            hypothesis_id=hypothesis_id,
+            model_metadata=model_metadata,
             parent_candidate_id=parent_candidate_id,
         )
         self.ledger.add(candidate)
@@ -83,6 +87,8 @@ class CandidateWorkspaceService:
         patch_text: str,
         changed_files: list[str],
         rationale: str,
+        hypothesis_id: str = "",
+        model_metadata: dict[str, Any] | None = None,
         parent_candidate_id: str | None = None,
     ) -> Candidate:
         """Record an already-mutated owned workspace (for tool-using agents).
@@ -100,6 +106,8 @@ class CandidateWorkspaceService:
             patch_text=patch_text,
             changed_files=changed_files,
             rationale=rationale,
+            hypothesis_id=hypothesis_id,
+            model_metadata=model_metadata,
             parent_candidate_id=parent_candidate_id,
         )
         self.ledger.add(candidate)

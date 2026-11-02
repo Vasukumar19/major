@@ -11,12 +11,9 @@ Usage
 Prerequisites
 -------------
 - PATCHFORGE_OLLAMA_URL must be set (e.g. http://localhost:11434).
-- PATCHFORGE_DOCKER_IMAGE must be set if selected-test execution is desired.
+- PATCHFORGE_DOCKER_IMAGE can be set to override the evaluation image.
 - Ollama must be serving the requested model.
-- Docker must be running if you want the container-backed test step.
-
-The script aborts with a clear message if required services are unavailable
-rather than silently manufacturing results.
+- Docker must be running for container-backed testing.
 """
 from __future__ import annotations
 
@@ -30,8 +27,11 @@ from pathlib import Path
 # Allow running from the repo root without installation
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from patchforge.core.config import PatchForgeConfig
+from patchforge.integrations.swebench import SWEBenchAdapter
 from patchforge.runtime import RuntimeEnvironment
 from patchforge.v2.runner import V2RepairRunner, V2RunnerConfig
+from patchforge.verification.tester import Tester
 
 logging.basicConfig(
     level=logging.INFO,
@@ -42,76 +42,42 @@ logger = logging.getLogger("pilot")
 
 
 def _load_problem(instance_id: str) -> object:
-    """Attempt to load the frozen SWE-bench task as a Problem object.
+    """Load the SWE-bench task via SWEBenchAdapter or fallback files."""
+    try:
+        cfg = PatchForgeConfig()
+        adapter = SWEBenchAdapter(cfg)
+        return adapter.load_problem(instance_id)
+    except Exception as exc:
+        logger.info("SWEBenchAdapter lookup (%s) — falling back to local files", exc)
 
-    Falls back to a minimal stub when the benchmark dataset is not
-    accessible — the V2 runner and V1 pipeline still execute, they just
-    won't have the issue text.
-    """
-    # Try the frozen dataset shipped with the project
+    # Fallback to local json files
     dataset_paths = [
-        Path(__file__).resolve().parents[1] / "data" / "swebench_tasks.json",
-        Path(__file__).resolve().parents[1] / "data" / "swebench_20_tasks.json",
-        Path(__file__).resolve().parents[1] / "data" / "frozen_tasks.json",
+        Path("results/episodes") / f"{instance_id}.json",
+        Path("results/v19_orchestrator") / f"{instance_id}.json",
+        Path("data/swebench_tasks.json"),
     ]
     for dpath in dataset_paths:
         if dpath.is_file():
             try:
                 with dpath.open(encoding="utf-8") as fh:
-                    tasks = json.load(fh)
-                if isinstance(tasks, list):
-                    task_map = {t.get("instance_id", t.get("id", "")): t for t in tasks}
-                elif isinstance(tasks, dict):
-                    task_map = tasks
-                else:
-                    continue
-                if instance_id in task_map:
-                    task = task_map[instance_id]
-                    return _task_to_problem(task)
-            except (OSError, json.JSONDecodeError, KeyError):
+                    task = json.load(fh)
+                if isinstance(task, dict) and task.get("instance_id") == instance_id:
+                    from patchforge.issue.problem import Problem
+                    return Problem(
+                        instance_id=instance_id,
+                        description=task.get("problem_statement", task.get("issue_text", "")),
+                        repo=task.get("repo", ""),
+                        base_commit=task.get("base_commit", ""),
+                        hints=task.get("hints_text", ""),
+                        fail_to_pass=task.get("FAIL_TO_PASS", task.get("fail_to_pass", [])),
+                        pass_to_pass=task.get("PASS_TO_PASS", task.get("pass_to_pass", [])),
+                    )
+            except Exception:
                 continue
 
-    logger.warning(
-        "No frozen dataset found for %s — using minimal stub Problem. "
-        "Place the SWE-bench task JSON in data/swebench_tasks.json for full execution.",
-        instance_id,
-    )
-    return _stub_problem(instance_id)
-
-
-def _task_to_problem(task: dict) -> object:
-    """Convert a SWE-bench task dict into a Problem object."""
-    try:
-        from patchforge.issue.problem import Problem
-        return Problem(
-            instance_id=task.get("instance_id", ""),
-            description=task.get("problem_statement", task.get("issue_text", "")),
-            repo=task.get("repo", ""),
-            base_commit=task.get("base_commit", ""),
-            hints=task.get("hints_text", ""),
-            fail_to_pass=task.get("FAIL_TO_PASS", []),
-            pass_to_pass=task.get("PASS_TO_PASS", []),
-        )
-    except (ImportError, TypeError):
-        return _stub_problem(task.get("instance_id", ""))
-
-
-def _stub_problem(instance_id: str) -> object:
-    """Minimal Problem stub when the real one cannot be constructed."""
-    try:
-        from patchforge.issue.problem import Problem
-        return Problem(instance_id=instance_id, description="", repo="", base_commit="")
-    except (ImportError, TypeError):
-        # Return a plain namespace as a last resort
-        import types
-        p = types.SimpleNamespace()
-        p.instance_id = instance_id
-        p.description = ""
-        p.repo = ""
-        p.base_commit = ""
-        p.fail_to_pass = []
-        p.pass_to_pass = []
-        return p
+    logger.warning("No local problem record found for %s — creating stub", instance_id)
+    from patchforge.issue.problem import Problem
+    return Problem(instance_id=instance_id, description="", repo="", base_commit="")
 
 
 def _check_and_abort_if_not_ready(env: RuntimeEnvironment) -> None:
@@ -129,9 +95,42 @@ def _check_and_abort_if_not_ready(env: RuntimeEnvironment) -> None:
         sys.exit(1)
     if not docker.ready:
         print(
-            "\nWARNING: Docker is not ready — the selected-test step will be skipped. "
-            "Set PATCHFORGE_DOCKER_COMMAND or PATCHFORGE_DOCKER_IMAGE for container execution."
+            "\nWARNING: Docker is not ready — selected-test and official verification will be skipped."
         )
+
+
+def _resolve_repo_dir(problem: Any, cli_repo_dir: str | None) -> Path:
+    """Resolve checkout directory for the problem."""
+    if cli_repo_dir:
+        p = Path(cli_repo_dir).resolve()
+        if p.is_dir():
+            return p
+
+    # Check known local repos
+    repo_name = getattr(problem, "repo", "").replace("/", "__")
+    candidate_paths = [
+        Path("experiments/phase_d_v03/repos") / repo_name,
+        Path("repos") / repo_name,
+    ]
+    for cp in candidate_paths:
+        if (cp / ".git").is_dir() or cp.is_dir():
+            # If base commit is specified and repo is a git checkout, ensure checkout at base_commit
+            base_commit = getattr(problem, "base_commit", "")
+            if base_commit and (cp / ".git").is_dir():
+                import subprocess
+                try:
+                    subprocess.run(
+                        ["git", "checkout", "-f", base_commit],
+                        cwd=str(cp),
+                        capture_output=True,
+                        check=True,
+                    )
+                    logger.info("Checked out %s at base commit %s", cp, base_commit[:8])
+                except Exception as exc:
+                    logger.warning("Could not checkout base commit %s: %s", base_commit, exc)
+            return cp.resolve()
+
+    return Path.cwd().resolve()
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -153,8 +152,7 @@ def main(argv: list[str] | None = None) -> int:
         "--repo-dir",
         default=None,
         metavar="PATH",
-        help="Path to a clean repo checkout at the base commit. "
-        "If omitted, the runner uses the current working directory.",
+        help="Path to a clean repo checkout at the base commit.",
     )
     parser.add_argument(
         "--results-dir",
@@ -166,7 +164,7 @@ def main(argv: list[str] | None = None) -> int:
         nargs="*",
         default=None,
         metavar="SELECTOR",
-        help="Pytest-style test selectors for the selected-test step.",
+        help="Pytest-style test selectors for targeted residual execution.",
     )
     parser.add_argument(
         "--max-refinements",
@@ -180,44 +178,52 @@ def main(argv: list[str] | None = None) -> int:
     print(f"PatchForge V2 Pilot — {args.instance}")
     print("=" * 60)
 
-    # ---- Runtime check --------------------------------------------------------
+    # Runtime probe
     env = RuntimeEnvironment.from_environment()
     _check_and_abort_if_not_ready(env)
 
-    # ---- Build config ---------------------------------------------------------
+    # Load problem
+    print(f"\nLoading task: {args.instance}")
+    problem = _load_problem(args.instance)
+    repo_dir = _resolve_repo_dir(problem, args.repo_dir)
+    print(f"  Repository : {getattr(problem, 'repo', 'unknown')}")
+    print(f"  Base Commit: {getattr(problem, 'base_commit', 'unknown')}")
+    print(f"  Repo dir   : {repo_dir}")
+
+    # Build config & runner
     cfg = V2RunnerConfig.from_environment(
         model=args.model,
         max_refinement_cycles=args.max_refinements,
         results_dir=args.results_dir,
     )
 
-    # ---- Load problem ---------------------------------------------------------
-    print(f"\nLoading task: {args.instance}")
-    problem = _load_problem(args.instance)
-    print(f"  Description: {str(getattr(problem, 'description', ''))[:120] or '(none)'}")
+    tester = None
+    if env.probe_docker().ready:
+        try:
+            app_cfg = PatchForgeConfig(default_model=args.model)
+            swebench_adapter = SWEBenchAdapter(app_cfg)
+            tester = Tester(app_cfg, swebench_adapter, model_name=args.model)
+        except Exception as exc:
+            logger.warning("Could not initialize Tester for official evaluation: %s", exc)
 
-    # ---- Determine repo dir --------------------------------------------------
-    repo_dir = Path(args.repo_dir).resolve() if args.repo_dir else Path.cwd()
-    if not repo_dir.is_dir():
-        print(f"ABORT: --repo-dir does not exist: {repo_dir}", file=sys.stderr)
-        return 1
-    print(f"  Repo dir   : {repo_dir}")
+    runner = V2RepairRunner(config=cfg, tester=tester)
 
-    # ---- Run -----------------------------------------------------------------
     print("\nStarting V2 repair runner …\n")
-    runner = V2RepairRunner(cfg)
     report = runner.run_task(
         args.instance,
         repo_dir,
         problem=problem,
         test_selectors=args.selectors,
         results_dir=args.results_dir,
+        tester=tester,
     )
 
-    # ---- Print factual summary -----------------------------------------------
     print("\n" + "=" * 60)
     print(report.summary())
     print("=" * 60)
+    trace_path = Path(args.results_dir) / f"{report.instance_id}_trace.md"
+    if trace_path.exists():
+        print(f"\nRepair trace written to: {trace_path}")
 
     return 0 if report.resolved else 1
 

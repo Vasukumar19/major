@@ -152,7 +152,7 @@ class TestParsePytestOutcomes:
         output = "PASSED tests/x.py::test_one\nFAILED tests/x.py::test_two - assert 0\n"
         passed, failed = _parse_pytest_outcomes(output, ["tests/x.py::test_one"])
         assert passed == ["tests/x.py::test_one"]
-        assert failed == ["tests/x.py::test_two - assert 0"]
+        assert failed == ["tests/x.py::test_two"]
 
     def test_error_lines_captured(self):
         output = "ERROR tests/x.py::test_import\n"
