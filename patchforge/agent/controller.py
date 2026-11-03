@@ -327,7 +327,7 @@ class AgentController:
                 candidates = [
                     str(p.relative_to(repo_p)).replace("\\", "/")
                     for p in repo_p.glob(f"**/{fname}")
-                    if p.is_file() and not any(part.startswith(".") or part in ("tests", "docs", "experiments", "repos", "third_party", "venv", "build", "dist", "tmp") for part in p.parts)
+                    if p.is_file() and not any(part.startswith(".") or part in ("tests", "docs", "experiments", "repos", "results", "third_party", "venv", "build", "dist", "tmp") for part in p.parts)
                 ]
                 target_parts = Path(target_f).parts
                 matching_candidates = [c for c in candidates if all(part in Path(c).parts for part in target_parts)]

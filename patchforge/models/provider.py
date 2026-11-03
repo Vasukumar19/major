@@ -241,6 +241,7 @@ class OllamaProvider(ModelProvider):
             "max_tokens": max_tokens,
             "temperature": temperature,
             "stream": False,
+            "options": {"num_ctx": int(os.getenv("PATCHFORGE_NUM_CTX", "8192"))},
         }
         start = time.time()
         data = self._transport(payload)

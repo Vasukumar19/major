@@ -199,9 +199,21 @@ class V2RepairRunner:
         executor: SelectedTestExecutor | None = self.selected_test_executor
         if not executor and docker_probe.ready:
             image = cfg.docker_image or f"swebench/sweb.eval.x86_64.{instance_id.replace('__', '_1776_')}:latest"
+            test_patch = ""
+            if active_tester and hasattr(active_tester, "swebench"):
+                test_patch = getattr(active_tester.swebench, "get_test_patch", lambda x: "")(instance_id)
+            if not test_patch:
+                try:
+                    from patchforge.integrations.swebench import SWEBenchAdapter
+                    from patchforge.core.config import PatchForgeConfig
+                    adapter = SWEBenchAdapter(PatchForgeConfig())
+                    test_patch = adapter.get_test_patch(instance_id)
+                except Exception:
+                    pass
             executor = DockerSelectedTestExecutor(
                 image_tag=image,
                 timeout_seconds=cfg.harness_timeout_seconds,
+                test_patch=test_patch,
             )
             report.docker_image = image
 
@@ -254,10 +266,12 @@ class V2RepairRunner:
                 test_index=test_index,
                 temporal_graph=temporal_graph,
             )
+            ps_query = getattr(problem, "problem_statement", "") or ""
+            tb_candidate = ps_query if any(m in ps_query for m in ('File "', "Traceback", ", in ")) else None
             retrieved_cands = retriever.retrieve(
-                query=getattr(problem, "problem_statement", "") or "",
+                query=ps_query,
                 hints_text=getattr(problem, "hints_text", "") or "",
-                traceback_text=None,
+                traceback_text=tb_candidate,
                 top_k=8,
             )
 
@@ -382,6 +396,7 @@ class V2RepairRunner:
                 candidates=all_candidates,
                 problem=problem,
                 diagnosis=diagnosis,
+                test_traceback=tb_candidate,
                 candidate_profiles=cand_profiles_dict,
             )
             selected_site = ranked_sites[0] if ranked_sites else stage1_candidates[0]
@@ -407,7 +422,9 @@ class V2RepairRunner:
         last_prior_patch_code = ""
         last_error_feedback = ""
         last_residual_record: ResidualFailureRecord | None = None
+        last_decision: Any = None
 
+        use_replacement_only = False
         while attempt < max_attempts:
             attempt += 1
             logger.info("Starting V2 repair attempt %d / %d for %s", attempt, max_attempts, instance_id)
@@ -435,8 +452,20 @@ class V2RepairRunner:
                 diagnosis=diagnosis,
             )
 
-            # Build repair prompt
-            if attempt == 1:
+            # Build repair prompt across primary (Tier 1) and replacement-only fallback (Tier 3)
+            if last_decision and getattr(last_decision, "action", None) == ReplanAction.FALLBACK_SYNTAX:
+                use_replacement_only = True
+
+            if use_replacement_only:
+                prompt_to_use = StructuredRepairPromptBuilder.build_replacement_only_prompt(
+                    unit=unit,
+                    error_feedback=last_error_feedback,
+                    problem_statement=getattr(problem, "problem_statement", "") or "",
+                    diagnosis_summary=getattr(diagnosis.selected_hypothesis, "cause", "") if diagnosis else "",
+                    prior_patch_code=last_prior_patch_code,
+                    residual_guidance=last_residual_guidance,
+                )
+            elif attempt == 1:
                 prompt_to_use = StructuredRepairPromptBuilder.build_repair_prompt(
                     unit=unit,
                     problem=problem,
@@ -479,6 +508,7 @@ class V2RepairRunner:
                     error_message=err_msg,
                     residual_record=last_residual_record,
                 )
+                last_decision = decision
                 report.replanning_decisions.append(asdict(decision))
                 if decision.action == ReplanAction.ABORT:
                     break
@@ -604,6 +634,7 @@ class V2RepairRunner:
                     )
                     last_residual_record = res_rec
                     last_residual_guidance = res_rec.format_corrective_guidance()
+                    last_error_feedback = obs.output[-800:] if obs.failed else ""
 
                     # Acceptance policy: F2P progress and clean P2P
                     if accepts_residual_candidate(obs):

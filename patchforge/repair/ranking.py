@@ -8,6 +8,7 @@ NO task-specific rules; purely evidence-driven.
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 import re
 from typing import Any, Dict, List, Optional, Set
 
@@ -72,6 +73,37 @@ class RepairSiteRanker:
 
         seen_keys: Set[str] = set()
 
+        # Parse structured traceback frames if present
+        tb_frames: List[Tuple[str, int, str]] = []
+        if traceback_text:
+            raw_frames = re.findall(
+                r'File\s+"([^"]+)",\s+line\s+(\d+)(?:,\s+in\s+([a-zA-Z0-9_]+))?',
+                traceback_text,
+                re.IGNORECASE,
+            )
+            for f, l, s in raw_frames:
+                try:
+                    tb_frames.append((f.replace("\\", "/").lower(), int(l), (s or "").lower()))
+                except ValueError:
+                    pass
+
+        # Identify innermost repository stack frame across candidates
+        candidate_files = {
+            (getattr(c, "file_path", None) or (c.get("file_path") if isinstance(c, dict) else "")).replace("\\", "/").split("/")[-1].lower()
+            for c in candidates
+        } - {""}
+        deepest_repo_idx = -1
+        if tb_frames:
+            for idx, (f_path, f_line, f_sym) in enumerate(tb_frames):
+                p_parts = Path(f_path).parts
+                if any(p in p_parts for p in ("packages", "vendor", "third_party")):
+                    continue
+                file_name = p_parts[-1] if p_parts else ""
+                if file_name.startswith("test_") or file_name.endswith("_test.py"):
+                    continue
+                if candidate_files and file_name in candidate_files:
+                    deepest_repo_idx = idx
+
         for cand in candidates:
             # Extract basic attributes depending on candidate type
             if isinstance(cand, EditSite):
@@ -119,6 +151,31 @@ class RepairSiteRanker:
                 score += 20.0
                 in_traceback = True
                 reasons.append(f"File '{clean_file}' appears in failing test traceback (+20)")
+
+            # Frame line coverage & depth bonus (prefer innermost frames closer to failure)
+            if tb_frames and clean_file:
+                matching_depth = -1
+                matched_line = -1
+                total_frames = len(tb_frames)
+                for idx, (f_path, f_line, f_sym) in enumerate(tb_frames):
+                    if clean_file in f_path:
+                        if line_start <= f_line <= line_end:
+                            matching_depth = idx
+                            matched_line = f_line
+                if matching_depth != -1:
+                    score += 30.0
+                    depth_ratio = (matching_depth + 1) / total_frames
+                    depth_bonus = round(depth_ratio * 30.0, 1)
+                    score += depth_bonus
+                    in_traceback = True
+                    reasons.append(
+                        f"Covers traceback line {matched_line} at stack frame depth {matching_depth + 1}/{total_frames} (+{30 + depth_bonus:.1f})"
+                    )
+                    if deepest_repo_idx != -1 and matching_depth == deepest_repo_idx:
+                        score += 30.0
+                        reasons.append(
+                            f"Innermost repository stack frame line {matched_line} (depth {matching_depth + 1}/{total_frames}) (+30)"
+                        )
 
             # 2. Diagnosis Evidence & Coherent Target Alignment
             is_direct_diagnosis_site = False
@@ -274,6 +331,11 @@ class RepairSiteRanker:
                     if d_tests:
                         score += 15.0
                         reasons.append(f"Direct tests available: {len(d_tests)} test(s) (+15)")
+
+            # Vendored / third-party code penalty (-100)
+            if any(part in ("packages", "vendor", "third_party") for part in Path(file_path).parts):
+                score -= 100.0
+                reasons.append("Vendored / third-party code discouraged (-100)")
 
             ranked.append(
                 RankedRepairSite(

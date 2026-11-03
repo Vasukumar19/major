@@ -63,6 +63,7 @@ class DockerSelectedTestExecutor:
     image_tag: str = field(default="")
     timeout_seconds: int | None = None
     extra_docker_args: list[str] = field(default_factory=list)
+    test_patch: str = field(default="")
 
     def run_selected(
         self,
@@ -111,20 +112,39 @@ class DockerSelectedTestExecutor:
         )
 
         workspace_root = str(workspace.root)
+        temp_patch_file = None
+        patch_mount_args: list[str] = []
+        if self.test_patch:
+            import tempfile
+            clean_patch = self.test_patch.replace("\r\n", "\n").replace("\r", "\n")
+            with tempfile.NamedTemporaryFile("w", delete=False, suffix=".diff", newline="\n") as fh:
+                fh.write(clean_patch)
+                temp_patch_file = fh.name
+            patch_mount_args = ["-v", f"{Path(temp_patch_file).resolve()}:/tmp/test_patch.diff:ro"]
+
+        container_script = (
+            'cp -a /testbed /tmp/testbed && cd /tmp/testbed && '
+            '(sed -i "s/\\r$//" test_*.py tests/*.py 2>/dev/null || true) && '
+            '([ -f /tmp/test_patch.diff ] && git apply --whitespace=nowarn /tmp/test_patch.diff || true) && '
+            'PATH=/opt/miniconda3/envs/testbed/bin:$PATH pytest -o cache_dir=/tmp/.pytest_cache "$@"'
+        )
+
         cmd: list[str] = [
             docker_bin,
             "run",
             "--rm",
             "-v",
             f"{workspace_root}:/testbed:ro",
+            *patch_mount_args,
             *self.extra_docker_args,
             image,
             "sh",
             "-c",
-            'PATH=/opt/miniconda3/envs/testbed/bin:$PATH pytest "$@"',
+            container_script,
             "pytest_runner",
             *selectors,
             "-q",
+            "-rA",
             "--tb=short",
         ]
 
@@ -156,6 +176,12 @@ class DockerSelectedTestExecutor:
                 exit_code=-1,
                 failure_kind="EXECUTOR_FAILURE",
             )
+        finally:
+            if temp_patch_file and os.path.exists(temp_patch_file):
+                try:
+                    os.unlink(temp_patch_file)
+                except OSError:
+                    pass
 
         output = (proc.stdout + "\n" + proc.stderr)[-4000:].strip()
         passed, failed = _parse_pytest_outcomes(output, selectors)

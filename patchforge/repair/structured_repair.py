@@ -241,6 +241,7 @@ Do NOT output commentary, diff markers, or explanations.
         problem_statement: str = "",
         diagnosis_summary: str = "",
         prior_patch_code: str = "",
+        residual_guidance: str = "",
     ) -> str:
         """Constructs a Tier 3 replacement-only prompt while preserving necessary context."""
         feedback_sec = f"\n[PREVIOUS ATTEMPT ERROR]: {error_feedback}\n" if error_feedback else ""
@@ -257,8 +258,9 @@ Do NOT output commentary, diff markers, or explanations.
             f"\n[PRIOR PARTIAL REPLACEMENT]:\n```python\n{prior_patch_code}\n```\n"
             if prior_patch_code else ""
         )
+        residual_sec = f"\n[RESIDUAL TEST GUIDANCE]:\n{residual_guidance}\n" if residual_guidance else ""
 
-        return f"""{feedback_sec}{problem_sec}{diag_sec}{prior_sec}
+        return f"""{feedback_sec}{problem_sec}{diag_sec}{prior_sec}{residual_sec}
 Return ONLY the modified replacement Python code for the target code unit below.
 Target ID: {unit.id}
 Type: {unit.unit_type.value}

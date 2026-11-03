@@ -83,15 +83,14 @@ class SourceReconstructor:
         new_code = SourceReconstructor._auto_heal_missing_imports(original_code, new_code, record_healed=healed_imports)
 
         # Build deterministic unified diff
-        orig_split = original_code.splitlines(keepends=True)
-        new_split = new_code.splitlines(keepends=True)
+        orig_split = original_code.replace("\r\n", "\n").splitlines(keepends=True)
+        new_split = new_code.replace("\r\n", "\n").splitlines(keepends=True)
 
         diff = difflib.unified_diff(
             orig_split,
             new_split,
             fromfile=f"a/{rel_path}",
             tofile=f"b/{rel_path}",
-            lineterm="",
         )
         patch_text = "".join(diff)
         if patch_text and not patch_text.endswith("\n"):
@@ -164,14 +163,13 @@ class SourceReconstructor:
                     symbols_changed.append(unit.symbol)
 
             # Build full file unified diff
-            orig_split = sources[rel_path].splitlines(keepends=True)
-            new_split = curr_source.splitlines(keepends=True)
+            orig_split = sources[rel_path].replace("\r\n", "\n").splitlines(keepends=True)
+            new_split = curr_source.replace("\r\n", "\n").splitlines(keepends=True)
             diff = difflib.unified_diff(
                 orig_split,
                 new_split,
                 fromfile=f"a/{rel_path}",
                 tofile=f"b/{rel_path}",
-                lineterm="",
             )
             file_patch = "".join(diff)
             if file_patch.strip():
@@ -387,12 +385,19 @@ class SourceReconstructor:
         }
 
         needed_exception_imports = set()
+        common_exceptions = {
+            'ConnectionError', 'ChunkedEncodingError', 'ContentDecodingError',
+            'StreamConsumedError', 'HTTPError', 'RequestException', 'Timeout', 'TooManyRedirects'
+        }
         used_names = set()
         for node in ast.walk(mod_tree):
             if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
-                if node.id in builtin_names:
+                if node.id in common_exceptions and node.id not in mod_imp:
+                    if not SourceReconstructor._is_name_bound_in_scope(node.id, node, mod_tree):
+                        needed_exception_imports.add(node.id)
+                elif node.id in builtin_names:
                     continue
-                if not SourceReconstructor._is_name_bound_in_scope(node.id, node, mod_tree):
+                elif not SourceReconstructor._is_name_bound_in_scope(node.id, node, mod_tree):
                     used_names.add(node.id)
 
         exceptions_node = None
@@ -405,15 +410,6 @@ class SourceReconstructor:
                 if isinstance(node, ast.ImportFrom) and node.module and node.module.endswith('exceptions'):
                     exceptions_node = node
                     break
-
-        if exceptions_node:
-            common_exceptions = {
-                'ConnectionError', 'ChunkedEncodingError', 'ContentDecodingError',
-                'StreamConsumedError', 'HTTPError', 'RequestException', 'Timeout', 'TooManyRedirects'
-            }
-            for exc in common_exceptions:
-                if exc in used_names and exc not in mod_imp:
-                    needed_exception_imports.add(exc)
 
         # 3. Project-level compat utilities (e.g. to_native_string, builtin_str)
         # NEVER guess built-in names (str, bytes) as missing compat imports

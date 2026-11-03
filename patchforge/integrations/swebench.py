@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -72,6 +73,20 @@ class SWEBenchAdapter:
             return Problem.from_dataset_row(rows[instance_id])
         raise KeyError(f"Instance not found: {instance_id}")
 
+    def get_test_patch(self, instance_id: str) -> str:
+        cache_key = f"{self.config.dataset_name}:test"
+        if cache_key not in _DATASET_CACHE:
+            try:
+                from datasets import load_dataset
+                ds = load_dataset(self.config.dataset_name, split="test")
+                _DATASET_CACHE[cache_key] = {row["instance_id"]: dict(row) for row in ds}
+            except Exception:
+                return ""
+        rows = _DATASET_CACHE.get(cache_key, {})
+        if instance_id in rows:
+            return rows[instance_id].get("test_patch", "")
+        return ""
+
     def ensure_checkout(self, problem: Problem, repos_dir: str) -> str:
         """Clone (if needed) + checkout base_commit + verify clean. Returns repo dir."""
         dest = str((Path(repos_dir) / problem.repo.replace("/", "__")).resolve())
@@ -90,13 +105,18 @@ class SWEBenchAdapter:
         return dest
 
     def write_predictions(self, instance_id: str, patch_text: str, model_name: str, path: str) -> str:
+        safe_model_name = re.sub(r'[<>:"/\\|?*]', '_', model_name)
         preds = [{
             "instance_id": instance_id,
             "model_patch": patch_text,
-            "model_name_or_path": model_name,
+            "model_name_or_path": safe_model_name,
         }]
         Path(path).parent.mkdir(parents=True, exist_ok=True)
-        Path(path).write_text(json.dumps(preds), encoding="utf-8", newline="\n")
+        if path.endswith(".jsonl"):
+            lines = [json.dumps(p) for p in preds]
+            Path(path).write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+        else:
+            Path(path).write_text(json.dumps(preds, indent=2), encoding="utf-8", newline="\n")
         return path
 
     def evaluate(self, predictions_path: str, instance_id: str, run_id: str,

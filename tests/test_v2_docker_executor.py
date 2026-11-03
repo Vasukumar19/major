@@ -286,3 +286,51 @@ class TestV2RunnerConfig:
         monkeypatch.setenv("SWEBENCH_HARNESS_TIMEOUT", "not_a_number")
         cfg = V2RunnerConfig.from_environment()
         assert cfg.harness_timeout_seconds == 300
+
+
+# ---------------------------------------------------------------------------
+# Test Patch Mounting and Model Name Sanitization
+# ---------------------------------------------------------------------------
+
+class TestDockerExecutorTestPatch:
+    def _make_mock_proc(self, stdout: str, stderr: str = "", returncode: int = 0):
+        proc = MagicMock()
+        proc.stdout = stdout
+        proc.stderr = stderr
+        proc.returncode = returncode
+        return proc
+
+    def test_executor_with_test_patch_mounts_diff_and_cleans_up(self, tmp_path: Path, monkeypatch):
+        monkeypatch.setenv("PATCHFORGE_DOCKER_IMAGE", "swebench:latest")
+        monkeypatch.setenv("PATCHFORGE_DOCKER_COMMAND", "docker")
+        ws, service, _ = _make_workspace(tmp_path)
+        test_patch = "--- a/test_x.py\n+++ b/test_x.py\n@@ -1 +1 @@\n+def test_new(): pass\n"
+        ex = DockerSelectedTestExecutor(image_tag="swebench:latest", test_patch=test_patch)
+        output = "PASSED tests/test_x.py::test_new\n1 passed in 0.5s\n"
+        executed_cmd = []
+
+        def fake_run(cmd, **kwargs):
+            executed_cmd.extend(cmd)
+            return self._make_mock_proc(output)
+
+        with patch("subprocess.run", side_effect=fake_run):
+            obs = ex.run_selected(ws, ["tests/test_x.py::test_new"], timeout_seconds=30)
+        assert obs.exit_code == 0
+        assert "tests/test_x.py::test_new" in obs.passed
+        # Verify test_patch diff was mounted to /tmp/test_patch.diff:ro
+        assert any("/tmp/test_patch.diff:ro" in arg for arg in executed_cmd)
+        # Verify temporary diff file on host was cleaned up
+        mount_arg = [arg for arg in executed_cmd if "/tmp/test_patch.diff:ro" in arg][0]
+        host_path = mount_arg.split(":/tmp/test_patch.diff:ro")[0]
+        assert not Path(host_path).exists()
+
+
+class TestSWEBenchSanitization:
+    def test_write_predictions_sanitizes_model_colons(self, tmp_path: Path):
+        from patchforge.integrations.swebench import SWEBenchAdapter
+        adapter = SWEBenchAdapter()
+        pred_file = tmp_path / "preds.json"
+        adapter.write_predictions("test__task-1", "diff content", "qwen2.5-coder:14b", str(pred_file))
+        data = json.loads(pred_file.read_text(encoding="utf-8"))
+        assert data[0]["model_name_or_path"] == "qwen2.5-coder_14b"
+        assert ":" not in data[0]["model_name_or_path"]

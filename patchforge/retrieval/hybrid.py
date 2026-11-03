@@ -128,6 +128,10 @@ class HybridRepositoryRetriever:
         filter_file: Optional[str] = None,
     ) -> List[RetrievedCandidate]:
         """Performs multi-channel scoring and returns normalized, fused candidates."""
+        if not traceback_text and query:
+            if any(marker in query for marker in ('File "', "Traceback", ", in ")):
+                traceback_text = query
+
         query_tokens = self._tokenize(query)
         tb_tokens = self._tokenize(traceback_text or "")
         hints_tokens = self._tokenize(hints_text or "")
@@ -144,7 +148,7 @@ class HybridRepositoryRetriever:
                 continue
             if filter_file and node.file_path != filter_file:
                 continue
-            if any(part in ("tests", "testing", "test", "docs", ".git", "venv", ".venv", "build", "dist") for part in Path(node.file_path).parts):
+            if any(part in ("tests", "testing", "test", "docs", ".git", "venv", ".venv", "build", "dist", "packages", "vendor") for part in Path(node.file_path).parts):
                 continue
 
             doc_text = f"{node.name} {node.docstring or ''}"
